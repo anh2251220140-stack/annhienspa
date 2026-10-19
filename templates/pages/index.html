@@ -1,0 +1,305 @@
+{% load static %}
+<!doctype html>
+<html lang="vi" data-page="index.html">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Không gian chăm sóc và thư giãn tại Đà Nẵng.">
+    <title>
+      Trang chủ | An Nhiên Spa
+    </title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <script src="{% static 'js/ui.js' %}"></script>
+    {{ auth_ui|json_script:"spa-auth-context" }}
+    <script src="{% static 'js/auth.js' %}"></script>
+    <script src="{% static 'js/app.js' %}" defer>
+    </script>
+  {{ live_catalog|json_script:"live-catalog" }}
+{{ live_promotions|json_script:"live-promotions" }}
+<script src="{% static 'js/live-data.js' %}"></script>
+</head>
+  <body class="home-page">
+    <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
+    <header class="site-header">
+      <a class="brand" href="{% url 'core:index' as page_url %}{{ page_url|slice:'1:' }}" aria-label="An Nhiên Spa - Trang chủ">
+        <img class="brand-logo" src="{% static 'images/an-nhien-logo.png' %}" alt="An Nhiên Spa" width="420" height="420"/>
+      </img>
+    </a>
+    <button class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+      Menu
+      <span>
+        ☰
+      </span>
+    </button>
+    <nav class="navigation" aria-label="Menu chính">
+      <a href="{% url 'core:services' as page_url %}{{ page_url|slice:'1:' }}">Dịch vụ</a>
+      <a href="{% url 'core:promotions' as page_url %}{{ page_url|slice:'1:' }}">Khuyến mãi</a>
+      <a class="button header-book" href="{% url 'core:login' as page_url %}{{ page_url|slice:'1:' }}">Đặt lịch</a>
+    </nav>
+    <a class="login-link" data-login-link href="{% url 'core:login' as page_url %}{{ page_url|slice:'1:' }}">Đăng nhập</a>
+  </header>
+  <main>
+    <section class="hero image-section">
+      <img class="section-image" src="{% static 'images/hero.jpg' %}" alt="Liệu trình massage thư giãn trong không gian spa ấm áp" fetchPriority="high"/>
+    </img>
+    <div class="image-shade">
+    </div>
+    <div class="hero-content">
+      <span class="eyebrow">
+        AN NHIÊN SPA
+      </span>
+      <h1>
+      <span class="hero-line">Chạm vào sự thư giãn</span>
+      <em class="hero-line">Đánh thức vẻ đẹp tự nhiên</em>
+    </h1>
+    <p>
+      Không gian chăm sóc và thư giãn dành riêng cho bạn.
+    </p>
+  </div>
+</section>
+<section class="philosophy">
+  <span class="eyebrow">
+    TRIẾT LÝ AN NHIÊN
+  </span>
+  <h2>
+    Nơi mỗi khoảnh khắc
+    <br/>
+
+  <em>
+    đều dành cho bạn.
+  </em>
+</h2>
+<p>
+  Đôi khi, điều bạn cần chỉ là một khoảng lặng.
+  <br/>
+
+Lắng nghe cơ thể, để lòng bình yên và chậm lại giữa những nhịp sống.
+</p>
+<p>
+  Tại An Nhiên, chúng tôi chăm sóc không chỉ làn da,
+  <br/>
+
+mà cả những cảm xúc bên trong bạn.
+</p>
+</section>
+<section id="dich-vu" class="collection container">
+  <div class="section-heading">
+    <span class="eyebrow">
+      CHĂM SÓC BẰNG SỰ THẤU HIỂU
+    </span>
+    <h2>
+      Dịch vụ được yêu thích
+    </h2>
+    <p>
+      Những liệu trình nâng niu cơ thể, vỗ về tâm trí.
+    </p>
+  </div>
+  <div class="service-actions">
+    <a class="button all-services" href="{% url 'core:services' as page_url %}{{ page_url|slice:'1:' }}">
+      Xem tất cả dịch vụ
+    </a>
+  </div>
+  <div id="danh-sach-dich-vu" class="card-grid">{% for item in live_catalog.services|slice:":4" %}<article class="service-card"><img src="{{ item.image }}" alt="{{ item.name }}" loading="lazy"><div class="card-shade"></div><span class="card-number">{{ forloop.counter|stringformat:"02d" }}</span><div class="service-info"><span class="eyebrow">{{ item.category }}</span><h3>{{ item.name }}</h3><p class="service-meta">{{ item.price }} · {{ item.duration }}</p><a class="service-detail-link" href="{% url 'core:service-detail' %}?id={{ item.id }}">Xem chi tiết</a></div></article>{% empty %}<p class="journey-empty">Các liệu trình đang được cập nhật.</p>{% endfor %}</div>
+<p class="collection-note">
+  Mỗi liệu trình là một hành trình trở về với chính mình.
+</p>
+</section>
+<section id="san-pham" class="products-section">
+  <div class="container">
+    <div class="section-heading">
+      <span class="eyebrow">
+        TIẾP NỐI SỰ CHĂM SÓC
+      </span>
+      <h2>
+        Nâng niu làn da, mỗi ngày
+      </h2>
+      <p>
+        Sản phẩm chăm sóc được chọn lọc, dành cho những thói quen dịu dàng.
+      </p>
+    </div>
+    <div class="service-actions">
+      <a class="button all-services" href="{% url 'core:products' as page_url %}{{ page_url|slice:'1:' }}">
+        Xem tất cả sản phẩm
+      </a>
+    </div>
+    <div class="card-grid">{% for item in live_catalog.products|slice:":4" %}<article class="product-card"><div class="product-image"><img src="{{ item.image }}" alt="{{ item.name }}" loading="lazy"></div><div class="product-info"><span class="eyebrow">{{ item.category }}</span><h3>{{ item.name }}</h3><p>{{ item.description }}</p><a class="text-link" href="{% url 'core:product-detail' %}?id={{ item.id }}">Xem chi tiết</a></div></article>{% empty %}<p class="journey-empty">Sản phẩm chăm sóc đang được cập nhật.</p>{% endfor %}</div>
+</div>
+</section>
+<section class="experience image-section">
+  <img class="section-image" src="{% static 'images/candles.jpg' %}" alt="Nến thơm và khăn mềm trong không gian spa" loading="lazy"/>
+</img>
+<div class="image-shade">
+</div>
+<div class="container experience-content">
+  <div class="section-heading">
+    <span class="eyebrow">
+      VÌ BẠN XỨNG ĐÁNG
+    </span>
+    <h2>
+      Không chỉ là một buổi chăm sóc
+    </h2>
+    <p>
+      Mà là một trải nghiệm để cảm nhận, thư giãn và tái tạo.
+    </p>
+  </div>
+  <div class="card-grid">
+    <article class="glass-card">
+      <span class="feature-icon" aria-hidden="true">
+        ◇
+      </span>
+      <h3>
+        Không gian thư giãn
+      </h3>
+      <p>
+        Lắng nghe sự yên tĩnh trong một không gian ấm áp, riêng tư.
+      </p>
+    </article>
+    <article class="glass-card">
+      <span class="feature-icon" aria-hidden="true">
+        ✧
+      </span>
+      <h3>
+        Liệu trình đa dạng
+      </h3>
+      <p>
+        Chăm sóc theo nhu cầu riêng của cơ thể và làn da.
+      </p>
+    </article>
+    <article class="glass-card">
+      <span class="feature-icon" aria-hidden="true">
+        ♧
+      </span>
+      <h3>
+        Nhân viên tận tâm
+      </h3>
+      <p>
+        Chuyên viên phù hợp từng dịch vụ, đồng hành cùng bạn.
+      </p>
+    </article>
+    <article class="glass-card">
+      <span class="feature-icon" aria-hidden="true">
+        ▦
+      </span>
+      <h3>
+        Đặt lịch thuận tiện
+      </h3>
+      <p>
+        Chủ động chọn thời gian cho một khoảng nghỉ trọn vẹn.
+      </p>
+    </article>
+  </div>
+</div>
+</section>
+<section id="uu-dai" class="offers">
+  <div class="container">
+    <div class="section-heading">
+      <span class="eyebrow">
+        THÊM MỘT CHÚT YÊU THƯƠNG
+      </span>
+      <h2>
+        Ưu đãi dành cho bạn
+      </h2>
+      <p>
+        Những món quà nhỏ cho hành trình chăm sóc bản thân.
+      </p>
+    </div>
+    <div class="service-actions">
+      <a class="button all-services" href="{% url 'core:promotions' as page_url %}{{ page_url|slice:'1:' }}">Xem tất cả khuyến mãi</a>
+    </div>
+    <div class="offer-grid">{% for item in live_promotions.items|slice:":3" %}<article class="offer-card"><div class="offer-topline"><span class="eyebrow">{{ item.code }}</span><span class="offer-badge">{{ item.badge }}</span></div><div class="offer-ornament" aria-hidden="true">✧</div><h3>{{ item.name }}</h3><div class="discount">{{ item.discount }}</div><p>{{ item.description }}</p><div class="offer-bottom"><span>{{ item.startDate }} — {{ item.endDate }}</span><a class="button small" href="{% url 'core:promotion-detail' %}?code={{ item.code|urlencode }}">Xem chi tiết</a></div></article>{% empty %}<p class="journey-empty">Hiện chưa có chương trình khuyến mãi đang hiệu lực.</p>{% endfor %}</div>
+  </div>
+</section>
+<section class="closing image-section">
+  <img class="section-image" src="{% static 'images/facial.jpg' %}" alt="Dành thời gian để thư giãn và chăm sóc chính mình" loading="lazy"/>
+</img>
+<div class="image-shade">
+</div>
+<div class="closing-content">
+  <svg class="" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+    <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9">
+    </path>
+    <path d="m8 16 1-6m3 2 5 0">
+    </path>
+  </svg>
+  <h2>
+    Dành một khoảng thời gian
+    <br/>
+
+  <em>
+    cho chính bạn.
+  </em>
+</h2>
+<p>
+  Chọn liệu trình phù hợp và đặt lịch tại An Nhiên Spa.
+</p>
+<a class="button filled" href="{% url 'core:login' as page_url %}{{ page_url|slice:'1:' }}">
+  Đặt lịch ngay
+  <span>
+    ↗
+  </span>
+</a>
+</div>
+</section>
+</main>
+<footer>
+  <div class="container footer-main">
+    <div class="footer-brand">
+      <a class="brand" href="{% url 'core:index' as page_url %}{{ page_url|slice:'1:' }}" >
+        <img class="brand-logo" src="{% static 'images/an-nhien-logo.png' %}" alt="An Nhiên Spa" width="420" height="420"/>
+      </img>
+    </a>
+  </div>
+  <div>
+    <span class="eyebrow">
+      KHÁM PHÁ
+    </span>
+    <a href="#dich-vu">
+      Dịch vụ
+    </a>
+    <a href="#san-pham">
+      Sản phẩm chăm sóc
+    </a>
+    <a href="#uu-dai">
+      Khuyến mãi
+    </a>
+  </div>
+  <div>
+    <span class="eyebrow">
+      KẾT NỐI VỚI AN NHIÊN
+    </span>
+    <a href="tel:0901234567">
+      090 123 4567
+    </a>
+    <a href="mailto:hello@annhienspa.vn">
+      hello@annhienspa.vn
+    </a>
+    <p>
+      12 Dương Thưởng, Hòa Cường, Đà Nẵng
+    </p>
+  </div>
+  <div>
+    <span class="eyebrow">
+      GIỜ MỞ CỬA
+    </span>
+    <p>
+      Thứ Hai — Chủ Nhật
+    </p>
+    <p>
+      09:00 — 21:00
+    </p>
+  </div>
+</div>
+<div class="container footer-bottom">
+  <span>
+    © 2026 An Nhiên Spa. All rights reserved.
+  </span>
+  <span>
+    Chăm sóc từ sự chân thành.
+  </span>
+</div>
+</footer>
+<div class="toast" role="status" aria-live="polite" hidden>
+</div>
+</body>
+</html>

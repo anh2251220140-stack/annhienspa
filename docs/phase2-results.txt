@@ -1,0 +1,22 @@
+Giai đoạn 2 — kết quả thực tế 18/10/2026
+
+MySQL 8.4.11 tại 127.0.0.1:3306 kết nối thành công qua .env.
+Schema ban đầu: 0 bảng. Đã áp dụng toàn bộ migration, gồm 19 bảng nghiệp vụ theo SRS và bảng hệ thống Django. Có users, không có auth_user. Không seed dữ liệu vào database nghiệp vụ.
+
+Đã chạy đạt:
+- manage.py check --database default: 0 lỗi.
+- manage.py migrate --noinput: mọi migration OK.
+- manage.py makemigrations --check --dry-run: No changes detected.
+- manage.py migrate --check: không còn migration chưa áp dụng.
+- manage.py test accounts core --keepdb: 25/25 tests OK trên MySQL, 7.118 giây. Schema test riêng được giữ lại; không dùng database nghiệp vụ cho test.
+- Python compileall, dependency check và 27 template compile đạt ở lượt trước.
+- Bộ test render 27/27 trang bằng role phù hợp, kiểm tra tài nguyên, guest redirect, User không vào Admin, Admin không vào trang riêng User, CSRF, registration rollback, password hash, login email/username, inactive, logout/session và DB constraints.
+- Server thật chạy tại http://127.0.0.1:8000/. Live HTTP 27/27 kiểm tra Guest đạt (7 trang công khai/auth HTTP 200, 20 trang riêng HTTP 302 về login).
+- Trình duyệt thực mở trang login thành công; các luồng auth thành công được xác minh bằng Django test client trên MySQL, chưa thực hiện bằng tài khoản thật qua trình duyệt.
+- Source frontend gốc, static CSS/font/ảnh không đổi checksum.
+
+Còn lại:
+- Chưa tạo tài khoản Admin thật: chạy .\.venv\Scripts\python.exe manage.py createsuperuser tại máy để tự chọn mật khẩu.
+- Catalog/profile/đặt lịch/hóa đơn/payOS/review/AI vẫn là giao diện demo; chưa nối nghiệp vụ backend tương ứng.
+- Chưa kiểm thử end-to-end toàn bộ tương tác/breakpoint hay tải đồng thời nhiều request. Không tuyên bố đã hoàn thành các nghiệp vụ này.
+- Không còn lỗi ở các kiểm tra đã chạy.

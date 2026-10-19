@@ -1,0 +1,224 @@
+/* Promotion pages extend existing Home offer cards; nothing is loaded by Home. */
+.promotions-view { padding-bottom: 75px; }
+.promotion-hero {
+  padding: 65px 0 58px;
+  text-align: center;
+  background: radial-gradient(ellipse at top, #49302355, transparent 65%);
+}
+.promotion-hero .eyebrow { font-size: 11px; font-weight: 500; margin-bottom: 24px; }
+.promotion-hero h1 { font-size: clamp(38px, 4.2vw, 56px); line-height: 1.15; margin-bottom: 24px; }
+.promotion-hero p { font-size: 15px; line-height: 1.65; max-width: 58ch; margin-inline: auto; }
+.promotions-view .catalog-toolbar {
+  grid-template-columns: minmax(0, 1.9fr) minmax(180px, .95fr) auto;
+  padding: 14px 18px;
+  border-color: #c6a07e18;
+  background: #32201655;
+}
+.promotions-view .catalog-toolbar .filter-reset {
+  min-height: 32px;
+  padding: 7px 12px;
+  font-size: 10px;
+  border-color: transparent;
+  align-self: end;
+  margin-bottom: 5px;
+}
+.promotion-results { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 28px 0 22px; }
+.promotion-results p { font-size: 11px; }
+.promotion-results .eyebrow { font-size: 8px; }
+.promotions-view .offers { padding: 0; background: none; border: 0; }
+.promotions-view .offer-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; grid-auto-rows: 1fr; }
+.promotions-view .offer-card { padding: 30px 28px; }
+.promotions-view[data-promotions-page="list"] .offer-card { min-height: 490px; }
+.promotions-view[data-promotions-page="list"] .offer-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 28px;
+  right: 28px;
+  height: 2px;
+  border-radius: 20px;
+  background: var(--accent);
+  opacity: .55;
+}
+.promotions-view .offer-card h2 { font-size: 26px; line-height: 1.24; min-height: 2.5em; margin-bottom: 18px; letter-spacing: -.015em; }
+.promotions-view .offer-card p { font-size: 15px; line-height: 1.65; }
+.promotions-view .offer-topline .eyebrow { font-size: 11px; font-weight: 500; letter-spacing: .16em; }
+.promotions-view .offer-badge { font-size: 11px; line-height: 1.65; }
+.promotions-view .offer-card .button.small { font-size: 11px; line-height: 1.45; }
+.promotions-view .offer-ornament .line-icon { color: var(--offer-accent); }
+.promotions-view .offer-card .promotion-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  min-height: 3.3em;
+}
+.promotions-view .offer-card .discount { font-size: clamp(35px, 3.2vw, 46px); line-height: 1.1; margin-bottom: 28px; }
+.promotions-view .offer-card.promo-terracotta,
+.promotions-view .promotion-discount-panel.promo-terracotta { --offer-accent: #c97b63; }
+.promotions-view .offer-card.promo-champagne,
+.promotions-view .promotion-discount-panel.promo-champagne { --offer-accent: #b28a64; }
+.promotions-view .offer-card.promo-caramel,
+.promotions-view .promotion-discount-panel.promo-caramel { --offer-accent: #b8744a; }
+.promotions-view .offer-card .offer-bottom { gap: 18px; padding-top: 20px; }
+.promotion-validity { display: grid; gap: 8px; }
+.promotion-validity > span:first-child { font-size: 10px; color: #80634f; }
+.promotion-status-line { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; line-height: 1.6; color: #80634f; }
+.promotion-status-line::before { content: ""; width: 5px; height: 5px; flex-shrink: 0; border-radius: 50%; background: currentColor; opacity: .8; }
+.promotion-status-line.ending { color: #946345; }
+.promotion-status {
+  display: inline-flex; width: fit-content; padding: 6px 10px; font-size: 9px;
+  border: 1px solid #c6a07e60; border-radius: 20px; background: #c6a07e0c;
+  color: #80634f; letter-spacing: .2px;
+}
+.promotion-status.ending { background: #b8744a12; border-color: #b8744a55; color: #946345; }
+.promotion-empty { margin-top: 20px; }
+.promotion-detail { padding-top: 0; }
+.promotion-detail .breadcrumb { padding-block: 30px; }
+.promotion-detail-hero { display: grid; grid-template-columns: 1fr 1.25fr; gap: 65px; align-items: center; margin-bottom: 60px; }
+.promotion-discount-panel {
+  --offer-accent: #c97b63;
+  padding: 44px; background: var(--cream); color: #39271e;
+  border: 1px solid #c6a07e65; border-radius: 25px; min-height: 310px;
+}
+.promotion-discount-panel > .eyebrow { color: #795c48; font-size: 11px; }
+.promotion-discount-panel .line-icon { color: var(--offer-accent); margin: 36px 0 24px; width: 30px; height: 30px; }
+.promotion-discount-panel .discount { font-size: clamp(43px, 4vw, 57px); color: var(--offer-accent); line-height: 1.15; margin-bottom: 28px; }
+.promotion-summary h1 { font-size: clamp(36px, 4vw, 48px); line-height: 1.2; margin: 20px 0; }
+.promotion-summary > p { font-size: 14px; line-height: 1.8; }
+.promotion-period { display: grid; gap: 10px; margin: 25px 0; }
+.promotion-period dt { font-size: 9px; color: var(--accent); letter-spacing: 1.5px; text-transform: uppercase; }
+.promotion-period dd { margin: 0; font-size: 12px; color: var(--muted); }
+.promotion-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.promotion-actions .button { font-size: 11px; }
+.promotion-information { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 65px; }
+.promotion-information > section { padding: 32px; border: 1px solid #c6a07e30; border-radius: 20px; background: #32201670; }
+.promotion-information h2 { font-size: 27px; margin-bottom: 20px; }
+.promotion-information p, .promotion-information li { font-size: 12px; line-height: 1.8; color: var(--muted); }
+.promotion-information ul { padding-left: 18px; margin: 0; }
+.promotion-information li { padding-left: 5px; margin-bottom: 12px; }
+.promotion-information li::marker { color: var(--accent); }
+.promotion-note { margin-top: 22px; font-size: 10px !important; }
+.applicable-heading { margin-bottom: 28px; }
+.applicable-heading .eyebrow { margin-bottom: 15px; }
+.applicable-heading h2 { font-size: 36px; margin-bottom: 18px; }
+.applicable-heading p { max-width: 70ch; font-size: 12px; line-height: 1.8; }
+.promotion-detail .catalog-service { height: 365px; }
+.promotion-detail .catalog-service h3 { min-height: 0; font-size: 25px; }
+.promotion-detail .catalog-service .card-description { min-height: 0; font-size: 9px; }
+.promotion-state-notice { margin-top: 22px; font-size: 12px !important; color: var(--accent); }
+@media (max-width: 1000px) {
+  .promotion-detail-hero { gap: 35px; }
+  .promotion-discount-panel { padding: 32px; }
+}
+@media (min-width: 901px) and (max-width: 1150px) {
+  .promotions-view[data-promotions-page="list"] .offer-card { min-height: 550px; }
+  .promotions-view[data-promotions-page="list"] .offer-card .discount { margin-block: 18px 46px; }
+}
+@media (max-width: 900px) {
+  .promotions-view .offer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .promotions-view .catalog-toolbar { grid-template-columns: 1fr auto; }
+  .promotions-view .catalog-toolbar .filter-reset { grid-column: 2; }
+  .promotion-summary h1 { font-size: 36px; }
+}
+@media (max-width: 600px) {
+  .promotion-hero { padding: 45px 0 38px; }
+  .promotion-hero h1 { font-size: 36px; }
+  .promotion-hero p { font-size: 12px; }
+  .promotions-view .catalog-toolbar { grid-template-columns: 1fr; }
+  .promotions-view .catalog-toolbar .filter-reset { grid-column: 1; justify-self: stretch; }
+  .promotions-view .offer-grid { grid-template-columns: 1fr; }
+  .promotions-view .offer-card { padding: 28px 26px; }
+  .promotions-view[data-promotions-page="list"] .offer-card { min-height: 430px; }
+  .promotions-view .offer-card p { font-size: 14px; }
+  .promotions-view .offer-badge { font-size: 10px; }
+  .promotion-results .eyebrow { display: none; }
+  .promotion-detail-hero, .promotion-information { grid-template-columns: 1fr; }
+  .promotion-detail-hero { gap: 28px; margin-bottom: 40px; }
+  .promotion-information { gap: 18px; margin-bottom: 40px; }
+  .promotion-information > section { padding: 28px 24px; }
+  .promotion-actions .button { flex: 1; }
+  .promotion-discount-panel { min-height: 0; padding: 30px; }
+  .promotion-discount-panel .discount { font-size: 43px; }
+  .applicable-heading h2 { font-size: 31px; }
+}
+@media (max-width: 360px) {
+  .promotions-view[data-promotions-page="list"] .offer-card { min-height: 460px; }
+}
+
+/* Detail refinements only; the compact listing and Home cards are untouched. */
+.promotion-detail .promotion-detail-hero { gap: 60px; margin-bottom: 66px; }
+.promotion-detail .promotion-discount-panel {
+  min-height: 0; padding: 34px; border-radius: 26px;
+  box-shadow: 0 16px 40px #17110e18;
+}
+.promotion-panel-label { display: block; color: #80634f; font-size: 8px; letter-spacing: 1.7px; line-height: 1.7; margin-bottom: 20px; }
+.promotion-detail .promotion-discount-panel > .eyebrow { font-size: 12px; letter-spacing: .18em; }
+.promotion-detail .promotion-discount-panel > .line-icon { width: 26px; height: 26px; margin: 22px 0 18px; }
+.promotion-detail .promotion-discount-panel .discount { font-size: clamp(44px, 4.2vw, 60px); line-height: 1.08; margin-bottom: 22px; }
+.promotion-detail .promotion-discount-panel .discount.is-amount { font-size: clamp(36px, 3.6vw, 52px); }
+.promotion-detail .promotion-discount-panel .discount::before { content: ""; display: block; width: 30px; height: 1px; background: var(--accent); opacity: .65; margin-bottom: 16px; }
+.promotion-detail .promotion-summary > .eyebrow { font-size: 9px; font-weight: 500; letter-spacing: .22em; }
+.promotion-detail .promotion-summary h1 { font-size: clamp(38px, 3.8vw, 50px); line-height: 1.16; margin: 20px 0 22px; text-wrap: balance; }
+.promotion-detail .promotion-summary > p { font-size: 15px; line-height: 1.75; max-width: 52ch; }
+.promotion-detail .promotion-period {
+  display: flex; align-items: center; gap: 17px; padding: 20px 22px;
+  background: #32201670; border: 1px solid #c6a07e28; border-radius: 16px; margin: 28px 0;
+}
+.promotion-period-icon { display: grid; place-items: center; }
+.promotion-period-text { margin: 0; }
+.promotion-period-icon .line-icon { width: 23px; height: 23px; }
+.promotion-detail .promotion-period dt { font-size: 9px; letter-spacing: 1.3px; margin-bottom: 9px; }
+.promotion-detail .promotion-period dd { font-size: 13px; color: var(--cream); }
+.promotion-detail .promotion-actions { align-items: stretch; gap: 12px; }
+.promotion-detail .promotion-actions .button { min-height: 46px; padding: 12px 22px; font-size: 11px; border-radius: 30px; }
+.promotion-detail .button.filled .line-icon { color: inherit; width: 17px; height: 17px; }
+.promotion-detail .promotion-information { gap: 28px; margin-bottom: 72px; }
+.promotion-detail .promotion-information > section { padding: 38px; border-radius: 24px; border-color: #c6a07e20; background: #32201655; }
+.promotion-detail .promotion-information h2 { display: flex; align-items: center; gap: 13px; font-size: 29px; margin-bottom: 24px; }
+.promotion-detail .promotion-information h2 .line-icon { width: 22px; height: 22px; }
+.promotion-detail .promotion-information p { font-size: 13px; line-height: 1.8; }
+.promotion-detail [data-promotion-conditions] { list-style: none; padding: 0; display: grid; gap: 14px; }
+.promotion-detail .condition-item { display: grid; grid-template-columns: 25px 1fr; gap: 14px; margin: 0; padding: 15px 17px; background: #c6a07e07; border-radius: 12px; }
+.condition-number { padding-top: 3px; font-family: var(--font-heading); font-size: 16px; color: var(--accent); }
+.promotion-detail .condition-item p { margin: 0; font-size: 12px; }
+.promotion-detail .promotion-note { margin-top: 24px; color: #bda38f; font-size: 11px !important; }
+.promotion-detail .catalog-service { height: 425px; border-radius: 22px; border-color: #c6a07e40; }
+.promotion-detail .catalog-service .card-shade { background: linear-gradient(180deg, #17110e00 10%, #24130f40 35%, #24130ff0 80%, #24130f 100%); }
+.promotion-detail .catalog-service .service-info { left: 24px; right: 24px; bottom: 25px; }
+.promotion-detail .catalog-service h3 { font-size: 26px; line-height: 1.25; margin: 12px 0 16px; }
+.promotion-service-meta { display: flex; align-items: end; flex-wrap: wrap; gap: 16px 22px; margin: 0 0 16px; }
+.promotion-detail .promotion-service-meta p { display: grid; gap: 6px; margin: 0; color: var(--cream); }
+.promotion-service-meta p:first-child > span { font-size: 8px; letter-spacing: 1.2px; text-transform: uppercase; color: #dec3aa; }
+.promotion-service-meta strong { font-family: var(--font-heading); font-weight: 400; font-size: 22px; line-height: 1.3; white-space: nowrap; }
+.promotion-detail .promotion-service-meta p:last-child { display: flex; align-items: center; gap: 7px; font-size: 11px; }
+.promotion-service-meta .line-icon { width: 16px; height: 16px; }
+.promotion-detail .catalog-service .card-description { font-size: 10px; line-height: 1.7; margin-bottom: 18px; }
+.promotion-detail .catalog-card-actions { gap: 10px; }
+.promotion-detail .catalog-card-actions .button.small { font-size: 10px; padding: 9px 14px; }
+.promotion-detail .catalog-card-actions .line-icon { width: 14px; height: 14px; }
+.promotion-final-cta { margin-top: 68px; padding: 42px 32px; text-align: center; border-radius: 24px; background: #32201665; }
+.promotion-final-cta .eyebrow { font-size: 9px; letter-spacing: 2px; margin-bottom: 20px; }
+.promotion-final-cta h2 { font-size: 33px; line-height: 1.3; margin-bottom: 28px; }
+.promotion-final-cta .button { min-height: 44px; gap: 10px; }
+@media (max-width: 1000px) {
+  .promotion-detail .promotion-detail-hero { gap: 35px; }
+  .promotion-detail .promotion-information > section { padding: 30px; }
+  .promotion-detail .catalog-card-actions .button.small { padding-inline: 12px; }
+}
+@media (max-width: 600px) {
+  .promotion-detail .promotion-detail-hero { gap: 28px; margin-bottom: 38px; }
+  .promotion-detail .promotion-discount-panel { padding: 28px; }
+  .promotion-panel-label { font-size: 7px; }
+  .promotion-detail .promotion-summary h1 { font-size: 35px; }
+  .promotion-detail .promotion-summary > p { font-size: 13px; }
+  .promotion-detail .promotion-period { padding: 18px; }
+  .promotion-detail .promotion-actions .button { padding-inline: 15px; font-size: 10px; }
+  .promotion-detail .promotion-information { gap: 18px; margin-bottom: 42px; }
+  .promotion-detail .promotion-information > section { padding: 28px 23px; }
+  .promotion-detail .promotion-information h2 { font-size: 26px; }
+  .promotion-detail .condition-item { padding: 14px 12px; gap: 10px; }
+  .promotion-detail .catalog-service { height: 420px; }
+  .promotion-final-cta { padding: 32px 24px; margin-top: 42px; }
+  .promotion-final-cta h2 { font-size: 27px; }
+}

@@ -1,0 +1,110 @@
+{
+  "admin-accounts.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "admin-appointments.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "admin-customers.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "admin-dashboard.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "admin-employees.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "admin-invoices.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "admin-payments.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "admin-products.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "admin-promotions.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "admin-reports.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "admin-reviews.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "admin-services.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "appointments.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "booking.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "home.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "index.html": {
+    "status": 200,
+    "expected": 200
+  },
+  "invoice.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "login.html": {
+    "status": 200,
+    "expected": 200
+  },
+  "product-detail.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "products.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "profile.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "promotion-detail.html": {
+    "status": 200,
+    "expected": 200
+  },
+  "promotions.html": {
+    "status": 200,
+    "expected": 200
+  },
+  "register.html": {
+    "status": 200,
+    "expected": 200
+  },
+  "reviews.html": {
+    "status": 302,
+    "expected": 302
+  },
+  "service-detail.html": {
+    "status": 200,
+    "expected": 200
+  },
+  "services.html": {
+    "status": 200,
+    "expected": 200
+  }
+}

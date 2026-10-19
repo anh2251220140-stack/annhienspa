@@ -1,0 +1,59 @@
+dist/
+build/
+.cache/
+.env*
+*-debug.log*
+logs/
+*.log
+.claude-replay.*
+.tmp-*
+/.figma/design-context/
+
+# Platform-managed agentplat state, not project source. In the
+# client-initiated single-repo workspace layout (make's `Path: "."` spec) the
+# repo root IS the workspace root, so these land inside this repo rather than
+# beside it.
+/.plugins/
+/.opencode-skills/
+
+# Python / Django
+.venv/
+__pycache__/
+*.py[cod]
+staticfiles/
+media/
+!.env.example
+
+# Local backups contain private database records
+/backups/
+# Database exports and local database files
+*.sql
+*.sql.gz
+*.dump
+*.bak
+*.sqlite3
+
+# Private keys and credentials
+*.pem
+*.key
+*.p12
+*.pfx
+# Dependencies
+node_modules/
+
+# Local tool configuration
+.figaro/
+.figma/
+
+# Database exports
+*.sql
+*.sql.gz
+*.dump
+*.bak
+*.sqlite3
+
+# Private keys
+*.pem
+*.key
+*.p12
+*.pfx

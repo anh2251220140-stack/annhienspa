@@ -1,0 +1,131 @@
+{% load static %}
+<!doctype html>
+<html lang="vi" data-page="login.html">
+  <head>
+    <base href="/login.html">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Không gian chăm sóc và thư giãn dành riêng cho bạn.">
+    <title>Đăng nhập | An Nhiên Spa</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <script src="{% static 'js/ui.js' %}"></script>
+    {{ auth_ui|json_script:"spa-auth-context" }}
+    <script src="{% static 'js/auth.js' %}"></script>
+    <script src="{% static 'js/app.js' %}" defer></script>
+  </head>
+  <body>
+    <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
+    <header class="site-header">
+      <a class="brand" href="{% url 'core:index' as page_url %}{{ page_url|slice:'1:' }}" aria-label="An Nhiên Spa - Trang chủ">
+        <img class="brand-logo" src="{% static 'images/an-nhien-logo.png' %}" alt="An Nhiên Spa" width="420" height="420"/>
+
+    </a>
+    <button class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+      Menu
+      <span>
+        ☰
+      </span>
+    </button>
+    <nav class="navigation" aria-label="Menu chính">
+      <a href="{% url 'core:services' as page_url %}{{ page_url|slice:'1:' }}">Dịch vụ</a>
+      <a href="{% url 'core:promotions' as page_url %}{{ page_url|slice:'1:' }}">Khuyến mãi</a>
+      <a class="button header-book" href="{% url 'core:login' as page_url %}{{ page_url|slice:'1:' }}">Đặt lịch</a>
+    </nav>
+    <a class="login-link" data-login-link href="{% url 'core:login' as page_url %}{{ page_url|slice:'1:' }}">Đăng nhập</a>
+  </header>
+    <main class="auth-page container">
+      <div class="auth-layout">
+        <section class="auth-image image-section" aria-label="Khoảnh khắc thư giãn tại An Nhiên">
+          <img class="section-image" src="{% static 'images/facial.jpg' %}" alt="Liệu trình chăm sóc thư giãn trong không gian spa ấm áp">
+          <div class="image-shade"></div>
+          <div>
+            <span class="eyebrow">AN NHIÊN SPA</span>
+            <h2>Một khoảng lặng<br><em>dành riêng cho bạn.</em></h2>
+            <p>Chăm sóc cơ thể, nâng niu cảm xúc.</p>
+          </div>
+        </section>
+        <section class="auth-panel" aria-labelledby="auth-title">
+          <span class="eyebrow">CHÀO MỪNG BẠN TRỞ LẠI</span>
+          <h1 id="auth-title">Đăng nhập</h1>
+          <p class="auth-description">Đăng nhập để đặt lịch và quản lý trải nghiệm tại An Nhiên Spa.</p>
+          <form class="auth-form" data-auth-form method="post" aria-labelledby="auth-title" novalidate>
+            {% csrf_token %}
+            <fieldset data-auth-fields>
+            <label class="auth-field" for="identifier">Email hoặc tên đăng nhập
+              <input id="identifier" name="identifier" value="{{ form.identifier.value|default_if_none:'' }}" autocomplete="username" required maxlength="254" placeholder="Tên đăng nhập hoặc email của bạn" aria-describedby="identifier-error">
+              <span class="field-error" id="identifier-error" data-field-error="identifier" aria-live="polite">{{ form.identifier.errors }}</span>
+            </label>
+            <label class="auth-field" for="password">Mật khẩu
+              <input id="password" name="password" type="password" autocomplete="current-password" required maxlength="128" placeholder="Mật khẩu" aria-describedby="password-error">
+              <span class="field-error" id="password-error" data-field-error="password" aria-live="polite">{{ form.password.errors }}</span>
+            </label>
+            <p class="auth-status" data-auth-status role="status" aria-live="polite" {% if not form.non_field_errors and request.GET.registered != "success" %}hidden{% endif %}>{{ form.non_field_errors }}{% if request.GET.registered == "success" %}Đăng ký thành công. Vui lòng đăng nhập.{% endif %}</p>
+            <button class="button filled" type="submit">Đăng nhập</button>
+            </fieldset>
+          </form>
+          <div class="auth-switch">Chưa có tài khoản? <a href="{% url 'core:register' as page_url %}{{ page_url|slice:'1:' }}">Đăng ký</a></div>
+          <noscript><p>Bạn có thể gửi biểu mẫu để xác thực tài khoản.</p></noscript>
+        </section>
+      </div>
+    </main>
+    <footer>
+  <div class="container footer-main">
+    <div class="footer-brand">
+      <a class="brand" href="{% url 'core:index' as page_url %}{{ page_url|slice:'1:' }}" >
+        <img class="brand-logo" src="{% static 'images/an-nhien-logo.png' %}" alt="An Nhiên Spa" width="420" height="420"/>
+
+    </a>
+  </div>
+  <div>
+    <span class="eyebrow">
+      KHÁM PHÁ
+    </span>
+    <a href="{% url 'core:services' as page_url %}{{ page_url|slice:'1:' }}">
+      Dịch vụ
+    </a>
+    <a href="{% url 'core:login' as page_url %}{{ page_url|slice:'1:' }}">
+      Sản phẩm chăm sóc
+    </a>
+    <a href="{% url 'core:promotions' as page_url %}{{ page_url|slice:'1:' }}">
+      Khuyến mãi
+    </a>
+  </div>
+  <div>
+    <span class="eyebrow">
+      KẾT NỐI VỚI AN NHIÊN
+    </span>
+    <a href="tel:0901234567">
+      090 123 4567
+    </a>
+    <a href="mailto:hello@annhienspa.vn">
+      hello@annhienspa.vn
+    </a>
+    <p>
+      12 Dương Thưởng, Hòa Cường, Đà Nẵng
+    </p>
+  </div>
+  <div>
+    <span class="eyebrow">
+      GIỜ MỞ CỬA
+    </span>
+    <p>
+      Thứ Hai — Chủ Nhật
+    </p>
+    <p>
+      09:00 — 21:00
+    </p>
+  </div>
+</div>
+<div class="container footer-bottom">
+  <span>
+    © 2026 An Nhiên Spa. All rights reserved.
+  </span>
+  <span>
+    Chăm sóc từ sự chân thành.
+  </span>
+</div>
+</footer>
+    <div class="toast" role="status" aria-live="polite" hidden></div>
+  </body>
+</html>

@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Chi tiết chương trình ưu đãi dịch vụ tại An Nhiên Spa.">
+    <title>
+      Ưu đãi khách hàng mới | An Nhiên Spa
+    </title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/catalog.css">
+    <link rel="stylesheet" href="css/promotions.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <script src="js/ui.js">
+    </script>
+    <script src="js/auth.js">
+    </script>
+    <script src="js/app.js" defer>
+    </script>
+    <script src="js/catalog.js" defer>
+    </script>
+    <script src="js/promotions-data.js" defer>
+    </script>
+    <script src="js/promotions.js" defer>
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="An Nhiên Spa - Trang chủ">
+        <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+      </a>
+      <button class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+        Menu
+        <span>
+          ☰
+        </span>
+      </button>
+      <nav class="navigation" aria-label="Menu chính">
+        <a href="services.html">
+          Dịch vụ
+        </a>
+        <a href="products.html">
+          Sản phẩm chăm sóc
+        </a>
+        <a href="promotions.html">
+          Khuyến mãi
+        </a>
+        <a href="appointments.html">
+          Lịch hẹn của tôi
+        </a>
+        <a href="invoice.html">
+          Hóa đơn
+        </a>
+        <a href="profile.html">
+          Tài khoản
+        </a>
+        <a class="button header-book" href="booking.html">
+          Đặt lịch
+        </a>
+      </nav>
+      <button class="button header-logout">
+        Đăng xuất
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 4H4v16h5M9 12h11m-4-4 4 4-4 4">
+          </path>
+        </svg>
+      </button>
+    </header>
+    <main class="catalog-view promotions-view promotion-detail" data-promotions-page="detail">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Đường dẫn">
+          <a href="index.html">
+            Trang chủ
+          </a>
+          <span aria-hidden="true">
+            /
+          </span>
+          <a href="promotions.html">
+            Khuyến mãi
+          </a>
+          <span aria-hidden="true">
+            /
+          </span>
+          <span data-promotion-name aria-current="page">
+            Ưu đãi khách hàng mới
+          </span>
+        </nav>
+        <section class="promotion-detail-hero" aria-labelledby="promotion-title">
+          <div class="promotion-discount-panel promo-terracotta" data-discount-panel>
+            <span class="promotion-panel-label">MỘT KHOẢNG NGHỈ DÀNH RIÊNG CHO BẠN</span>
+            <span class="eyebrow" data-promotion-code>
+              WELCOME10
+            </span>
+            <svg class="line-icon" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+              <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9"/>
+            </svg>
+            <div class="discount" data-promotion-discount>
+              Giảm 10%
+            </div>
+            <div data-promotion-status>
+              <span class="promotion-status">
+                Đang hiệu lực
+              </span>
+            </div>
+          </div>
+          <div class="promotion-summary">
+            <span class="eyebrow">
+              MỘT MÓN QUÀ TỪ AN NHIÊN
+            </span>
+            <h1 id="promotion-title" data-promotion-name>
+              Ưu đãi khách hàng mới
+            </h1>
+            <p data-promotion-description>
+              Dành cho khách hàng lần đầu trải nghiệm dịch vụ tại An Nhiên Spa.
+            </p>
+            <div class="promotion-period">
+              <div class="promotion-period-icon" aria-hidden="true">
+                <svg class="line-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round">
+                  <rect x="4" y="5" width="16" height="16" rx="3"/>
+                  <path d="M8 3v4m8-4v4M4 10h16"/>
+                </svg>
+              </div>
+              <dl class="promotion-period-text"><dt>Thời gian hiệu lực</dt><dd data-promotion-period>01.10.2026 — 31.12.2026</dd></dl>
+            </div>
+            <div class="promotion-actions">
+              <a class="button" href="#dich-vu-ap-dung">
+                Xem dịch vụ áp dụng
+              </a>
+              <a class="button filled" data-promotion-book href="booking.html">
+                <svg class="line-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" aria-hidden="true">
+                  <rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4m8-4v4M4 10h16"/>
+                </svg>
+                Đặt lịch
+              </a>
+            </div>
+            <p class="promotion-state-notice" data-state-notice hidden>
+            </p>
+          </div>
+        </section>
+        <div class="promotion-information">
+          <section>
+            <h2>
+              <svg class="line-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+                <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9"/>
+              </svg>
+              Về chương trình
+            </h2>
+            <p data-promotion-detail>
+              Một món quà chào đón cho lần đầu bạn dành thời gian chăm sóc bản thân tại An Nhiên. Chọn liệu trình phù hợp và để chúng tôi đồng hành cùng bạn.
+            </p>
+          </section>
+          <section>
+            <h2>
+              <svg class="line-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true">
+                <rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 8h6m-6 4h6m-6 4h3"/>
+              </svg>
+              Điều kiện áp dụng
+            </h2>
+            <ul data-promotion-conditions>
+              <li class="condition-item">
+                <span class="condition-number" aria-hidden="true">01</span>
+                <p>Dành cho lần trải nghiệm đầu tiên.</p>
+              </li>
+              <li class="condition-item">
+                <span class="condition-number" aria-hidden="true">02</span>
+                <p>Áp dụng cho dịch vụ từ 300.000 VND. Giảm tối đa 100.000 VND.</p>
+              </li>
+            </ul>
+            <p class="promotion-note" data-promotion-note>
+              Spa xác nhận điều kiện khách hàng mới và mức giảm khi tiếp nhận lịch hẹn.
+            </p>
+          </section>
+        </div>
+        <section id="dich-vu-ap-dung" aria-labelledby="applicable-title">
+          <div class="applicable-heading">
+            <span class="eyebrow">
+              CHĂM SÓC BẰNG SỰ THẤU HIỂU
+            </span>
+            <h2 id="applicable-title">
+              Dịch vụ
+              <em>
+                áp dụng
+              </em>
+            </h2>
+            <p data-service-scope>
+              Giá hiển thị là giá gốc. Spa sẽ kiểm tra điều kiện chương trình trước khi xác nhận mức giảm.
+            </p>
+          </div>
+          <div class="catalog-grid" data-applicable-services>
+            <noscript>
+              <p>
+                Liên hệ An Nhiên Spa để được tư vấn dịch vụ áp dụng.
+              </p>
+            </noscript>
+          </div>
+        </section>
+        <section class="promotion-final-cta" data-final-promotion-cta aria-label="Đặt lịch trải nghiệm">
+          <span class="eyebrow">MỘT CUỘC HẸN VỚI SỰ AN YÊN</span>
+          <h2>Một ưu đãi nhỏ,<br><em>một khoảng nghỉ dành riêng cho bạn.</em></h2>
+          <a class="button filled" data-final-promotion-book href="booking.html">
+            <svg class="line-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" aria-hidden="true">
+              <rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4m8-4v4M4 10h16"/>
+            </svg>
+            Đặt lịch ngay
+          </a>
+        </section>
+      </div>
+    </main>
+    <footer>
+      <div class="container footer-main">
+        <div class="footer-brand">
+          <a class="brand" href="index.html" >
+            <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+          </a>
+        </div>
+        <div>
+          <span class="eyebrow">
+            KHÁM PHÁ
+          </span>
+          <a href="services.html">
+            Dịch vụ
+          </a>
+          <a href="products.html">
+            Sản phẩm chăm sóc
+          </a>
+          <a href="promotions.html">
+            Khuyến mãi
+          </a>
+        </div>
+        <div>
+          <span class="eyebrow">
+            KẾT NỐI VỚI AN NHIÊN
+          </span>
+          <a href="tel:0901234567">
+            090 123 4567
+          </a>
+          <a href="mailto:hello@annhienspa.vn">
+            hello@annhienspa.vn
+          </a>
+          <p>
+            12 Dương Thưởng, Hòa Cường, Đà Nẵng
+          </p>
+        </div>
+        <div>
+          <span class="eyebrow">
+            GIỜ MỞ CỬA
+          </span>
+          <p>
+            Thứ Hai — Chủ Nhật
+          </p>
+          <p>
+            09:00 — 21:00
+          </p>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <span>
+          © 2026 An Nhiên Spa. All rights reserved.
+        </span>
+        <span>
+          Chăm sóc từ sự chân thành.
+        </span>
+      </div>
+    </footer>
+    <div class="toast" role="status" aria-live="polite" hidden>
+    </div>
+  </body>
+</html>

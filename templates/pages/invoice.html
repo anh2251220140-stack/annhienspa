@@ -1,0 +1,201 @@
+{% load static %}
+<!doctype html>
+<html lang="vi" data-page="invoice.html">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Không gian chăm sóc và thư giãn tại Đà Nẵng.">
+    <title>
+      Hóa đơn | An Nhiên Spa
+    </title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <script src="{% static 'js/ui.js' %}"></script>
+    {{ auth_ui|json_script:"spa-auth-context" }}
+    <script src="{% static 'js/auth.js' %}"></script>
+    <script src="{% static 'js/app.js' %}" defer>
+    </script>
+  {{ live_catalog|json_script:"live-catalog" }}
+{{ live_promotions|json_script:"live-promotions" }}
+<script src="{% static 'js/live-data.js' %}"></script>
+</head>
+  <body>
+    <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
+    <header class="site-header">
+      <a class="brand" href="{% url 'core:index' as page_url %}{{ page_url|slice:'1:' }}" aria-label="An Nhiên Spa - Trang chủ">
+        <img class="brand-logo" src="{% static 'images/an-nhien-logo.png' %}" alt="An Nhiên Spa" width="420" height="420"/>
+      </img>
+    </a>
+    <button class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+      Menu
+      <span>
+        ☰
+      </span>
+    </button>
+    <nav class="navigation" aria-label="Menu chính">
+      <a href="{% url 'core:services' as page_url %}{{ page_url|slice:'1:' }}">
+        Dịch vụ
+      </a>
+      <a href="{% url 'core:products' as page_url %}{{ page_url|slice:'1:' }}">
+        Sản phẩm chăm sóc
+      </a>
+      <a href="{% url 'core:promotions' as page_url %}{{ page_url|slice:'1:' }}">
+        Khuyến mãi
+      </a>
+      <a href="{% url 'core:appointments' as page_url %}{{ page_url|slice:'1:' }}">
+        Lịch hẹn của tôi
+      </a>
+      <a href="{% url 'core:invoice' as page_url %}{{ page_url|slice:'1:' }}">
+        Hóa đơn
+      </a>
+      <a href="{% url 'core:profile' as page_url %}{{ page_url|slice:'1:' }}">
+        Tài khoản
+      </a>
+      <a class="button header-book" href="{% url 'core:booking' as page_url %}{{ page_url|slice:'1:' }}">
+        Đặt lịch
+      </a>
+    </nav>
+    <button class="button header-logout">
+      Đăng xuất
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 4H4v16h5M9 12h11m-4-4 4 4-4 4">
+        </path>
+      </svg>
+    </button>
+  </header>
+  <main class="page-main container journey-page">
+    <section class="page-panel">
+      <span class="eyebrow">
+        KHÔNG GIAN CỦA BẠN
+      </span>
+      <h1>
+        Hóa đơn của bạn
+      </h1>
+      <p>Mọi thông tin cho cuộc hẹn được lưu lại, nhẹ nhàng và rõ ràng.</p>
+      <label class="journey-filter" data-invoice-picker hidden>Chọn hóa đơn<select data-invoice-select></select></label>
+      <p data-invoice-empty>Chưa có hóa đơn. Hóa đơn mẫu sẽ đi cùng lịch hẹn bạn tạo trong phiên này.</p>
+      <div class="invoice-layout" data-invoice-content hidden>
+        <article class="journey-card invoice-card" aria-labelledby="invoice-title">
+          <span class="eyebrow">AN NHIÊN / HÓA ĐƠN DỊCH VỤ</span>
+          <h2 id="invoice-title" data-invoice-service></h2>
+          <p data-invoice-code></p>
+          <span class="journey-status" data-invoice-status></span>
+          <dl class="journey-facts">
+            <div><dt>Cuộc hẹn</dt><dd data-invoice-appointment></dd></div>
+            <div><dt>Chuyên viên</dt><dd data-invoice-employee></dd></div>
+            <div><dt>Giá dịch vụ tại lúc đặt lịch</dt><dd data-invoice-price></dd></div>
+            <div><dt>Tạm tính</dt><dd data-invoice-subtotal></dd></div>
+            <div><dt>Khuyến mãi áp dụng</dt><dd data-invoice-promotion></dd></div>
+            <div><dt>Số tiền giảm</dt><dd data-invoice-discount></dd></div>
+          </dl>
+          <form data-invoice-promo>
+            <label for="invoice-promo-code">Mã khuyến mãi</label>
+            <div class="journey-actions">
+              <select id="invoice-promo-code" name="promotion" aria-describedby="invoice-promo-status"><option value="">Chọn khuyến mãi phù hợp</option></select>
+              <button class="button" type="submit">Áp dụng</button>
+            </div>
+            <p class="form-note" id="invoice-promo-status" role="status" aria-live="polite">Không áp dụng. Ưu đãi được tính thử; Spa xác nhận điều kiện thực tế.</p>
+            <button class="button small" type="button" data-promo-remove hidden>Xóa mã khuyến mãi</button>
+            <button class="button small" type="button" data-payment-edit hidden>Đổi khuyến mãi</button>
+          </form>
+          <div class="invoice-total"><span>Tổng thanh toán</span><strong data-invoice-total></strong></div>
+          <dl class="journey-facts" data-payment-receipt hidden>
+            <div><dt>Phương thức thanh toán</dt><dd data-payment-method></dd></div>
+            <div><dt>Thời gian thanh toán</dt><dd data-payment-date></dd></div>
+            <div><dt>Mã giao dịch</dt><dd data-payment-reference></dd></div>
+          </dl>
+          <p class="form-note">Hóa đơn chỉ ghi nhận dịch vụ của cuộc hẹn, không bao gồm sản phẩm chăm sóc. Đây là dữ liệu minh họa, không phải hóa đơn thanh toán thật.</p>
+        </article>
+        <section class="invoice-payment" aria-labelledby="payment-title">
+          <span class="eyebrow">MỘT LỰA CHỌN NHẸ NHÀNG</span>
+          <h2 id="payment-title">Thanh toán</h2>
+          <p data-payment-message role="status" aria-live="polite"></p>
+          <div class="journey-actions" data-payment-options>
+            <button class="button filled" type="button" data-payment-online>Thanh toán online bằng payOS</button>
+            <button class="button" type="button" data-payment-spa>Thanh toán trực tiếp tại Spa</button>
+          </div>
+          <div class="journey-card qr-panel" data-payment-qr hidden>
+            <span class="eyebrow">PAYOS / BẢN MINH HỌA</span>
+            <h3>Đang chờ thanh toán</h3>
+            <p class="qr-amount" data-payment-amount></p>
+            <svg class="demo-qr" viewBox="0 0 120 120" role="img" aria-labelledby="qr-demo-title">
+              <title id="qr-demo-title">Hình QR minh họa, không chứa thông tin chuyển khoản</title>
+              <defs><pattern id="qr-demo-pattern" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M0 0h4v8H0zm8 4h4v8H8z" fill="currentColor"/></pattern></defs>
+              <path fill="#fff8f1" d="M0 0h120v120H0z"/>
+              <path fill="url(#qr-demo-pattern)" d="M8 8h104v104H8z"/>
+              <g stroke="#fff8f1" stroke-width="4" fill="currentColor"><path d="M8 8h28v28H8zm76 0h28v28H84zM8 84h28v28H8z"/></g>
+              <g fill="#fff8f1"><path d="M16 16h12v12H16zm76 0h12v12H92zM16 92h12v12H16zM30 47h60v26H30z"/></g>
+              <text x="60" y="63" text-anchor="middle" fill="currentColor" font-size="9">DEMO</text>
+            </svg>
+            <p>QR minh họa. Không quét hoặc chuyển tiền.</p>
+            <button class="button" type="button" data-payment-demo>Mô phỏng thanh toán thành công</button>
+          </div>
+          <p class="form-note">Không kết nối payOS, không gửi yêu cầu tới ngân hàng và không xử lý hoàn tiền tự động.</p>
+        </section>
+      </div>
+      <a class="button" href="{% url 'core:appointments' as page_url %}{{ page_url|slice:'1:' }}">
+        Xem lịch hẹn của tôi ↗
+      </a>
+    </section>
+  </main>
+  <footer>
+    <div class="container footer-main">
+      <div class="footer-brand">
+        <a class="brand" href="{% url 'core:index' as page_url %}{{ page_url|slice:'1:' }}" >
+          <img class="brand-logo" src="{% static 'images/an-nhien-logo.png' %}" alt="An Nhiên Spa" width="420" height="420"/>
+        </img>
+      </a>
+    </div>
+    <div>
+      <span class="eyebrow">
+        KHÁM PHÁ
+      </span>
+      <a href="{% url 'core:services' as page_url %}{{ page_url|slice:'1:' }}">
+        Dịch vụ
+      </a>
+      <a href="{% url 'core:products' as page_url %}{{ page_url|slice:'1:' }}">
+        Sản phẩm chăm sóc
+      </a>
+      <a href="{% url 'core:promotions' as page_url %}{{ page_url|slice:'1:' }}">
+        Khuyến mãi
+      </a>
+    </div>
+    <div>
+      <span class="eyebrow">
+        KẾT NỐI VỚI AN NHIÊN
+      </span>
+      <a href="tel:0901234567">
+        090 123 4567
+      </a>
+      <a href="mailto:hello@annhienspa.vn">
+        hello@annhienspa.vn
+      </a>
+      <p>
+        12 Dương Thưởng, Hòa Cường, Đà Nẵng
+      </p>
+    </div>
+    <div>
+      <span class="eyebrow">
+        GIỜ MỞ CỬA
+      </span>
+      <p>
+        Thứ Hai — Chủ Nhật
+      </p>
+      <p>
+        09:00 — 21:00
+      </p>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>
+      © 2026 An Nhiên Spa. All rights reserved.
+    </span>
+    <span>
+      Chăm sóc từ sự chân thành.
+    </span>
+  </div>
+</footer>
+<div class="toast" role="status" aria-live="polite" hidden>
+</div>
+</body>
+</html>

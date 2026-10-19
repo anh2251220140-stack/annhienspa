@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Không gian quản trị mẫu.">
+    <title>Quản lý tài khoản | An Nhiên Spa</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/catalog.js" defer></script>
+    <script src="js/admin.js" defer></script>
+    <script src="js/admin-core.js" defer></script>
+  </head>
+  <body class="admin-page">
+    <a class="admin-skip-link" href="#admin-main">Đến nội dung chính</a>
+    <aside class="admin-sidebar" id="admin-sidebar" aria-label="Thanh điều hướng quản trị">
+      <div class="admin-sidebar-brand">
+        <a class="admin-logo" href="admin-dashboard.html" aria-label="An Nhiên Spa — Dashboard">
+          <img src="images/an-nhien-logo.png" alt="" width="54" height="54">
+          <span><strong>An Nhiên</strong><small>Quản trị hệ thống</small></span>
+        </a>
+        <button class="admin-icon-button admin-drawer-close" type="button" data-sidebar-close aria-label="Đóng menu"><span data-admin-icon="close"></span></button>
+      </div>
+      <nav class="admin-nav" aria-label="Menu Admin">
+        <div class="admin-nav-group">
+          <p class="admin-nav-label">Tổng quan</p>
+          <a class="admin-nav-item is-active" href="admin-dashboard.html" aria-current="page" title="Dashboard"><span data-admin-icon="grid"></span><span>Dashboard</span><i aria-hidden="true"></i></a>
+        </div>
+        <div class="admin-nav-group">
+          <p class="admin-nav-label">Admin Core</p>
+          <button class="admin-nav-item" type="button" data-admin-pending="Tài khoản" title="Tài khoản — chưa triển khai"><span data-admin-icon="account"></span><span>Tài khoản</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Khách hàng" title="Khách hàng — chưa triển khai"><span data-admin-icon="users"></span><span>Khách hàng</span></button>
+        </div>
+        <div class="admin-nav-group">
+          <p class="admin-nav-label">Admin Operations</p>
+          <button class="admin-nav-item" type="button" data-admin-pending="Dịch vụ" title="Dịch vụ — chưa triển khai"><span data-admin-icon="leaf"></span><span>Dịch vụ</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Sản phẩm" title="Sản phẩm — chưa triển khai"><span data-admin-icon="product"></span><span>Sản phẩm</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Nhân viên" title="Nhân viên — chưa triển khai"><span data-admin-icon="staff"></span><span>Nhân viên</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Lịch hẹn" title="Lịch hẹn — chưa triển khai"><span data-admin-icon="calendar"></span><span>Lịch hẹn</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Khuyến mãi" title="Khuyến mãi — chưa triển khai"><span data-admin-icon="tag"></span><span>Khuyến mãi</span></button>
+        </div>
+        <div class="admin-nav-group">
+          <p class="admin-nav-label">Finance &amp; Quality</p>
+          <button class="admin-nav-item" type="button" data-admin-pending="Hóa đơn" title="Hóa đơn — chưa triển khai"><span data-admin-icon="note"></span><span>Hóa đơn</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Thanh toán" title="Thanh toán — chưa triển khai"><span data-admin-icon="wallet"></span><span>Thanh toán</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Đánh giá" title="Đánh giá — chưa triển khai"><span data-admin-icon="star"></span><span>Đánh giá</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Báo cáo" title="Báo cáo — chưa triển khai"><span data-admin-icon="bars"></span><span>Báo cáo</span></button>
+        </div>
+      </nav>
+      <div class="admin-sidebar-foot">
+        <span class="admin-sidebar-note"><span class="admin-dot"></span> Không gian quản trị mẫu</span>
+        <button class="admin-collapse" type="button" data-sidebar-toggle aria-controls="admin-sidebar" aria-expanded="true" aria-label="Thu gọn thanh bên"><span data-admin-icon="panel"></span><span>Thu gọn thanh bên</span></button>
+      </div>
+    </aside>
+    <button class="admin-backdrop" type="button" data-sidebar-close aria-label="Đóng menu quản trị" hidden></button>
+    <div class="admin-workspace">
+      <header class="admin-topbar">
+        <div class="admin-topbar-heading">
+          <button class="admin-icon-button admin-mobile-toggle" type="button" data-sidebar-toggle aria-controls="admin-sidebar" aria-expanded="false" aria-label="Mở menu quản trị"><span data-admin-icon="menu"></span></button>
+          <div><p class="admin-topbar-title">Quản lý tài khoản</p><nav class="admin-breadcrumb" aria-label="Đường dẫn"><span>Quản trị</span><span aria-hidden="true">/</span><span aria-current="page">Quản lý tài khoản</span></nav></div>
+        </div>
+        <div class="admin-topbar-actions">
+          <span class="admin-demo-label"><span class="admin-dot"></span> Phiên bản demo</span>
+          <div class="admin-account">
+            <button class="admin-account-trigger" type="button" aria-controls="admin-account-menu" aria-expanded="false">
+              <span class="admin-avatar" aria-hidden="true">AD</span><span class="admin-account-name"><strong>Quản trị viên</strong><small>Admin · An Nhiên Spa</small></span><span data-admin-icon="chevron"></span>
+            </button>
+            <div class="admin-account-menu" id="admin-account-menu" hidden>
+              <p>Phiên quản trị minh họa</p>
+              <button type="button" data-admin-logout><span data-admin-icon="logout"></span> Đăng xuất</button>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main class="admin-content" id="admin-main" tabindex="-1" data-admin-accounts>
+
+        <div class="admin-page-heading"><div><span class="admin-eyebrow">AN NHIÊN SPA / ADMIN CORE / TÀI KHOẢN</span><h1>Quản lý tài khoản</h1><p>Theo dõi tài khoản và kiểm soát trạng thái hoạt động trong phiên mẫu.</p></div></div>
+        <section class="admin-core-stats" aria-label="Thống kê tài khoản" id="accounts-stats"></section>
+        <section class="admin-table-card" aria-label="Danh sách tài khoản">
+          <div class="admin-toolbar">
+            <label class="admin-search">Tìm tài khoản<input type="search" id="accounts-search" placeholder="Username hoặc email…"></label>
+            <label>Vai trò<select id="accounts-role"><option value="">Tất cả vai trò</option><option>User</option><option>Admin</option></select></label>
+            <label>Trạng thái<select id="accounts-status"><option value="">Tất cả trạng thái</option><option value="active">Hoạt động</option><option value="locked">Đã khóa</option></select></label>
+          </div>
+          <div class="admin-table-scroll" tabindex="0" role="region" aria-label="Bảng tài khoản có thể cuộn ngang"><table class="admin-data-table"><caption class="admin-sr-only">Tài khoản minh họa</caption><thead><tr><th>Mã tài khoản</th><th>Username</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th>Ngày tham gia</th><th>Thao tác</th></tr></thead><tbody id="accounts-rows"></tbody></table></div>
+          <div class="admin-empty-state" id="accounts-empty" hidden><h3>Không tìm thấy tài khoản</h3><p>Thử username, email hoặc bộ lọc khác.</p></div>
+          <div class="admin-pagination" id="accounts-pagination" aria-live="polite"></div>
+        </section>
+        <p class="admin-data-note">Khóa/mở khóa chỉ mô phỏng trạng thái trong phiên Admin, không thay đổi đăng nhập demo hoặc dữ liệu User. Không kết nối database.</p>
+      </main>
+    </div>
+    <div class="admin-chart-tooltip" id="admin-chart-tooltip" role="tooltip" hidden></div>
+    <div class="toast" role="status" aria-live="polite" hidden></div>
+  </body>
+</html>

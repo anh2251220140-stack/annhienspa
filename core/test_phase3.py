@@ -1,0 +1,212 @@
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier
+from datetime import time, timedelta
+from django.test import TestCase, TransactionTestCase, Client
+from django.db import close_old_connections
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+from accounts.models import User, Customer
+from services.models import ServiceCategory, Service
+from products.models import CareProduct
+from employees.models import Employee, EmployeeService, EmployeeSchedule
+from promotions.models import Promotion
+from appointments.models import Appointment
+from appointments.services import book, transition
+from billing.models import Invoice
+
+class Fixtures:
+    def seed(self):
+        self.day=timezone.localdate()+timedelta(days=3)
+        self.admin=User.objects.create_superuser("stage3admin","s3admin@example.com","StrongPassword!765")
+        self.user=User.objects.create_user("stage3user","s3user@example.com","StrongPassword!765")
+        self.customer=Customer.objects.create(user=self.user,full_name="Khách kiểm thử",phone="0900000000")
+        self.other=User.objects.create_user("stage3other","s3other@example.com","StrongPassword!765")
+        self.other_customer=Customer.objects.create(user=self.other,full_name="Khách khác",phone="0911111111")
+        self.category=ServiceCategory.objects.create(name="Danh mục thật")
+        self.service=Service.objects.create(category=self.category,name="Dịch vụ thật",description="Mô tả",price=500000,duration_minutes=60)
+        self.employee=Employee.objects.create(full_name="Chuyên viên A",specialty="Chuyên môn")
+        self.employee2=Employee.objects.create(full_name="Chuyên viên B",specialty="Chuyên môn")
+        for person in (self.employee,self.employee2):
+            EmployeeService.objects.create(employee=person,service=self.service)
+            EmployeeSchedule.objects.create(employee=person,work_date=self.day,start_time=time(9),end_time=time(17))
+    def booking_data(self,**kwargs):
+        data={"service":self.service.pk,"employee":self.employee.pk,"date":self.day.isoformat(),"time":"10:00","note":"Ghi chú"};data.update(kwargs);return data
+
+class Phase3Tests(Fixtures,TestCase):
+    def setUp(self):self.seed()
+    def login_admin(self):self.client.force_login(self.admin)
+    def login_user(self):self.client.force_login(self.user)
+    def test_admin_crud_all_four_modules_and_relations(self):
+        self.login_admin()
+        cases={"services":dict(name="DV mới",category=self.category.pk,description="Mô tả",price="450000",duration_minutes=45,is_active="on"),
+          "products":dict(name="SP mới",product_type="Serum",description="Mô tả",services=[self.service.pk],is_active="on"),
+          "employees":dict(full_name="Nhân viên mới",specialty="Spa",services=[self.service.pk],is_active="on"),
+          "promotions":dict(name="Ưu đãi",code="REAL10",discount_type="percent",discount_value=10,start_date=timezone.localdate(),end_date=self.day,services=[self.service.pk],is_active="on")}
+        for module,data in cases.items():
+            with self.subTest(module=module):
+                result=self.client.post(f"/api/admin/{module}/",data)
+                self.assertEqual(result.status_code,201,result.content)
+                pk=result.json()["item"]["id"]
+                key="full_name" if module=="employees" else "name";data[key]="Đã sửa"
+                self.assertEqual(self.client.post(f"/api/admin/{module}/{pk}/",data).status_code,200)
+                self.assertEqual(self.client.get(f"/api/admin/{module}/{pk}/").status_code,200)
+                self.assertEqual(self.client.post(f"/api/admin/{module}/{pk}/",{"_toggle":"1"}).json()["item"]["active"],False)
+                self.assertEqual(self.client.delete(f"/api/admin/{module}/{pk}/").status_code,405)
+        self.assertEqual(CareProduct.objects.get(name="Đã sửa").services.get(),self.service)
+        self.assertEqual(Promotion.objects.get(code="REAL10").services.get(),self.service)
+
+    def test_validation_and_admin_permission(self):
+        self.assertEqual(self.client.get("/api/admin/services/").status_code,401)
+        self.login_user()
+        for module in ("categories","services","products","employees","promotions"):
+            self.assertEqual(self.client.get(f"/api/admin/{module}/").status_code,403)
+            self.assertEqual(self.client.post(f"/api/admin/{module}/",{}).status_code,403)
+        self.login_admin()
+        self.assertEqual(self.client.post("/api/admin/services/",dict(name="Sai",category=self.category.pk,description="M",price=-1,duration_minutes=0)).status_code,400)
+        self.assertEqual(self.client.post("/api/admin/promotions/",dict(name="Sai",code="BAD",discount_type="percent",discount_value=101,start_date=self.day,end_date=timezone.localdate())).status_code,400)
+
+    def test_csrf_mutations(self):
+        client=Client(enforce_csrf_checks=True);client.force_login(self.admin)
+        self.assertEqual(client.post("/api/admin/services/",{}).status_code,403)
+        client.force_login(self.user)
+        self.assertEqual(client.post("/api/appointments/book/",self.booking_data()).status_code,403)
+
+    def test_catalog_real_active_and_category_hidden(self):
+        response=self.client.get("/services.html")
+        self.assertEqual(response.context["live_catalog"]["services"][0]["id"],self.service.pk)
+        self.category.is_active=False;self.category.save()
+        self.assertEqual(self.client.get("/services.html").context["live_catalog"]["services"],[])
+        self.assertNotContains(self.client.get("/index.html"),"WELCOME10")
+
+    def test_promotion_validity_and_relations(self):
+        today=timezone.localdate()
+        for code,start,end in (("VALID",today,self.day),("FUTURE",self.day,self.day),("EXPIRED",today-timedelta(days=3),today-timedelta(days=1))):
+            Promotion.objects.create(code=code,name=code,discount_type="amount",discount_value=10000,start_date=start,end_date=end)
+        self.assertEqual([p["code"] for p in self.client.get("/promotions.html").context["live_promotions"]["items"]],["VALID"])
+
+    def test_schedule_crud_and_overlap(self):
+        self.login_admin();path=f"/api/admin/employees/{self.employee.pk}/schedules/"
+        self.assertEqual(self.client.get(path+"0/").status_code,200)
+        self.assertEqual(self.client.post(path+"0/",dict(work_date=self.day,start_time="10:00",end_time="12:00",status="working")).status_code,400)
+        nextday=self.day+timedelta(days=1)
+        self.assertEqual(self.client.post(path+"0/",dict(work_date=nextday,start_time="09:00",end_time="17:00",status="working")).status_code,201)
+        appointment=book(self.user,self.service.pk,self.employee.pk,self.day,time(10))
+        shift=self.employee.schedules.get(work_date=self.day)
+        self.assertEqual(self.client.post(path+str(shift.pk)+"/",dict(work_date=self.day,start_time="11:00",end_time="17:00",status="working")).status_code,400)
+
+    def test_booking_requires_employee_and_valid_slots(self):
+        self.login_user()
+        self.assertEqual(self.client.post("/api/appointments/book/",self.booking_data(employee="")).status_code,400)
+        self.assertEqual(self.client.get("/api/appointments/available-slots/",{"service":self.service.pk,"date":self.day}).status_code,400)
+        result=self.client.get("/api/appointments/available-slots/",{"service":self.service.pk,"employee":self.employee.pk,"date":self.day})
+        self.assertIn("16:00",result.json()["slots"]);self.assertNotIn("16:01",result.json()["slots"])
+        result=self.client.post("/api/appointments/book/",self.booking_data())
+        self.assertEqual(result.status_code,201,result.content)
+        item=Appointment.objects.get();self.assertEqual(item.employee,self.employee);self.assertEqual(item.end_time,time(11))
+        self.assertEqual(item.customer,self.customer)
+        self.assertEqual(self.client.post("/api/appointments/book/",self.booking_data(time="10:30")).status_code,400)
+        self.assertEqual(self.client.post("/api/appointments/book/",self.booking_data(employee=self.employee2.pk,time="10:30")).status_code,400)
+        self.assertEqual(self.client.post("/api/appointments/book/",self.booking_data(time="11:00")).status_code,201)
+
+    def test_past_unassigned_inactive_and_duration_rejected(self):
+        self.login_user()
+        self.assertEqual(self.client.post("/api/appointments/book/",self.booking_data(date=timezone.localdate()-timedelta(days=1))).status_code,400)
+        self.assertEqual(self.client.post("/api/appointments/book/",self.booking_data(time="16:30")).status_code,400)
+        EmployeeService.objects.filter(employee=self.employee,service=self.service).delete()
+        self.assertEqual(self.client.post("/api/appointments/book/",self.booking_data()).status_code,400)
+        self.employee2.is_active=False;self.employee2.save()
+        self.assertEqual(self.client.post("/api/appointments/book/",self.booking_data(employee=self.employee2.pk)).status_code,400)
+
+    def test_user_scope_and_cancel_invoice(self):
+        item=book(self.user,self.service.pk,self.employee.pk,self.day,time(10))
+        transition(self.admin,item.pk,"confirmed")
+        item.refresh_from_db();invoice=Invoice.objects.create(appointment=item,subtotal=500000,total_amount=500000)
+        self.client.force_login(self.other)
+        self.assertEqual(self.client.get("/api/appointments/").json()["items"],[])
+        self.assertEqual(self.client.post(f"/api/appointments/{item.pk}/status/",{"status":"cancelled"}).status_code,403)
+        self.login_user()
+        self.assertEqual(self.client.post(f"/api/appointments/{item.pk}/status/",{"status":"cancelled"}).status_code,200)
+        invoice.refresh_from_db();self.assertEqual(invoice.payment_status,"cancelled")
+        self.assertEqual(self.client.post("/api/appointments/book/",self.booking_data()).status_code,201)
+
+    def test_admin_confirmation_keeps_employee_terminal_and_time_rules(self):
+        item=book(self.user,self.service.pk,self.employee.pk,self.day,time(10))
+        self.login_admin();path=f"/api/appointments/{item.pk}/status/"
+        self.assertEqual(self.client.post(path,{"status":"completed"}).status_code,400)
+        self.assertEqual(self.client.post(path,{"status":"confirmed"}).status_code,200)
+        item.refresh_from_db();self.assertEqual(item.employee,self.employee)
+        self.assertEqual(self.client.post(path,{"status":"completed"}).status_code,400)
+        self.assertEqual(self.client.post(path,{"status":"cancelled"}).status_code,200)
+        self.assertEqual(self.client.post(path,{"status":"confirmed"}).status_code,400)
+
+    def test_reassignment_requires_consent_checks_conflict_and_records_notice(self):
+        item=book(self.user,self.service.pk,self.employee.pk,self.day,time(10))
+        self.login_admin();path=f"/api/appointments/{item.pk}/status/"
+        data={"status":"confirmed","employee":self.employee2.pk,"reason":"Khách đồng ý thay thế"}
+        self.assertEqual(self.client.post(path,data).status_code,400)
+        data["consent"]="on"
+        self.assertEqual(self.client.post(path,data).status_code,200)
+        item.refresh_from_db();self.assertEqual(item.employee,self.employee2);self.assertIn("Khách đồng ý",item.note)
+        second=book(self.other,self.service.pk,self.employee.pk,self.day,time(10))
+        self.assertEqual(self.client.post(path,{**data,"employee":self.employee.pk}).status_code,400)
+
+    def test_paid_cancellation_rejected(self):
+        item=book(self.user,self.service.pk,self.employee.pk,self.day,time(10));transition(self.admin,item.pk,"confirmed");item.refresh_from_db()
+        Invoice.objects.create(appointment=item,subtotal=500000,total_amount=500000,payment_status="paid")
+        self.login_user();self.assertEqual(self.client.post(f"/api/appointments/{item.pk}/status/",{"status":"cancelled"}).status_code,400)
+
+    def test_admin_filters(self):
+        item=book(self.user,self.service.pk,self.employee.pk,self.day,time(10));self.login_admin()
+        self.assertEqual(len(self.client.get("/api/appointments/",{"employee":self.employee.pk,"date":self.day,"status":"pending"}).json()["items"]),1)
+        self.assertEqual(self.client.get("/api/appointments/",{"employee":self.employee2.pk}).json()["items"],[])
+
+    def test_completion_after_end_and_terminal_immutability(self):
+        item=book(self.user,self.service.pk,self.employee.pk,self.day,time(10))
+        transition(self.admin,item.pk,"confirmed")
+        Appointment.objects.filter(pk=item.pk).update(appointment_date=timezone.localdate()-timedelta(days=1))
+        self.login_admin();path=f"/api/appointments/{item.pk}/status/"
+        self.assertEqual(self.client.post(path,{"status":"completed"}).status_code,200)
+        item.refresh_from_db();self.assertEqual(item.status,"completed")
+        self.assertEqual(self.client.post(path,{"status":"cancelled"}).status_code,400)
+
+    def test_assignment_removal_and_inactive_records_preserve_appointments(self):
+        item=book(self.user,self.service.pk,self.employee.pk,self.day,time(10))
+        self.login_admin()
+        self.assertEqual(self.client.post(f"/api/admin/employees/{self.employee.pk}/",{
+            "full_name":self.employee.full_name,"specialty":"Spa","is_active":"on","services":[]}).status_code,400)
+        self.assertEqual(self.client.post(f"/api/admin/services/{self.service.pk}/",{"_toggle":"1"}).status_code,200)
+        item.refresh_from_db();self.assertEqual(item.service_id,self.service.pk)
+        self.login_user()
+        self.assertEqual(self.client.post("/api/appointments/book/",self.booking_data(time="12:00")).status_code,400)
+
+class ConcurrentBookingTests(Fixtures,TransactionTestCase):
+    def setUp(self):self.seed()
+    def test_two_simultaneous_requests_only_one_succeeds(self):
+        barrier=Barrier(2)
+        def attempt(user_id):
+            close_old_connections()
+            try:
+                user=User.objects.get(pk=user_id);barrier.wait(timeout=10)
+                book(user,self.service.pk,self.employee.pk,self.day,time(10));return "saved"
+            except ValidationError:return "conflict"
+            finally:close_old_connections()
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results=list(pool.map(attempt,[self.user.pk,self.other.pk]))
+        self.assertCountEqual(results,["saved","conflict"])
+        self.assertEqual(Appointment.objects.count(),1)
+
+    def test_same_customer_parallel_different_services_and_employees(self):
+        second_service=Service.objects.create(category=self.category,name="Dịch vụ thứ hai",description="Mô tả",price=400000,duration_minutes=60)
+        EmployeeService.objects.create(employee=self.employee2,service=second_service)
+        barrier=Barrier(2)
+        def attempt(pair):
+            close_old_connections()
+            try:
+                user=User.objects.get(pk=self.user.pk);barrier.wait(timeout=10)
+                book(user,pair[0],pair[1],self.day,time(10));return "saved"
+            except ValidationError:return "conflict"
+            finally:close_old_connections()
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results=list(pool.map(attempt,[(self.service.pk,self.employee.pk),(second_service.pk,self.employee2.pk)]))
+        self.assertCountEqual(results,["saved","conflict"])
+        self.assertEqual(Appointment.objects.count(),1)

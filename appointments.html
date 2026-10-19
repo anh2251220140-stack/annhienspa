@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Không gian chăm sóc và thư giãn tại Đà Nẵng.">
+    <title>
+      Lịch hẹn của tôi | An Nhiên Spa
+    </title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js" defer>
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="An Nhiên Spa - Trang chủ">
+        <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+      </img>
+    </a>
+    <button class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+      Menu
+      <span>
+        ☰
+      </span>
+    </button>
+    <nav class="navigation" aria-label="Menu chính">
+      <a href="services.html">
+        Dịch vụ
+      </a>
+      <a href="products.html">
+        Sản phẩm chăm sóc
+      </a>
+      <a href="promotions.html">
+        Khuyến mãi
+      </a>
+      <a href="appointments.html">
+        Lịch hẹn của tôi
+      </a>
+      <a href="invoice.html">
+        Hóa đơn
+      </a>
+      <a href="profile.html">
+        Tài khoản
+      </a>
+      <a class="button header-book" href="booking.html">
+        Đặt lịch
+      </a>
+    </nav>
+    <button class="button header-logout">
+      Đăng xuất
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 4H4v16h5M9 12h11m-4-4 4 4-4 4">
+        </path>
+      </svg>
+    </button>
+  </header>
+  <main class="page-main container journey-page">
+    <section class="page-panel">
+      <span class="eyebrow">
+        KHÔNG GIAN CỦA BẠN
+      </span>
+      <h1>
+        Lịch hẹn của bạn
+      </h1>
+      <p>
+        Lịch hẹn mẫu trong trình duyệt này. Chưa kết nối hệ thống của spa.
+      </p>
+      <label class="journey-filter">Trạng thái lịch hẹn
+        <select data-appointment-filter>
+          <option value="">Tất cả</option><option value="pending">Chờ xác nhận</option>
+          <option value="confirmed">Đã xác nhận</option><option value="completed">Đã hoàn thành</option><option value="cancelled">Đã hủy</option>
+        </select>
+      </label>
+      <div id="appointment-list">
+      </div>
+      <p class="form-note">Lịch hẹn chỉ được đánh dấu hoàn thành sau khi Spa xác nhận dịch vụ đã thực hiện. Thời gian trôi qua không tự thay đổi trạng thái.</p>
+      <a class="button filled" href="booking.html">
+        Đặt lịch ngay ↗
+      </a>
+    </section>
+  </main>
+  <footer>
+    <div class="container footer-main">
+      <div class="footer-brand">
+        <a class="brand" href="index.html" >
+          <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+        </img>
+      </a>
+    </div>
+    <div>
+      <span class="eyebrow">
+        KHÁM PHÁ
+      </span>
+      <a href="services.html">
+        Dịch vụ
+      </a>
+      <a href="products.html">
+        Sản phẩm chăm sóc
+      </a>
+      <a href="promotions.html">
+        Khuyến mãi
+      </a>
+    </div>
+    <div>
+      <span class="eyebrow">
+        KẾT NỐI VỚI AN NHIÊN
+      </span>
+      <a href="tel:0901234567">
+        090 123 4567
+      </a>
+      <a href="mailto:hello@annhienspa.vn">
+        hello@annhienspa.vn
+      </a>
+      <p>
+        12 Dương Thưởng, Hòa Cường, Đà Nẵng
+      </p>
+    </div>
+    <div>
+      <span class="eyebrow">
+        GIỜ MỞ CỬA
+      </span>
+      <p>
+        Thứ Hai — Chủ Nhật
+      </p>
+      <p>
+        09:00 — 21:00
+      </p>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>
+      © 2026 An Nhiên Spa. All rights reserved.
+    </span>
+    <span>
+      Chăm sóc từ sự chân thành.
+    </span>
+  </div>
+</footer>
+<div class="toast" role="status" aria-live="polite" hidden>
+</div>
+</body>
+</html>

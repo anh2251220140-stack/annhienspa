@@ -1,0 +1,105 @@
+{% load static %}
+<!doctype html>
+<html lang="vi" data-page="admin-reports.html">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Không gian quản trị mẫu.">
+    <title>Báo cáo thống kê | An Nhiên Spa</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admin.css' %}">
+    <script src="{% static 'js/ui.js' %}"></script>
+    {{ auth_ui|json_script:"spa-auth-context" }}
+    <script src="{% static 'js/auth.js' %}"></script>
+    <script src="{% static 'js/admin.js' %}" defer></script>
+    <script src="{% static 'js/admin-quality-reports.js' %}" defer></script>
+  {{ live_catalog|json_script:"live-catalog" }}
+{{ live_promotions|json_script:"live-promotions" }}
+<script src="{% static 'js/live-data.js' %}"></script>
+</head>
+  <body class="admin-page">
+    <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
+    <a class="admin-skip-link" href="#admin-main">Đến nội dung chính</a>
+    <aside class="admin-sidebar" id="admin-sidebar" aria-label="Thanh điều hướng quản trị">
+      <div class="admin-sidebar-brand">
+        <a class="admin-logo" href="{% url 'core:admin-dashboard' as page_url %}{{ page_url|slice:'1:' }}" aria-label="An Nhiên Spa — Dashboard">
+          <img src="{% static 'images/an-nhien-logo.png' %}" alt="" width="54" height="54">
+          <span><strong>An Nhiên</strong><small>Quản trị hệ thống</small></span>
+        </a>
+        <button class="admin-icon-button admin-drawer-close" type="button" data-sidebar-close aria-label="Đóng menu"><span data-admin-icon="close"></span></button>
+      </div>
+      <nav class="admin-nav" aria-label="Menu Admin">
+        <div class="admin-nav-group">
+          <p class="admin-nav-label">Tổng quan</p>
+          <a class="admin-nav-item is-active" href="{% url 'core:admin-dashboard' as page_url %}{{ page_url|slice:'1:' }}" aria-current="page" title="Dashboard"><span data-admin-icon="grid"></span><span>Dashboard</span><i aria-hidden="true"></i></a>
+        </div>
+        <div class="admin-nav-group">
+          <p class="admin-nav-label">Admin Core</p>
+          <button class="admin-nav-item" type="button" data-admin-pending="Tài khoản" title="Tài khoản — chưa triển khai"><span data-admin-icon="account"></span><span>Tài khoản</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Khách hàng" title="Khách hàng — chưa triển khai"><span data-admin-icon="users"></span><span>Khách hàng</span></button>
+        </div>
+        <div class="admin-nav-group">
+          <p class="admin-nav-label">Admin Operations</p>
+          <button class="admin-nav-item" type="button" data-admin-pending="Dịch vụ" title="Dịch vụ — chưa triển khai"><span data-admin-icon="leaf"></span><span>Dịch vụ</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Sản phẩm" title="Sản phẩm — chưa triển khai"><span data-admin-icon="product"></span><span>Sản phẩm</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Nhân viên" title="Nhân viên — chưa triển khai"><span data-admin-icon="staff"></span><span>Nhân viên</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Lịch hẹn" title="Lịch hẹn — chưa triển khai"><span data-admin-icon="calendar"></span><span>Lịch hẹn</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Khuyến mãi" title="Khuyến mãi — chưa triển khai"><span data-admin-icon="tag"></span><span>Khuyến mãi</span></button>
+        </div>
+        <div class="admin-nav-group">
+          <p class="admin-nav-label">Finance &amp; Quality</p>
+          <button class="admin-nav-item" type="button" data-admin-pending="Hóa đơn" title="Hóa đơn — chưa triển khai"><span data-admin-icon="note"></span><span>Hóa đơn</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Thanh toán" title="Thanh toán — chưa triển khai"><span data-admin-icon="wallet"></span><span>Thanh toán</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Đánh giá" title="Đánh giá — chưa triển khai"><span data-admin-icon="star"></span><span>Đánh giá</span></button>
+          <button class="admin-nav-item" type="button" data-admin-pending="Báo cáo" title="Báo cáo — chưa triển khai"><span data-admin-icon="bars"></span><span>Báo cáo</span></button>
+        </div>
+      </nav>
+      <div class="admin-sidebar-foot">
+        <span class="admin-sidebar-note"><span class="admin-dot"></span> Không gian quản trị mẫu</span>
+        <button class="admin-collapse" type="button" data-sidebar-toggle aria-controls="admin-sidebar" aria-expanded="true" aria-label="Thu gọn thanh bên"><span data-admin-icon="panel"></span><span>Thu gọn thanh bên</span></button>
+      </div>
+    </aside>
+    <button class="admin-backdrop" type="button" data-sidebar-close aria-label="Đóng menu quản trị" hidden></button>
+    <div class="admin-workspace">
+      <header class="admin-topbar">
+        <div class="admin-topbar-heading">
+          <button class="admin-icon-button admin-mobile-toggle" type="button" data-sidebar-toggle aria-controls="admin-sidebar" aria-expanded="false" aria-label="Mở menu quản trị"><span data-admin-icon="menu"></span></button>
+          <div><p class="admin-topbar-title">Báo cáo thống kê</p><nav class="admin-breadcrumb" aria-label="Đường dẫn"><span>Quản trị</span><span aria-hidden="true">/</span><span aria-current="page">Báo cáo thống kê</span></nav></div>
+        </div>
+        <div class="admin-topbar-actions">
+          <span class="admin-demo-label"><span class="admin-dot"></span> Phiên bản demo</span>
+          <div class="admin-account">
+            <button class="admin-account-trigger" type="button" aria-controls="admin-account-menu" aria-expanded="false">
+              <span class="admin-avatar" aria-hidden="true">AD</span><span class="admin-account-name"><strong>Quản trị viên</strong><small>Admin · An Nhiên Spa</small></span><span data-admin-icon="chevron"></span>
+            </button>
+            <div class="admin-account-menu" id="admin-account-menu" hidden>
+              <p>Phiên quản trị minh họa</p>
+              <button type="button" data-admin-logout><span data-admin-icon="logout"></span> Đăng xuất</button>
+            </div>
+          </div>
+        </div>
+      </header>
+      <main class="admin-content admin-operations-page admin-quality-page admin-reports-page" id="admin-main" tabindex="-1" data-admin-quality="reports">
+        <div class="admin-page-heading"><div><span class="admin-eyebrow">AN NHIÊN SPA / ANALYTICS / ĐIỀU HÀNH</span><h1>Báo cáo thống kê</h1><p>Từ dữ liệu rõ ràng, đến những quyết định thấu đáo.</p></div><span class="admin-service-heading-mark" data-admin-icon="bars" aria-hidden="true"></span></div>
+        <form class="admin-toolbar admin-report-filters" id="report-filters" novalidate><label>Từ ngày<input id="report-from" name="from" type="date" value="2026-10-01" required></label><label>Đến ngày<input id="report-to" name="to" type="date" value="2026-10-31" required></label><button class="admin-button admin-button-primary" type="submit">Áp dụng kỳ báo cáo</button><button class="admin-button" id="report-reset" type="button">Tháng 10.2026</button></form>
+        <p id="report-filter-error" class="admin-quality-error" role="alert" hidden></p>
+        <p class="admin-report-period" id="report-period" aria-live="polite"></p>
+        <section class="admin-finance-stats" id="report-stats" aria-label="Chỉ số trong kỳ báo cáo"></section>
+        <div class="admin-quality-source"><span data-admin-icon="note"></span><p>Demo độc lập: Finance theo ngày thanh toán/giờ Việt Nam, LH-FIN theo ngày hẹn, Quality theo ngày đánh giá. Chưa đồng bộ backend/Operations/User; không có thanh toán thật.</p></div>
+        <div class="admin-empty-state admin-report-empty" id="report-empty" hidden><h3>Không có dữ liệu trong kỳ</h3><p>Chọn khoảng thời gian khác; bộ mẫu tập trung ở tháng 10.2026.</p></div>
+        <section class="admin-analytics-grid" aria-label="Bốn biểu đồ theo kỳ">
+          <article class="admin-chart-card admin-analytics-chart"><div class="admin-card-heading"><div><h2><span data-admin-icon="wallet"></span>Doanh thu theo ngày phát sinh</h2><p>Chỉ hóa đơn đã thanh toán; lược ngày không phát sinh.</p></div></div><div class="admin-analytics-scroll" id="report-revenue" tabindex="0" role="region" aria-label="Doanh thu theo ngày có phát sinh, giữ nguyên ngày và số tiền"></div></article>
+          <article class="admin-chart-card admin-analytics-chart"><div class="admin-card-heading"><div><h2><span data-admin-icon="calendar"></span>Cơ cấu cuộc hẹn</h2></div></div><div id="report-status" class="admin-analytics-bars"></div></article>
+          <article class="admin-chart-card admin-analytics-chart"><div class="admin-card-heading"><div><h2><span data-admin-icon="bars"></span>Top dịch vụ được đặt</h2><p>Lượt đặt không hủy · LH-FIN.</p></div></div><div id="report-services" class="admin-analytics-bars"></div></article>
+          <article class="admin-chart-card admin-analytics-chart"><div class="admin-card-heading"><div><h2><span data-admin-icon="star"></span>Phân bố điểm đánh giá</h2></div></div><div id="report-ratings" class="admin-analytics-bars"></div></article>
+        </section>
+        <section class="admin-table-card admin-service-panel" aria-labelledby="report-table-title"><div class="admin-card-heading"><div><h2 id="report-table-title">Tổng hợp theo dịch vụ</h2></div></div><div class="admin-table-scroll" role="region" tabindex="0" aria-label="Bảng báo cáo theo dịch vụ có thể cuộn ngang"><table class="admin-data-table"><thead><tr><th scope="col">Dịch vụ</th><th scope="col">Lịch hẹn</th><th scope="col">Lượt đặt không hủy</th><th scope="col">Hoàn thành</th><th scope="col">Doanh thu đã thanh toán</th><th scope="col">Đánh giá Quality</th><th scope="col">Điểm TB</th></tr></thead><tbody id="report-rows"></tbody><tfoot id="report-total"></tfoot></table></div></section>
+        <section class="admin-report-insights" aria-labelledby="report-insights-title"><h2 id="report-insights-title">3 điểm đáng chú ý</h2><div id="report-insights"></div></section>
+        <noscript><p class="admin-data-note">Bật JavaScript để tính báo cáo từ dataset demo.</p></noscript>
+      </main>
+    </div>
+    <div class="admin-chart-tooltip" id="analytics-tooltip" role="tooltip" hidden></div>
+    <div class="toast" role="status" aria-live="polite" hidden></div>
+  </body>
+</html>

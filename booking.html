@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Không gian chăm sóc và thư giãn tại Đà Nẵng.">
+    <title>
+      Đặt lịch | An Nhiên Spa
+    </title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/catalog.js" defer>
+    </script>
+    <link rel="stylesheet" href="css/auth.css">
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js" defer>
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="An Nhiên Spa - Trang chủ">
+        <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+      </img>
+    </a>
+    <button class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+      Menu
+      <span>
+        ☰
+      </span>
+    </button>
+    <nav class="navigation" aria-label="Menu chính">
+      <a href="services.html">
+        Dịch vụ
+      </a>
+      <a href="products.html">
+        Sản phẩm chăm sóc
+      </a>
+      <a href="promotions.html">
+        Khuyến mãi
+      </a>
+      <a href="appointments.html">
+        Lịch hẹn của tôi
+      </a>
+      <a href="invoice.html">
+        Hóa đơn
+      </a>
+      <a href="profile.html">
+        Tài khoản
+      </a>
+      <a class="button header-book" href="booking.html">
+        Đặt lịch
+      </a>
+    </nav>
+    <button class="button header-logout">
+      Đăng xuất
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 4H4v16h5M9 12h11m-4-4 4 4-4 4">
+        </path>
+      </svg>
+    </button>
+  </header>
+  <main class="page-main container journey-page">
+    <section class="page-panel">
+      <span class="eyebrow">
+        MỘT CUỘC HẸN VỚI SỰ AN YÊN
+      </span>
+      <h1>
+        Đặt lịch tại An Nhiên
+      </h1>
+      <p class="form-note">
+        Trải nghiệm đặt lịch mẫu. Chưa kết nối hệ thống của spa.
+      </p>
+      <form id="booking-form" class="journey-card">
+        <label>
+          Họ và tên
+          <input name="name" autocomplete="name" readonly placeholder="Chưa cập nhật trong hồ sơ">
+        </label>
+        <label>
+          Số điện thoại
+          <input name="phone" type="tel" autocomplete="tel" readonly placeholder="Chưa cập nhật trong hồ sơ">
+        </label>
+        <label>
+          <span><span data-booking-step>01 /</span> Chọn dịch vụ</span>
+          <select name="service" required>
+            <option value="0">
+              Massage đá nóng
+            </option>
+            <option value="1">
+              Chăm sóc da chuyên sâu
+            </option>
+            <option value="2">
+              Dưỡng thể thư giãn
+            </option>
+            <option value="3">
+              Tẩy tế bào chết body
+            </option>
+          </select>
+        </label>
+        <label>
+          <span><span data-booking-step>02 /</span> Chọn chuyên viên</span>
+          <select name="employee" required disabled><option value="">Chọn dịch vụ trước</option></select>
+        </label>
+        <div class="form-grid">
+          <label>
+            <span><span data-booking-step>03 /</span> Ngày hẹn</span>
+            <input type="date" name="date" required>
+          </label>
+          <label>
+            <span><span data-booking-step>04 /</span> Khung giờ còn trống</span>
+            <select name="time" required disabled>
+              <option value="">Chọn chuyên viên và ngày hẹn</option>
+            </select>
+          </label>
+        </div>
+        <p class="form-note" data-slot-status role="status" aria-live="polite">Chọn dịch vụ, chuyên viên và ngày để xem khung giờ phù hợp.</p>
+        <label><span><span data-booking-step>05 /</span> Ghi chú (không bắt buộc)</span><textarea name="note" rows="3" maxlength="500" placeholder="Điều bạn muốn chuyên viên lưu ý…"></textarea></label>
+        <p class="form-note">Giờ làm demo · Mai Anh 09:00–21:00 · Thu Hà 10:00–18:00 · Ngọc Linh 09:00–19:00. Họ tên, điện thoại không lưu từ form.</p>
+        <button class="button filled" type="submit">
+          Xác nhận đặt lịch
+        </button>
+      </form>
+      <div id="booking-result" class="journey-card" hidden>
+        <span class="eyebrow">ĐẶT LỊCH THÀNH CÔNG</span>
+        <h2>
+          Lịch hẹn đang chờ xác nhận
+        </h2>
+        <p>
+          Spa sẽ xác nhận lịch hẹn của bạn trong thời gian sớm nhất.
+        </p>
+        <span class="journey-status">Chờ xác nhận</span>
+        <dl class="journey-facts">
+          <div><dt>Dịch vụ</dt><dd data-booking-service></dd></div>
+          <div><dt>Chuyên viên</dt><dd data-booking-employee></dd></div>
+          <div><dt>Ngày</dt><dd data-booking-date></dd></div>
+          <div><dt>Giờ</dt><dd data-booking-time></dd></div>
+        </dl>
+        <div class="journey-actions"><a class="button filled" href="appointments.html">Xem lịch hẹn của tôi</a></div>
+        <p class="form-note">Cần hỗ trợ? <a href="tel:0901234567">090 123 4567</a></p>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="container footer-main">
+      <div class="footer-brand">
+        <a class="brand" href="index.html" >
+          <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+        </img>
+      </a>
+    </div>
+    <div>
+      <span class="eyebrow">
+        KHÁM PHÁ
+      </span>
+      <a href="services.html">
+        Dịch vụ
+      </a>
+      <a href="products.html">
+        Sản phẩm chăm sóc
+      </a>
+      <a href="promotions.html">
+        Khuyến mãi
+      </a>
+    </div>
+    <div>
+      <span class="eyebrow">
+        KẾT NỐI VỚI AN NHIÊN
+      </span>
+      <a href="tel:0901234567">
+        090 123 4567
+      </a>
+      <a href="mailto:hello@annhienspa.vn">
+        hello@annhienspa.vn
+      </a>
+      <p>
+        12 Dương Thưởng, Hòa Cường, Đà Nẵng
+      </p>
+    </div>
+    <div>
+      <span class="eyebrow">
+        GIỜ MỞ CỬA
+      </span>
+      <p>
+        Thứ Hai — Chủ Nhật
+      </p>
+      <p>
+        09:00 — 21:00
+      </p>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>
+      © 2026 An Nhiên Spa. All rights reserved.
+    </span>
+    <span>
+      Chăm sóc từ sự chân thành.
+    </span>
+  </div>
+</footer>
+<div class="toast" role="status" aria-live="polite" hidden>
+</div>
+</body>
+</html>

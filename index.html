@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Không gian chăm sóc và thư giãn tại Đà Nẵng.">
+    <title>
+      Trang chủ | An Nhiên Spa
+    </title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js" defer>
+    </script>
+  </head>
+  <body class="home-page">
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="An Nhiên Spa - Trang chủ">
+        <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+      </img>
+    </a>
+    <button class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+      Menu
+      <span>
+        ☰
+      </span>
+    </button>
+    <nav class="navigation" aria-label="Menu chính">
+      <a href="services.html">Dịch vụ</a>
+      <a href="promotions.html">Khuyến mãi</a>
+      <a class="button header-book" href="login.html">Đặt lịch</a>
+    </nav>
+    <a class="login-link" data-login-link href="login.html">Đăng nhập</a>
+  </header>
+  <main>
+    <section class="hero image-section">
+      <img class="section-image" src="images/hero.jpg" alt="Liệu trình massage thư giãn trong không gian spa ấm áp" fetchPriority="high"/>
+    </img>
+    <div class="image-shade">
+    </div>
+    <div class="hero-content">
+      <span class="eyebrow">
+        AN NHIÊN SPA
+      </span>
+      <h1>
+      <span class="hero-line">Chạm vào sự thư giãn</span>
+      <em class="hero-line">Đánh thức vẻ đẹp tự nhiên</em>
+    </h1>
+    <p>
+      Không gian chăm sóc và thư giãn dành riêng cho bạn.
+    </p>
+  </div>
+</section>
+<section class="philosophy">
+  <span class="eyebrow">
+    TRIẾT LÝ AN NHIÊN
+  </span>
+  <h2>
+    Nơi mỗi khoảnh khắc
+    <br/>
+
+  <em>
+    đều dành cho bạn.
+  </em>
+</h2>
+<p>
+  Đôi khi, điều bạn cần chỉ là một khoảng lặng.
+  <br/>
+
+Lắng nghe cơ thể, để lòng bình yên và chậm lại giữa những nhịp sống.
+</p>
+<p>
+  Tại An Nhiên, chúng tôi chăm sóc không chỉ làn da,
+  <br/>
+
+mà cả những cảm xúc bên trong bạn.
+</p>
+</section>
+<section id="dich-vu" class="collection container">
+  <div class="section-heading">
+    <span class="eyebrow">
+      CHĂM SÓC BẰNG SỰ THẤU HIỂU
+    </span>
+    <h2>
+      Dịch vụ được yêu thích
+    </h2>
+    <p>
+      Những liệu trình nâng niu cơ thể, vỗ về tâm trí.
+    </p>
+  </div>
+  <div class="service-actions">
+    <a class="button all-services" href="services.html">
+      Xem tất cả dịch vụ
+    </a>
+  </div>
+  <div id="danh-sach-dich-vu" class="card-grid">
+    <article class="service-card">
+      <img src="images/care-1.jpg" alt="Massage đá nóng" loading="lazy"/>
+    </img>
+    <div class="card-shade">
+    </div>
+    <span class="card-number">
+      01
+    </span>
+    <div class="service-info">
+      <span class="eyebrow">
+        THƯ GIÃN CƠ THỂ
+      </span>
+      <h3>
+        Massage đá nóng
+      </h3>
+      <p>
+        590.000 VND
+        <span class="dot">
+          ·
+        </span>
+        90 phút
+      </p>
+      <a class="button small" href="service-detail.html?id=0">
+        Xem chi tiết
+      </a>
+    </div>
+  </article>
+  <article class="service-card">
+    <img src="images/care-2.jpg" alt="Chăm sóc da chuyên sâu" loading="lazy"/>
+  </img>
+  <div class="card-shade">
+  </div>
+  <span class="card-number">
+    02
+  </span>
+  <div class="service-info">
+    <span class="eyebrow">
+      CHĂM SÓC DA MẶT
+    </span>
+    <h3>
+      Chăm sóc da chuyên sâu
+    </h3>
+    <p>
+      450.000 VND
+      <span class="dot">
+        ·
+      </span>
+      60 phút
+    </p>
+    <a class="button small" href="service-detail.html?id=1">
+      Xem chi tiết
+    </a>
+  </div>
+</article>
+<article class="service-card">
+  <img src="images/care-3.jpg" alt="Dưỡng thể thư giãn" loading="lazy"/>
+</img>
+<div class="card-shade">
+</div>
+<span class="card-number">
+  03
+</span>
+<div class="service-info">
+  <span class="eyebrow">
+    CHĂM SÓC CƠ THỂ
+  </span>
+  <h3>
+    Dưỡng thể thư giãn
+  </h3>
+  <p>
+    420.000 VND
+    <span class="dot">
+      ·
+    </span>
+    90 phút
+  </p>
+  <a class="button small" href="service-detail.html?id=2">
+    Xem chi tiết
+  </a>
+</div>
+</article>
+<article class="service-card">
+  <img src="images/care-4.jpg" alt="Tẩy tế bào chết body" loading="lazy"/>
+</img>
+<div class="card-shade">
+</div>
+<span class="card-number">
+  04
+</span>
+<div class="service-info">
+  <span class="eyebrow">
+    LÀM MỚI LÀN DA
+  </span>
+  <h3>
+    Tẩy tế bào chết body
+  </h3>
+  <p>
+    350.000 VND
+    <span class="dot">
+      ·
+    </span>
+    50 phút
+  </p>
+  <a class="button small" href="service-detail.html?id=3">
+    Xem chi tiết
+  </a>
+</div>
+</article>
+</div>
+<p class="collection-note">
+  Mỗi liệu trình là một hành trình trở về với chính mình.
+</p>
+</section>
+<section id="san-pham" class="products-section">
+  <div class="container">
+    <div class="section-heading">
+      <span class="eyebrow">
+        TIẾP NỐI SỰ CHĂM SÓC
+      </span>
+      <h2>
+        Nâng niu làn da, mỗi ngày
+      </h2>
+      <p>
+        Sản phẩm chăm sóc được chọn lọc, dành cho những thói quen dịu dàng.
+      </p>
+    </div>
+    <div class="service-actions">
+      <a class="button all-services" href="products.html">
+        Xem tất cả sản phẩm
+      </a>
+    </div>
+    <div class="card-grid">
+      <article class="product-card">
+        <div class="product-image">
+          <img src="images/care-5.jpg" alt="Tinh dầu thư giãn" loading="lazy"/>
+        </img>
+      </div>
+      <div class="product-info">
+        <span class="eyebrow">
+          TINH DẦU THIÊN NHIÊN
+        </span>
+        <h3>
+          Tinh dầu thư giãn
+        </h3>
+        <p>
+          Hương thơm dịu nhẹ, đưa những khoảnh khắc thư thái vào không gian của bạn.
+        </p>
+        <a class="text-link" href="product-detail.html?id=0">
+          Xem chi tiết
+        </a>
+      </div>
+    </article>
+    <article class="product-card">
+      <div class="product-image">
+        <img src="images/care-6.jpg" alt="Serum dưỡng ẩm" loading="lazy"/>
+      </img>
+    </div>
+    <div class="product-info">
+      <span class="eyebrow">
+        CHĂM SÓC DA MẶT
+      </span>
+      <h3>
+        Serum dưỡng ẩm
+      </h3>
+      <p>
+        Bổ sung độ ẩm, giúp làn da mềm mịn và tươi sáng mỗi ngày.
+      </p>
+      <a class="text-link" href="product-detail.html?id=1">
+        Xem chi tiết
+      </a>
+    </div>
+  </article>
+  <article class="product-card">
+    <div class="product-image">
+      <img src="images/care-7.jpg" alt="Kem dưỡng phục hồi" loading="lazy"/>
+    </img>
+  </div>
+  <div class="product-info">
+    <span class="eyebrow">
+      NUÔI DƯỠNG LÀN DA
+    </span>
+    <h3>
+      Kem dưỡng phục hồi
+    </h3>
+    <p>
+      Chăm sóc nhẹ nhàng, hỗ trợ hàng rào bảo vệ và giữ ẩm cho làn da.
+    </p>
+    <a class="text-link" href="product-detail.html?id=2">
+      Xem chi tiết
+    </a>
+  </div>
+</article>
+<article class="product-card">
+  <div class="product-image">
+    <img src="images/care-8.jpg" alt="Dầu dưỡng tóc" loading="lazy"/>
+  </img>
+</div>
+<div class="product-info">
+  <span class="eyebrow">
+    CHĂM SÓC TÓC
+  </span>
+  <h3>
+    Dầu dưỡng tóc
+  </h3>
+  <p>
+    Nuôi dưỡng mái tóc mềm mại, bóng khỏe và dễ vào nếp.
+  </p>
+  <a class="text-link" href="product-detail.html?id=3">
+    Xem chi tiết
+  </a>
+</div>
+</article>
+</div>
+</div>
+</section>
+<section class="experience image-section">
+  <img class="section-image" src="images/candles.jpg" alt="Nến thơm và khăn mềm trong không gian spa" loading="lazy"/>
+</img>
+<div class="image-shade">
+</div>
+<div class="container experience-content">
+  <div class="section-heading">
+    <span class="eyebrow">
+      VÌ BẠN XỨNG ĐÁNG
+    </span>
+    <h2>
+      Không chỉ là một buổi chăm sóc
+    </h2>
+    <p>
+      Mà là một trải nghiệm để cảm nhận, thư giãn và tái tạo.
+    </p>
+  </div>
+  <div class="card-grid">
+    <article class="glass-card">
+      <span class="feature-icon" aria-hidden="true">
+        ◇
+      </span>
+      <h3>
+        Không gian thư giãn
+      </h3>
+      <p>
+        Lắng nghe sự yên tĩnh trong một không gian ấm áp, riêng tư.
+      </p>
+    </article>
+    <article class="glass-card">
+      <span class="feature-icon" aria-hidden="true">
+        ✧
+      </span>
+      <h3>
+        Liệu trình đa dạng
+      </h3>
+      <p>
+        Chăm sóc theo nhu cầu riêng của cơ thể và làn da.
+      </p>
+    </article>
+    <article class="glass-card">
+      <span class="feature-icon" aria-hidden="true">
+        ♧
+      </span>
+      <h3>
+        Nhân viên tận tâm
+      </h3>
+      <p>
+        Chuyên viên phù hợp từng dịch vụ, đồng hành cùng bạn.
+      </p>
+    </article>
+    <article class="glass-card">
+      <span class="feature-icon" aria-hidden="true">
+        ▦
+      </span>
+      <h3>
+        Đặt lịch thuận tiện
+      </h3>
+      <p>
+        Chủ động chọn thời gian cho một khoảng nghỉ trọn vẹn.
+      </p>
+    </article>
+  </div>
+</div>
+</section>
+<section id="uu-dai" class="offers">
+  <div class="container">
+    <div class="section-heading">
+      <span class="eyebrow">
+        THÊM MỘT CHÚT YÊU THƯƠNG
+      </span>
+      <h2>
+        Ưu đãi dành cho bạn
+      </h2>
+      <p>
+        Những món quà nhỏ cho hành trình chăm sóc bản thân.
+      </p>
+    </div>
+    <div class="service-actions">
+      <a class="button all-services" href="promotions.html">Xem tất cả khuyến mãi</a>
+    </div>
+    <div class="offer-grid">
+      <article class="offer-card">
+        <div class="offer-topline">
+          <span class="eyebrow">
+            WELCOME10
+          </span>
+          <span class="offer-badge">
+            Khách hàng mới
+          </span>
+        </div>
+        <div class="offer-ornament" aria-hidden="true">
+          <svg class="" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+            <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9">
+            </path>
+            <path d="m8 16 1-6m3 2 5 0">
+            </path>
+          </svg>
+        </div>
+        <h3>
+          Ưu đãi khách hàng mới
+        </h3>
+        <div class="discount">
+          Giảm 10%
+        </div>
+        <p>
+          Dành cho lần trải nghiệm đầu tiên.
+        </p>
+        <div class="offer-bottom">
+          <span>
+            01.10.2026 — 31.12.2026
+          </span>
+          <a class="button small" href="promotion-detail.html?code=WELCOME10">
+            Xem chi tiết
+          </a>
+        </div>
+      </article>
+      <article class="offer-card">
+        <div class="offer-topline">
+          <span class="eyebrow">
+            ANNHIEN20
+          </span>
+          <span class="offer-badge">
+            Được yêu thích
+          </span>
+        </div>
+        <div class="offer-ornament" aria-hidden="true">
+          <svg class="" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+            <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9">
+            </path>
+            <path d="m8 16 1-6m3 2 5 0">
+            </path>
+          </svg>
+        </div>
+        <h3>
+          Thư giãn cùng An Nhiên
+        </h3>
+        <div class="discount">
+          Giảm 20%
+        </div>
+        <p>
+          Một khoảng nghỉ, nhiều yêu thương.
+        </p>
+        <div class="offer-bottom">
+          <span>
+            01.10.2026 — 31.12.2026
+          </span>
+          <a class="button small" href="promotion-detail.html?code=ANNHIEN20">
+            Xem chi tiết
+          </a>
+        </div>
+      </article>
+      <article class="offer-card">
+        <div class="offer-topline">
+          <span class="eyebrow">
+            RELAX50
+          </span>
+          <span class="offer-badge">
+            Quà tặng
+          </span>
+        </div>
+        <div class="offer-ornament" aria-hidden="true">
+          <svg class="" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+            <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9">
+            </path>
+            <path d="m8 16 1-6m3 2 5 0">
+            </path>
+          </svg>
+        </div>
+        <h3>
+          Món quà cho chính bạn
+        </h3>
+        <div class="discount">
+          Giảm 50.000 VND
+        </div>
+        <p>
+          Để mỗi cuộc hẹn thêm trọn vẹn.
+        </p>
+        <div class="offer-bottom">
+          <span>
+            01.10.2026 — 31.12.2026
+          </span>
+          <a class="button small" href="promotion-detail.html?code=RELAX50">
+            Xem chi tiết
+          </a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+<section class="closing image-section">
+  <img class="section-image" src="images/facial.jpg" alt="Dành thời gian để thư giãn và chăm sóc chính mình" loading="lazy"/>
+</img>
+<div class="image-shade">
+</div>
+<div class="closing-content">
+  <svg class="" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+    <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9">
+    </path>
+    <path d="m8 16 1-6m3 2 5 0">
+    </path>
+  </svg>
+  <h2>
+    Dành một khoảng thời gian
+    <br/>
+
+  <em>
+    cho chính bạn.
+  </em>
+</h2>
+<p>
+  Chọn liệu trình phù hợp và đặt lịch tại An Nhiên Spa.
+</p>
+<a class="button filled" href="login.html">
+  Đặt lịch ngay
+  <span>
+    ↗
+  </span>
+</a>
+</div>
+</section>
+</main>
+<footer>
+  <div class="container footer-main">
+    <div class="footer-brand">
+      <a class="brand" href="index.html" >
+        <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+      </img>
+    </a>
+  </div>
+  <div>
+    <span class="eyebrow">
+      KHÁM PHÁ
+    </span>
+    <a href="#dich-vu">
+      Dịch vụ
+    </a>
+    <a href="#san-pham">
+      Sản phẩm chăm sóc
+    </a>
+    <a href="#uu-dai">
+      Khuyến mãi
+    </a>
+  </div>
+  <div>
+    <span class="eyebrow">
+      KẾT NỐI VỚI AN NHIÊN
+    </span>
+    <a href="tel:0901234567">
+      090 123 4567
+    </a>
+    <a href="mailto:hello@annhienspa.vn">
+      hello@annhienspa.vn
+    </a>
+    <p>
+      12 Dương Thưởng, Hòa Cường, Đà Nẵng
+    </p>
+  </div>
+  <div>
+    <span class="eyebrow">
+      GIỜ MỞ CỬA
+    </span>
+    <p>
+      Thứ Hai — Chủ Nhật
+    </p>
+    <p>
+      09:00 — 21:00
+    </p>
+  </div>
+</div>
+<div class="container footer-bottom">
+  <span>
+    © 2026 An Nhiên Spa. All rights reserved.
+  </span>
+  <span>
+    Chăm sóc từ sự chân thành.
+  </span>
+</div>
+</footer>
+<div class="toast" role="status" aria-live="polite" hidden>
+</div>
+</body>
+</html>

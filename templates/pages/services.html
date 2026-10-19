@@ -1,0 +1,481 @@
+{% load static %}
+<!doctype html>
+<html lang="vi" data-page="services.html">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Liệu trình và sản phẩm chăm sóc được chọn lọc cho bạn.">
+    <title>
+      Dịch vụ tại An Nhiên | An Nhiên Spa
+    </title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <script src="{% static 'js/ui.js' %}"></script>
+    {{ auth_ui|json_script:"spa-auth-context" }}
+    <script src="{% static 'js/auth.js' %}"></script>
+    <script src="{% static 'js/app.js' %}" defer>
+    </script>
+    <script src="{% static 'js/catalog-pages.js' %}" defer>
+    </script>
+  {{ live_catalog|json_script:"live-catalog" }}
+{{ live_promotions|json_script:"live-promotions" }}
+<script src="{% static 'js/live-data.js' %}"></script>
+</head>
+  <body>
+    <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
+    <header class="site-header">
+      <a class="brand" href="{% url 'core:index' as page_url %}{{ page_url|slice:'1:' }}" aria-label="An Nhiên Spa - Trang chủ">
+        <img class="brand-logo" src="{% static 'images/an-nhien-logo.png' %}" alt="An Nhiên Spa" width="420" height="420"/>
+      </a>
+      <button class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+        Menu
+        <span>
+          ☰
+        </span>
+      </button>
+      <nav class="navigation" aria-label="Menu chính">
+        <a href="{% url 'core:services' as page_url %}{{ page_url|slice:'1:' }}">
+          Dịch vụ
+        </a>
+        <a href="{% url 'core:products' as page_url %}{{ page_url|slice:'1:' }}">
+          Sản phẩm chăm sóc
+        </a>
+        <a href="{% url 'core:promotions' as page_url %}{{ page_url|slice:'1:' }}">
+          Khuyến mãi
+        </a>
+        <a href="{% url 'core:appointments' as page_url %}{{ page_url|slice:'1:' }}">
+          Lịch hẹn của tôi
+        </a>
+        <a href="{% url 'core:invoice' as page_url %}{{ page_url|slice:'1:' }}">
+          Hóa đơn
+        </a>
+        <a href="{% url 'core:profile' as page_url %}{{ page_url|slice:'1:' }}">
+          Tài khoản
+        </a>
+        <a class="button header-book" href="{% url 'core:booking' as page_url %}{{ page_url|slice:'1:' }}">
+          Đặt lịch
+        </a>
+      </nav>
+      <button class="button header-logout">
+        Đăng xuất
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 4H4v16h5M9 12h11m-4-4 4 4-4 4">
+          </path>
+        </svg>
+      </button>
+    </header>
+    <main class="catalog-view" data-catalog-list="services">
+      <section class="catalog-hero image-section">
+        <img class="section-image" src="{% static 'images/hero.jpg' %}" alt="Không gian chăm sóc tại An Nhiên" fetchpriority="high">
+        <div class="image-shade">
+        </div>
+        <div class="container">
+          <span class="eyebrow">
+            AN NHIÊN SPA / LIỆU TRÌNH
+          </span>
+          <h1>
+            Dịch vụ tại
+            <em>
+              An Nhiên
+            </em>
+          </h1>
+          <p>
+            Những liệu trình được lựa chọn để chăm sóc cơ thể, làn da và những phút giây thư giãn của bạn.
+          </p>
+          <span class="hero-caption">
+            CHĂM SÓC TỪ SỰ CHÂN THÀNH
+          </span>
+        </div>
+      </section>
+      <section class="container catalog-collection" aria-label="Danh sách dịch vụ">
+        <section id="recommendations" class="recommendation" data-recommendation hidden aria-labelledby="recommendation-title">
+          <div class="review-surface">
+            <span class="eyebrow">AN NHIÊN / DÀNH RIÊNG CHO BẠN</span>
+            <h2 id="recommendation-title">Một liệu trình, đúng với bạn</h2>
+            <p>Trả lời vài câu hỏi để An Nhiên gợi ý liệu trình và sản phẩm chăm sóc phù hợp với bạn.</p>
+            <form data-recommendation-form>
+              <div class="form-grid">
+                <label>Loại da<select name="skin"><option value="">Chưa xác định</option></select></label>
+                <label>Nhu cầu chăm sóc<select name="needs"><option value="">Khám phá các liệu trình</option><option value="face">Chăm sóc da mặt</option><option value="relax">Thư giãn</option><option value="body">Chăm sóc cơ thể</option><option value="hair">Chăm sóc tóc</option></select></label>
+                <label>Ngân sách mỗi liệu trình (VND)<input name="budget" type="number" min="0" step="1" placeholder="Ví dụ: 600000"></label>
+                <label>Sở thích / thông tin chăm sóc<input name="interests" maxlength="160" placeholder="Hương thơm, thư giãn, chăm sóc dịu nhẹ…"></label>
+                <label>Thời lượng mong muốn<select name="duration"><option value="">Không quan trọng</option><option value="short">Dưới 60 phút</option><option value="medium">60–90 phút</option><option value="long">Trên 90 phút</option></select></label>
+              </div>
+              <button class="button filled" type="submit">Phân tích &amp; gợi ý cho tôi</button>
+              <p class="review-note">Gợi ý minh họa từ dữ liệu hiện có, chưa gọi AI thật.</p>
+            </form>
+          </div>
+          <p class="review-note" data-recommendation-status role="status" aria-live="polite"></p>
+          <div data-recommendation-results></div>
+        </section>
+        <form class="catalog-toolbar" role="search" aria-label="Tìm và lọc dịch vụ">
+          <label class="search-field">
+            Tìm kiếm dịch vụ
+            <input name="search" type="search" placeholder="Tên liệu trình bạn muốn tìm…" autocomplete="off">
+          </label>
+          <label>
+            Danh mục
+            <select name="category">
+              <option value="">
+                Tất cả danh mục
+              </option>
+              <option value="Chăm sóc tóc / da đầu">
+                Chăm sóc tóc / da đầu
+              </option>
+              <option value="Chăm sóc da mặt">
+                Chăm sóc da mặt
+              </option>
+              <option value="Chăm sóc cơ thể">
+                Chăm sóc cơ thể
+              </option>
+              <option value="Massage / thư giãn">
+                Massage / thư giãn
+              </option>
+            </select>
+          </label>
+          <label>
+            Sắp xếp
+            <select name="sort">
+              <option value="default">
+                Mặc định
+              </option>
+              <option value="price-asc">
+                Giá thấp đến cao
+              </option>
+              <option value="price-desc">
+                Giá cao đến thấp
+              </option>
+              <option value="duration">
+                Thời lượng
+              </option>
+            </select>
+          </label>
+          <button class="button small filter-reset" type="button" data-reset>
+            Xóa bộ lọc
+          </button>
+        </form>
+        <div class="catalog-result-line">
+          <p data-result-count role="status" aria-live="polite">
+            7 liệu trình dành cho bạn
+          </p>
+          <span class="eyebrow">
+            MỘT KHOẢNG NGHỈ, NHIỀU YÊU THƯƠNG
+          </span>
+        </div>
+        <div class="catalog-grid" data-catalog-grid>
+          <article class="service-card catalog-service" data-card-id="0">
+            <img src="{% static 'images/care-1.jpg' %}" alt="Massage đá nóng" loading="lazy" width="700" height="900">
+            <div class="card-shade">
+            </div>
+            <span class="card-number">
+              01
+            </span>
+            <div class="service-info">
+              <span class="eyebrow">
+                Massage / thư giãn
+              </span>
+              <h3>
+                Massage đá nóng
+              </h3>
+              <p class="card-description">
+                Hơi ấm từ đá tự nhiên kết hợp những động tác massage nhẹ nhàng, giúp thả lỏng cơ thể và xoa dịu những căng thẳng trong ngày.
+              </p>
+              <p class="service-meta">
+                590.000 VND
+                <span class="dot">
+                  ·
+                </span>
+                90 phút
+              </p>
+              <div class="catalog-card-actions">
+                <a class="button small" href="{% url 'core:service-detail' as page_url %}{{ page_url|slice:'1:' }}?id=0">
+                  Xem chi tiết
+                </a>
+                <a class="button small filled" href="{% url 'core:booking' as page_url %}{{ page_url|slice:'1:' }}?service=0">
+                  Đặt lịch
+                </a>
+              </div>
+            </div>
+          </article>
+          <article class="service-card catalog-service" data-card-id="1">
+            <img src="{% static 'images/care-2.jpg' %}" alt="Chăm sóc da chuyên sâu" loading="lazy" width="700" height="900">
+            <div class="card-shade">
+            </div>
+            <span class="card-number">
+              02
+            </span>
+            <div class="service-info">
+              <span class="eyebrow">
+                Chăm sóc da mặt
+              </span>
+              <h3>
+                Chăm sóc da chuyên sâu
+              </h3>
+              <p class="card-description">
+                Làm sạch, cấp ẩm và chăm sóc làn da với liệu trình được lựa chọn theo nhu cầu của bạn, để da tìm lại vẻ rạng rỡ tự nhiên.
+              </p>
+              <p class="service-meta">
+                450.000 VND
+                <span class="dot">
+                  ·
+                </span>
+                60 phút
+              </p>
+              <div class="catalog-card-actions">
+                <a class="button small" href="{% url 'core:service-detail' as page_url %}{{ page_url|slice:'1:' }}?id=1">
+                  Xem chi tiết
+                </a>
+                <a class="button small filled" href="{% url 'core:booking' as page_url %}{{ page_url|slice:'1:' }}?service=1">
+                  Đặt lịch
+                </a>
+              </div>
+            </div>
+          </article>
+          <article class="service-card catalog-service" data-card-id="2">
+            <img src="{% static 'images/care-3.jpg' %}" alt="Dưỡng thể thư giãn" loading="lazy" width="700" height="900">
+            <div class="card-shade">
+            </div>
+            <span class="card-number">
+              03
+            </span>
+            <div class="service-info">
+              <span class="eyebrow">
+                Chăm sóc cơ thể
+              </span>
+              <h3>
+                Dưỡng thể thư giãn
+              </h3>
+              <p class="card-description">
+                Một khoảng lặng với tinh dầu và kỹ thuật chăm sóc nhẹ nhàng, nuôi dưỡng làn da và mang lại cảm giác cân bằng.
+              </p>
+              <p class="service-meta">
+                420.000 VND
+                <span class="dot">
+                  ·
+                </span>
+                90 phút
+              </p>
+              <div class="catalog-card-actions">
+                <a class="button small" href="{% url 'core:service-detail' as page_url %}{{ page_url|slice:'1:' }}?id=2">
+                  Xem chi tiết
+                </a>
+                <a class="button small filled" href="{% url 'core:booking' as page_url %}{{ page_url|slice:'1:' }}?service=2">
+                  Đặt lịch
+                </a>
+              </div>
+            </div>
+          </article>
+          <article class="service-card catalog-service" data-card-id="3">
+            <img src="{% static 'images/care-4.jpg' %}" alt="Tẩy tế bào chết body" loading="lazy" width="700" height="900">
+            <div class="card-shade">
+            </div>
+            <span class="card-number">
+              04
+            </span>
+            <div class="service-info">
+              <span class="eyebrow">
+                Chăm sóc cơ thể
+              </span>
+              <h3>
+                Tẩy tế bào chết body
+              </h3>
+              <p class="card-description">
+                Nhẹ nhàng loại bỏ tế bào chết và dưỡng ẩm toàn thân, trả lại làn da mềm mại, mịn màng.
+              </p>
+              <p class="service-meta">
+                350.000 VND
+                <span class="dot">
+                  ·
+                </span>
+                50 phút
+              </p>
+              <div class="catalog-card-actions">
+                <a class="button small" href="{% url 'core:service-detail' as page_url %}{{ page_url|slice:'1:' }}?id=3">
+                  Xem chi tiết
+                </a>
+                <a class="button small filled" href="{% url 'core:booking' as page_url %}{{ page_url|slice:'1:' }}?service=3">
+                  Đặt lịch
+                </a>
+              </div>
+            </div>
+          </article>
+          <article class="service-card catalog-service" data-card-id="4">
+            <img src="{% static 'images/hair-care.jpg' %}" alt="Ủ dưỡng tóc phục hồi" loading="lazy" width="700" height="900">
+            <div class="card-shade">
+            </div>
+            <span class="card-number">
+              05
+            </span>
+            <div class="service-info">
+              <span class="eyebrow">
+                Chăm sóc tóc / da đầu
+              </span>
+              <h3>
+                Ủ dưỡng tóc phục hồi
+              </h3>
+              <p class="card-description">
+                Một nghi thức chăm sóc dịu dàng cho mái tóc khô xơ, kết hợp ủ dưỡng và massage da đầu để bạn tìm lại sự nhẹ nhõm.
+              </p>
+              <p class="service-meta">
+                320.000 VND
+                <span class="dot">
+                  ·
+                </span>
+                60 phút
+              </p>
+              <div class="catalog-card-actions">
+                <a class="button small" href="{% url 'core:service-detail' as page_url %}{{ page_url|slice:'1:' }}?id=4">
+                  Xem chi tiết
+                </a>
+                <a class="button small filled" href="{% url 'core:booking' as page_url %}{{ page_url|slice:'1:' }}?service=4">
+                  Đặt lịch
+                </a>
+              </div>
+            </div>
+          </article>
+          <article class="service-card catalog-service" data-card-id="5">
+            <img src="{% static 'images/hair-care.jpg' %}" alt="Ủ chăm sóc tóc và da đầu" loading="lazy" width="700" height="900">
+            <div class="card-shade">
+            </div>
+            <span class="card-number">
+              06
+            </span>
+            <div class="service-info">
+              <span class="eyebrow">
+                Chăm sóc tóc / da đầu
+              </span>
+              <h3>
+                Ủ chăm sóc tóc và da đầu
+              </h3>
+              <p class="card-description">
+                Làm sạch nhẹ nhàng, chăm sóc da đầu và nuôi dưỡng tóc trong không gian ấm áp, riêng tư của An Nhiên.
+              </p>
+              <p class="service-meta">
+                390.000 VND
+                <span class="dot">
+                  ·
+                </span>
+                75 phút
+              </p>
+              <div class="catalog-card-actions">
+                <a class="button small" href="{% url 'core:service-detail' as page_url %}{{ page_url|slice:'1:' }}?id=5">
+                  Xem chi tiết
+                </a>
+                <a class="button small filled" href="{% url 'core:booking' as page_url %}{{ page_url|slice:'1:' }}?service=5">
+                  Đặt lịch
+                </a>
+              </div>
+            </div>
+          </article>
+          <article class="service-card catalog-service" data-card-id="6">
+            <img src="{% static 'images/hair-care.jpg' %}" alt="Massage da đầu thư giãn" loading="lazy" width="700" height="900">
+            <div class="card-shade">
+            </div>
+            <span class="card-number">
+              07
+            </span>
+            <div class="service-info">
+              <span class="eyebrow">
+                Chăm sóc tóc / da đầu
+              </span>
+              <h3>
+                Massage da đầu thư giãn
+              </h3>
+              <p class="card-description">
+                Massage da đầu nhẹ nhàng kết hợp chăm sóc mái tóc, mang lại một khoảng nghỉ dịu êm và cảm giác nhẹ nhõm.
+              </p>
+              <p class="service-meta">
+                290.000 VND
+                <span class="dot">
+                  ·
+                </span>
+                45 phút
+              </p>
+              <div class="catalog-card-actions">
+                <a class="button small" href="{% url 'core:service-detail' as page_url %}{{ page_url|slice:'1:' }}?id=6">
+                  Xem chi tiết
+                </a>
+                <a class="button small filled" href="{% url 'core:booking' as page_url %}{{ page_url|slice:'1:' }}?service=6">
+                  Đặt lịch
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+        <div class="catalog-empty" data-empty hidden>
+          <h2>
+            Chưa tìm thấy liệu trình phù hợp
+          </h2>
+          <p>
+            Thử tên khác hoặc thay đổi danh mục để khám phá thêm.
+          </p>
+          <button class="button" type="button" data-reset>
+            Xóa bộ lọc
+          </button>
+        </div>
+        <p class="collection-note">
+          Mỗi liệu trình là một hành trình trở về với chính mình.
+        </p>
+      </section>
+    </main>
+    <footer>
+      <div class="container footer-main">
+        <div class="footer-brand">
+          <a class="brand" href="{% url 'core:index' as page_url %}{{ page_url|slice:'1:' }}" >
+            <img class="brand-logo" src="{% static 'images/an-nhien-logo.png' %}" alt="An Nhiên Spa" width="420" height="420"/>
+          </a>
+        </div>
+        <div>
+          <span class="eyebrow">
+            KHÁM PHÁ
+          </span>
+          <a href="{% url 'core:services' as page_url %}{{ page_url|slice:'1:' }}">
+            Dịch vụ
+          </a>
+          <a href="{% url 'core:products' as page_url %}{{ page_url|slice:'1:' }}">
+            Sản phẩm chăm sóc
+          </a>
+          <a href="{% url 'core:promotions' as page_url %}{{ page_url|slice:'1:' }}">
+            Khuyến mãi
+          </a>
+        </div>
+        <div>
+          <span class="eyebrow">
+            KẾT NỐI VỚI AN NHIÊN
+          </span>
+          <a href="tel:0901234567">
+            090 123 4567
+          </a>
+          <a href="mailto:hello@annhienspa.vn">
+            hello@annhienspa.vn
+          </a>
+          <p>
+            12 Dương Thưởng, Hòa Cường, Đà Nẵng
+          </p>
+        </div>
+        <div>
+          <span class="eyebrow">
+            GIỜ MỞ CỬA
+          </span>
+          <p>
+            Thứ Hai — Chủ Nhật
+          </p>
+          <p>
+            09:00 — 21:00
+          </p>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <span>
+          © 2026 An Nhiên Spa. All rights reserved.
+        </span>
+        <span>
+          Chăm sóc từ sự chân thành.
+        </span>
+      </div>
+    </footer>
+    <div class="toast" role="status" aria-live="polite" hidden>
+    </div>
+  </body>
+</html>

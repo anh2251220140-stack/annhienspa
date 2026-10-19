@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Không gian chăm sóc và thư giãn tại Đà Nẵng.">
+    <title>
+      Tài khoản | An Nhiên Spa
+    </title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js" defer>
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="An Nhiên Spa - Trang chủ">
+        <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+      </img>
+    </a>
+    <button class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+      Menu
+      <span>
+        ☰
+      </span>
+    </button>
+    <nav class="navigation" aria-label="Menu chính">
+      <a href="services.html">
+        Dịch vụ
+      </a>
+      <a href="products.html">
+        Sản phẩm chăm sóc
+      </a>
+      <a href="promotions.html">
+        Khuyến mãi
+      </a>
+      <a href="appointments.html">
+        Lịch hẹn của tôi
+      </a>
+      <a href="invoice.html">
+        Hóa đơn
+      </a>
+      <a href="profile.html">
+        Tài khoản
+      </a>
+      <a class="button header-book" href="booking.html">
+        Đặt lịch
+      </a>
+    </nav>
+    <button class="button header-logout">
+      Đăng xuất
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 4H4v16h5M9 12h11m-4-4 4 4-4 4">
+        </path>
+      </svg>
+    </button>
+  </header>
+  <main class="page-main container profile-page">
+    <section class="page-panel">
+      <span class="eyebrow">
+        KHÔNG GIAN CỦA BẠN
+      </span>
+      <h1>
+        Hồ sơ của bạn
+      </h1>
+      <p>
+        Một chút thấu hiểu, để mỗi lần chăm sóc thêm riêng dành cho bạn.
+      </p>
+      <section class="profile-summary" aria-labelledby="profile-name">
+        <div class="profile-portrait">
+          <span class="account-avatar" data-profile-avatar aria-label="Ảnh đại diện"></span>
+          <button class="text-link" type="button" data-avatar-change>Thay đổi ảnh</button>
+          <input type="file" id="profile-avatar" accept="image/png,image/jpeg,image/webp" hidden aria-label="Chọn ảnh đại diện">
+        </div>
+        <div class="profile-identity">
+          <h2 id="profile-name" data-profile-value="name">Lan Anh</h2>
+          <span class="membership-badge">Hạng thành viên sẽ được cập nhật khi có đủ dữ liệu</span>
+          <p>@<span data-profile-value="username">user</span></p>
+          <p data-profile-value="email">user@annhienspa.vn</p>
+          <p>Điện thoại: <span data-profile-value="phone">Chưa cập nhật</span></p>
+          <p>Ngày tham gia: chờ dữ liệu tài khoản</p>
+        </div>
+        <button class="button" type="button" data-profile-edit aria-controls="profile-personal-editor" aria-expanded="false">Chỉnh sửa thông tin</button>
+      </section>
+      <p class="form-note">Hồ sơ minh họa chỉ lưu trong phiên này. Chỉnh sửa username/email không thay đổi tài khoản đăng nhập demo. Ảnh PNG, JPG hoặc WebP, tối đa 1 MB; xem trước rồi lưu.</p>
+      <section class="profile-section" aria-labelledby="personal-title">
+        <span class="eyebrow">HIỂU THÊM VỀ BẠN</span>
+        <h2 id="personal-title">Thông tin cá nhân</h2>
+        <dl class="profile-facts" data-profile-facts>
+          <div><dt>Họ và tên</dt><dd data-profile-value="name">Lan Anh</dd></div>
+          <div><dt>Username</dt><dd data-profile-value="username">user</dd></div>
+          <div><dt>Email</dt><dd data-profile-value="email">user@annhienspa.vn</dd></div>
+          <div><dt>Số điện thoại</dt><dd data-profile-value="phone">Chưa cập nhật</dd></div>
+        </dl>
+      </section>
+        <form id="profile-form" class="auth-form" novalidate>
+          <div class="form-grid" id="profile-personal-editor" hidden>
+            <label>Họ và tên<input name="name" required autocomplete="name" maxlength="80"></label>
+            <label>Username<input name="username" required autocomplete="username" maxlength="80"></label>
+            <label>Email<input name="email" type="email" required autocomplete="email" maxlength="120"></label>
+            <label>Số điện thoại<input name="phone" type="tel" autocomplete="tel" maxlength="20"></label>
+          </div>
+          <section class="profile-care-card" aria-labelledby="profile-care-title">
+            <div class="profile-care-heading"><span class="profile-care-symbol" data-profile-icon="leaf" aria-hidden="true"></span><div><span class="eyebrow">CHĂM SÓC THEO CÁCH CỦA BẠN</span><h2 id="profile-care-title">Hồ sơ chăm sóc của bạn</h2><p>Thông tin bạn chia sẻ giúp spa hiểu nhu cầu chăm sóc của bạn hơn.</p></div></div>
+            <div class="profile-care-groups">
+              <fieldset class="profile-care-group"><legend><span data-profile-icon="droplet" aria-hidden="true"></span>Loại da <small>Chọn một</small></legend>
+                <div class="profile-care-choices profile-skin-choices">
+                  <label class="profile-care-choice"><input type="radio" name="skin" value="Da thường"><span>Da thường</span></label>
+                  <label class="profile-care-choice"><input type="radio" name="skin" value="Da khô"><span>Da khô</span></label>
+                  <label class="profile-care-choice"><input type="radio" name="skin" value="Da dầu"><span>Da dầu</span></label>
+                  <label class="profile-care-choice"><input type="radio" name="skin" value="Da hỗn hợp"><span>Da hỗn hợp</span></label>
+                  <label class="profile-care-choice"><input type="radio" name="skin" value="Da nhạy cảm"><span>Da nhạy cảm</span></label>
+                  <label class="profile-care-choice"><input type="radio" name="skin" value="Chưa xác định" checked><span>Chưa xác định</span></label>
+                </div><p class="profile-care-legacy" data-care-legacy="skin" hidden></p>
+              </fieldset>
+              <fieldset class="profile-care-group"><legend><span data-profile-icon="heart" aria-hidden="true"></span>Nhu cầu chăm sóc <small>Chọn nhiều</small></legend>
+                <div class="profile-care-choices">
+                  <label class="profile-care-choice"><input type="checkbox" name="needs" value="Dưỡng ẩm, cải thiện da khô"><span>Dưỡng ẩm, cải thiện da khô</span></label>
+                  <label class="profile-care-choice"><input type="checkbox" name="needs" value="Kiểm soát dầu, chăm sóc da mụn"><span>Kiểm soát dầu, chăm sóc da mụn</span></label>
+                  <label class="profile-care-choice"><input type="checkbox" name="needs" value="Làm sáng da, cải thiện da xỉn màu"><span>Làm sáng da, cải thiện da xỉn màu</span></label>
+                  <label class="profile-care-choice"><input type="checkbox" name="needs" value="Thư giãn, giảm căng thẳng"><span>Thư giãn, giảm căng thẳng</span></label>
+                  <label class="profile-care-choice"><input type="checkbox" name="needs" value="Chăm sóc tóc và da đầu"><span>Chăm sóc tóc và da đầu</span></label>
+                  <label class="profile-care-choice"><input type="checkbox" name="needs" value="Chăm sóc cơ thể, giảm mệt mỏi"><span>Chăm sóc cơ thể, giảm mệt mỏi</span></label>
+                </div><p class="profile-care-legacy" data-care-legacy="needs" hidden></p>
+              </fieldset>
+              <fieldset class="profile-care-group"><legend><span data-profile-icon="leaf" aria-hidden="true"></span>Sở thích chăm sóc <small>Chọn nhiều</small></legend>
+                <div class="profile-care-choices">
+                  <label class="profile-care-choice"><input type="checkbox" name="interests" value="Liệu trình nhẹ nhàng, thư giãn"><span>Liệu trình nhẹ nhàng, thư giãn</span></label>
+                  <label class="profile-care-choice"><input type="checkbox" name="interests" value="Ưu tiên nguyên liệu thiên nhiên"><span>Ưu tiên nguyên liệu thiên nhiên</span></label>
+                  <label class="profile-care-choice"><input type="checkbox" name="interests" value="Thích massage và chăm sóc cơ thể"><span>Thích massage và chăm sóc cơ thể</span></label>
+                  <label class="profile-care-choice"><input type="checkbox" name="interests" value="Ưu tiên liệu trình ngắn, tiết kiệm thời gian"><span>Ưu tiên liệu trình ngắn, tiết kiệm thời gian</span></label>
+                  <label class="profile-care-choice"><input type="checkbox" name="interests" value="Thích liệu trình chăm sóc chuyên sâu"><span>Thích liệu trình chăm sóc chuyên sâu</span></label>
+                  <label class="profile-care-choice"><input type="checkbox" name="interests" value="Không có sở thích đặc biệt"><span>Không có sở thích đặc biệt</span></label>
+                </div><p class="profile-care-legacy" data-care-legacy="interests" hidden></p>
+              </fieldset>
+              <fieldset class="profile-care-group"><legend><span data-profile-icon="note" aria-hidden="true"></span>Ngân sách dự kiến</legend>
+                <label class="profile-care-budget-label" for="profile-budget">Số tiền dành cho chăm sóc</label>
+                <div class="profile-care-budget"><input id="profile-budget" name="budget" type="text" inputmode="numeric" autocomplete="off" placeholder="Ví dụ: 500.000" aria-describedby="profile-budget-hint"><span>VND</span></div>
+                <p id="profile-budget-hint">Có thể để trống khi bạn chưa muốn cung cấp.</p>
+              </fieldset>
+            </div>
+          <div class="profile-actions profile-care-actions">
+            <button class="button filled" type="submit">Lưu thay đổi</button>
+            <button class="button" type="button" data-profile-cancel>Hủy thay đổi</button>
+          </div>
+          <p class="profile-care-status" data-profile-status role="status" aria-live="polite" hidden></p>
+          <p class="profile-care-demo">Bạn tự cung cấp thông tin · Chỉ lưu trong phiên demo, chưa đồng bộ backend.</p>
+          </section>
+        </form>
+      <section class="profile-section" aria-labelledby="membership-title">
+        <span class="eyebrow">ĐỒNG HÀNH CÙNG AN NHIÊN</span>
+        <h2 id="membership-title">Hạng thành viên</h2>
+        <div class="membership-overview">
+          <p>Hạng hiện tại: <strong>Sẽ được cập nhật khi có đủ dữ liệu</strong></p>
+          <p>Tổng chi tiêu hợp lệ: <strong>Chưa ghi nhận chi tiêu hợp lệ</strong></p>
+          <progress max="100" value="0" aria-label="Tiến độ lên hạng sẽ hiển thị khi hệ thống có dữ liệu đầy đủ"></progress>
+          <p>Tiến độ và số tiền cần thêm để lên hạng sẽ hiển thị khi hệ thống có dữ liệu đầy đủ.</p>
+        </div>
+        <div class="membership-tiers">
+          <article><span class="eyebrow">01 / BẠC</span><h3>Bạc</h3><p>Quyền lợi chăm sóc dành cho hạng Bạc sẽ được cập nhật.</p></article>
+          <article><span class="eyebrow">02 / VÀNG</span><h3>Vàng</h3><p>Quyền lợi chăm sóc dành cho hạng Vàng sẽ được cập nhật.</p></article>
+          <article><span class="eyebrow">03 / KIM CƯƠNG</span><h3>Kim cương</h3><p>Quyền lợi chăm sóc dành cho hạng Kim cương sẽ được cập nhật.</p></article>
+        </div>
+        <p class="form-note">Hạng thành viên và quyền lợi hiện chỉ mang tính giới thiệu. Khi được áp dụng, chi tiêu hợp lệ chỉ ghi nhận dịch vụ có lịch hẹn đã hoàn thành và hóa đơn đã thanh toán; không bao gồm lịch hủy, hóa đơn chưa thanh toán hoặc sản phẩm chăm sóc.</p>
+      </section>
+      <section class="profile-section" aria-labelledby="security-title">
+        <span class="eyebrow">SECURITY</span>
+        <h2 id="security-title">Bảo mật tài khoản</h2>
+        <p>Giữ những thông tin riêng tư luôn được nâng niu.</p>
+        <button class="button" type="button" data-password-open aria-controls="profile-password" aria-expanded="false">Đổi mật khẩu</button>
+        <form id="profile-password" class="auth-form" hidden>
+          <label>Mật khẩu hiện tại<input id="current-password" name="currentPassword" type="password" required autocomplete="current-password"></label>
+          <label>Mật khẩu mới<input id="new-password" name="newPassword" type="password" required minlength="6" autocomplete="new-password"></label>
+          <label>Xác nhận mật khẩu mới<input id="confirm-new-password" name="confirmPassword" type="password" required minlength="6" autocomplete="new-password"></label>
+          <p class="form-note">Chỉ kiểm tra form mẫu, không xác minh mật khẩu hiện tại và không thay mật khẩu đăng nhập. Không lưu hoặc gửi mật khẩu.</p>
+          <div class="profile-actions"><button class="button filled" type="submit">Kiểm tra form mẫu</button><button class="button" type="button" data-password-cancel>Đóng</button></div>
+        </form>
+        <p data-password-status role="status" aria-live="polite"></p>
+      </section>
+    </section>
+  </main>
+  <footer>
+    <div class="container footer-main">
+      <div class="footer-brand">
+        <a class="brand" href="index.html" >
+          <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+        </img>
+      </a>
+    </div>
+    <div>
+      <span class="eyebrow">
+        KHÁM PHÁ
+      </span>
+      <a href="services.html">
+        Dịch vụ
+      </a>
+      <a href="products.html">
+        Sản phẩm chăm sóc
+      </a>
+      <a href="promotions.html">
+        Khuyến mãi
+      </a>
+    </div>
+    <div>
+      <span class="eyebrow">
+        KẾT NỐI VỚI AN NHIÊN
+      </span>
+      <a href="tel:0901234567">
+        090 123 4567
+      </a>
+      <a href="mailto:hello@annhienspa.vn">
+        hello@annhienspa.vn
+      </a>
+      <p>
+        12 Dương Thưởng, Hòa Cường, Đà Nẵng
+      </p>
+    </div>
+    <div>
+      <span class="eyebrow">
+        GIỜ MỞ CỬA
+      </span>
+      <p>
+        Thứ Hai — Chủ Nhật
+      </p>
+      <p>
+        09:00 — 21:00
+      </p>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>
+      © 2026 An Nhiên Spa. All rights reserved.
+    </span>
+    <span>
+      Chăm sóc từ sự chân thành.
+    </span>
+  </div>
+</footer>
+<div class="toast" role="status" aria-live="polite" hidden>
+</div>
+</body>
+</html>

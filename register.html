@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Không gian chăm sóc và thư giãn dành riêng cho bạn.">
+    <title>Đăng ký tài khoản | An Nhiên Spa</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="An Nhiên Spa - Trang chủ">
+        <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+
+    </a>
+    <button class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+      Menu
+      <span>
+        ☰
+      </span>
+    </button>
+    <nav class="navigation" aria-label="Menu chính">
+      <a href="services.html">Dịch vụ</a>
+      <a href="promotions.html">Khuyến mãi</a>
+      <a class="button header-book" href="login.html">Đặt lịch</a>
+    </nav>
+    <a class="login-link" data-login-link href="login.html">Đăng nhập</a>
+  </header>
+    <main class="auth-page auth-register container">
+      <div class="auth-layout">
+        <section class="auth-image image-section" aria-label="Khoảnh khắc thư giãn tại An Nhiên">
+          <img class="section-image" src="images/facial.jpg" alt="Liệu trình chăm sóc thư giãn trong không gian spa ấm áp">
+          <div class="image-shade"></div>
+          <div>
+            <span class="eyebrow">AN NHIÊN SPA</span>
+            <h2>Một khoảng lặng<br><em>dành riêng cho bạn.</em></h2>
+            <p>Chăm sóc cơ thể, nâng niu cảm xúc.</p>
+          </div>
+        </section>
+        <section class="auth-panel" aria-labelledby="auth-title">
+          <span class="eyebrow">BẮT ĐẦU HÀNH TRÌNH CHĂM SÓC</span>
+          <h1 id="auth-title">Đăng ký tài khoản</h1>
+          <p class="auth-description">Tạo tài khoản để đặt lịch và trải nghiệm các dịch vụ tại An Nhiên Spa.</p>
+          <form class="auth-form" data-auth-form aria-labelledby="auth-title" novalidate>
+            <fieldset data-auth-fields disabled>
+            <label class="auth-field" for="full-name">Họ và tên
+              <input id="full-name" name="fullName" autocomplete="name" required maxlength="120" placeholder="Họ và tên của bạn" aria-describedby="full-name-error">
+              <span class="field-error" id="full-name-error" data-field-error="fullName" aria-live="polite"></span>
+            </label>
+            <label class="auth-field" for="email">Email
+              <input id="email" name="email" type="email" autocomplete="email" required maxlength="254" placeholder="Email của bạn" aria-describedby="email-error">
+              <span class="field-error" id="email-error" data-field-error="email" aria-live="polite"></span>
+            </label>
+            <label class="auth-field" for="username">Tên đăng nhập
+              <input id="username" name="username" autocomplete="username" required maxlength="120" placeholder="Tên đăng nhập của bạn" aria-describedby="username-error">
+              <span class="field-error" id="username-error" data-field-error="username" aria-live="polite"></span>
+            </label>
+            <label class="auth-field" for="phone">Số điện thoại
+              <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required maxlength="20" placeholder="Số điện thoại liên hệ" aria-describedby="phone-error">
+              <span class="field-error" id="phone-error" data-field-error="phone" aria-live="polite"></span>
+            </label>
+            <label class="auth-field" for="password">Mật khẩu
+              <input id="password" name="password" type="password" autocomplete="new-password" required minlength="6" maxlength="128" placeholder="Mật khẩu, tối thiểu 6 ký tự" aria-describedby="password-error">
+              <span class="field-error" id="password-error" data-field-error="password" aria-live="polite"></span>
+            </label>
+            <label class="auth-field" for="confirm-password">Xác nhận mật khẩu
+              <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" required minlength="6" maxlength="128" placeholder="Nhập lại mật khẩu" aria-describedby="confirm-password-error">
+              <span class="field-error" id="confirm-password-error" data-field-error="confirmPassword" aria-live="polite"></span>
+            </label>
+            <p class="auth-status" data-auth-status role="status" aria-live="polite" hidden></p>
+            <button class="button filled" type="submit">Đăng ký</button>
+            </fieldset>
+          </form>
+          <div class="auth-switch">Đã có tài khoản? <a href="login.html">Đăng nhập</a></div>
+          <noscript><p>Vui lòng bật JavaScript để trải nghiệm trạng thái đăng nhập mẫu.</p></noscript>
+        </section>
+      </div>
+    </main>
+    <footer>
+  <div class="container footer-main">
+    <div class="footer-brand">
+      <a class="brand" href="index.html" >
+        <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+
+    </a>
+  </div>
+  <div>
+    <span class="eyebrow">
+      KHÁM PHÁ
+    </span>
+    <a href="services.html">
+      Dịch vụ
+    </a>
+    <a href="login.html">
+      Sản phẩm chăm sóc
+    </a>
+    <a href="promotions.html">
+      Khuyến mãi
+    </a>
+  </div>
+  <div>
+    <span class="eyebrow">
+      KẾT NỐI VỚI AN NHIÊN
+    </span>
+    <a href="tel:0901234567">
+      090 123 4567
+    </a>
+    <a href="mailto:hello@annhienspa.vn">
+      hello@annhienspa.vn
+    </a>
+    <p>
+      12 Dương Thưởng, Hòa Cường, Đà Nẵng
+    </p>
+  </div>
+  <div>
+    <span class="eyebrow">
+      GIỜ MỞ CỬA
+    </span>
+    <p>
+      Thứ Hai — Chủ Nhật
+    </p>
+    <p>
+      09:00 — 21:00
+    </p>
+  </div>
+</div>
+<div class="container footer-bottom">
+  <span>
+    © 2026 An Nhiên Spa. All rights reserved.
+  </span>
+  <span>
+    Chăm sóc từ sự chân thành.
+  </span>
+</div>
+</footer>
+    <div class="toast" role="status" aria-live="polite" hidden></div>
+  </body>
+</html>

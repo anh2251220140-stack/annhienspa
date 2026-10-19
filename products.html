@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Liệu trình và sản phẩm chăm sóc được chọn lọc cho bạn.">
+    <title>
+      Sản phẩm chăm sóc | An Nhiên Spa
+    </title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/catalog.css">
+    <script src="js/catalog.js" defer>
+    </script>
+    <link rel="stylesheet" href="css/auth.css">
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js" defer>
+    </script>
+    <script src="js/catalog-pages.js" defer>
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="An Nhiên Spa - Trang chủ">
+        <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+      </a>
+      <button class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+        Menu
+        <span>
+          ☰
+        </span>
+      </button>
+      <nav class="navigation" aria-label="Menu chính">
+        <a href="services.html">
+          Dịch vụ
+        </a>
+        <a href="products.html">
+          Sản phẩm chăm sóc
+        </a>
+        <a href="promotions.html">
+          Khuyến mãi
+        </a>
+        <a href="appointments.html">
+          Lịch hẹn của tôi
+        </a>
+        <a href="invoice.html">
+          Hóa đơn
+        </a>
+        <a href="profile.html">
+          Tài khoản
+        </a>
+        <a class="button header-book" href="booking.html">
+          Đặt lịch
+        </a>
+      </nav>
+      <button class="button header-logout">
+        Đăng xuất
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 4H4v16h5M9 12h11m-4-4 4 4-4 4">
+          </path>
+        </svg>
+      </button>
+    </header>
+    <main class="catalog-view" data-catalog-list="products">
+      <section class="catalog-hero image-section">
+        <img class="section-image" src="images/care-5.jpg" alt="Không gian chăm sóc tại An Nhiên" fetchpriority="high">
+        <div class="image-shade">
+        </div>
+        <div class="container">
+          <span class="eyebrow">
+            AN NHIÊN SPA / CHĂM SÓC TẠI NHÀ
+          </span>
+          <h1>
+            Sản phẩm
+            <em>
+              chăm sóc
+            </em>
+          </h1>
+          <p>
+            Gợi ý chăm sóc tại nhà giúp duy trì cảm giác thư giãn và hiệu quả sau liệu trình.
+          </p>
+          <span class="hero-caption">
+            CHĂM SÓC TỪ SỰ CHÂN THÀNH
+          </span>
+        </div>
+      </section>
+      <section class="container catalog-collection" aria-label="Danh sách sản phẩm chăm sóc">
+        <form class="catalog-toolbar" role="search" aria-label="Tìm và lọc sản phẩm">
+          <label class="search-field">
+            Tìm kiếm sản phẩm
+            <input name="search" type="search" placeholder="Tên sản phẩm bạn muốn tìm…" autocomplete="off">
+          </label>
+          <label>
+            Loại sản phẩm
+            <select name="category">
+              <option value="">Tất cả loại sản phẩm</option>
+              <option value="Tinh dầu thiên nhiên">Tinh dầu thiên nhiên</option>
+              <option value="Serum">Serum</option>
+              <option value="Kem dưỡng">Kem dưỡng</option>
+              <option value="Chăm sóc tóc">Chăm sóc tóc</option>
+              <option value="Sữa rửa mặt">Sữa rửa mặt</option>
+              <option value="Mặt nạ">Mặt nạ</option>
+              <option value="Dầu gội">Dầu gội</option>
+              <option value="Dầu xả">Dầu xả</option>
+              <option value="Kem ủ tóc">Kem ủ tóc</option>
+              <option value="Sữa dưỡng thể">Sữa dưỡng thể</option>
+              <option value="Dầu massage">Dầu massage</option>
+              <option value="Kem dưỡng body">Kem dưỡng body</option>
+              <option value="Tẩy tế bào chết body">Tẩy tế bào chết body</option>
+              <option value="Dầu dưỡng cơ thể">Dầu dưỡng cơ thể</option>
+            </select>
+          </label>
+          <label>
+            Loại da / đối tượng
+            <select name="suitable">
+              <option value="">Tất cả đối tượng</option>
+              <option value="Người cần thư giãn">Người cần thư giãn</option>
+              <option value="Da khô">Da khô</option>
+              <option value="Da thường">Da thường</option>
+              <option value="Da thiếu ẩm">Da thiếu ẩm</option>
+              <option value="Da nhạy cảm">Da nhạy cảm</option>
+              <option value="Da cần chăm sóc dịu nhẹ">Da cần chăm sóc dịu nhẹ</option>
+              <option value="Tóc khô xơ">Tóc khô xơ</option>
+              <option value="Da mặt cần làm sạch dịu nhẹ">Da mặt cần làm sạch dịu nhẹ</option>
+              <option value="Tóc và da đầu cần làm sạch">Tóc và da đầu cần làm sạch</option>
+              <option value="Tóc dễ rối">Tóc dễ rối</option>
+              <option value="Tóc cần ủ dưỡng">Tóc cần ủ dưỡng</option>
+              <option value="Da cơ thể thiếu ẩm">Da cơ thể thiếu ẩm</option>
+              <option value="Người cần massage cơ thể">Người cần massage cơ thể</option>
+              <option value="Da cơ thể cần dưỡng ẩm">Da cơ thể cần dưỡng ẩm</option>
+              <option value="Da cơ thể cần làm mới">Da cơ thể cần làm mới</option>
+            </select>
+          </label>
+          <button class="button small filter-reset" type="button" data-reset>
+            Xóa bộ lọc
+          </button>
+        </form>
+        <div class="catalog-result-line">
+          <p data-result-count role="status" aria-live="polite">
+            14 gợi ý chăm sóc dành cho bạn
+          </p>
+          <span class="eyebrow">
+            TIẾP NỐI SỰ CHĂM SÓC
+          </span>
+        </div>
+        <div class="catalog-grid" data-catalog-grid>
+          <article class="product-card catalog-product" data-card-id="0">
+            <div class="product-image">
+              <img src="images/care-5.jpg" alt="Tinh dầu thư giãn" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Tinh dầu thiên nhiên</span>
+              <h3>Tinh dầu thư giãn</h3>
+              <p>Hương thơm dịu nhẹ, đưa những khoảnh khắc thư thái vào không gian của bạn.</p>
+              <p class="product-suitable">Người cần thư giãn</p>
+              <a class="text-link" href="product-detail.html?id=0">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="1">
+            <div class="product-image">
+              <img src="images/care-6.jpg" alt="Serum dưỡng ẩm" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Serum</span>
+              <h3>Serum dưỡng ẩm</h3>
+              <p>Bổ sung độ ẩm, giúp làn da mềm mịn và tươi sáng mỗi ngày.</p>
+              <p class="product-suitable">Da khô · Da thường</p>
+              <a class="text-link" href="product-detail.html?id=1">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="2">
+            <div class="product-image">
+              <img src="images/care-7.jpg" alt="Kem dưỡng phục hồi" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Kem dưỡng</span>
+              <h3>Kem dưỡng phục hồi</h3>
+              <p>Chăm sóc nhẹ nhàng, hỗ trợ hàng rào bảo vệ và giữ ẩm cho làn da.</p>
+              <p class="product-suitable">Da khô · Da nhạy cảm</p>
+              <a class="text-link" href="product-detail.html?id=2">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="3">
+            <div class="product-image">
+              <img src="images/care-8.jpg" alt="Dầu dưỡng tóc" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Chăm sóc tóc</span>
+              <h3>Dầu dưỡng tóc</h3>
+              <p>Nuôi dưỡng mái tóc mềm mại, bóng khỏe và dễ vào nếp.</p>
+              <p class="product-suitable">Tóc khô xơ</p>
+              <a class="text-link" href="product-detail.html?id=3">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="4">
+            <div class="product-image">
+              <img src="images/care-7.jpg" alt="Sữa rửa mặt dịu nhẹ" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Sữa rửa mặt</span>
+              <h3>Sữa rửa mặt dịu nhẹ</h3>
+              <p>Làm sạch nhẹ nhàng bụi bẩn và lớp dầu thừa, chuẩn bị làn da cho các bước chăm sóc tiếp theo.</p>
+              <p class="product-suitable">Da thường · Da khô · Da nhạy cảm</p>
+              <a class="text-link" href="product-detail.html?id=4">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="5">
+            <div class="product-image">
+              <img src="images/care-6.jpg" alt="Mặt nạ dưỡng ẩm" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Mặt nạ</span>
+              <h3>Mặt nạ dưỡng ẩm</h3>
+              <p>Bổ sung độ ẩm và mang đến một khoảng nghỉ dịu nhẹ cho làn da sau bước làm sạch.</p>
+              <p class="product-suitable">Da khô · Da thường</p>
+              <a class="text-link" href="product-detail.html?id=5">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="6">
+            <div class="product-image">
+              <img src="images/care-8.jpg" alt="Dầu gội chăm sóc da đầu" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Dầu gội</span>
+              <h3>Dầu gội chăm sóc da đầu</h3>
+              <p>Làm sạch tóc và da đầu nhẹ nhàng, chuẩn bị cho bước dưỡng và ủ tóc.</p>
+              <p class="product-suitable">Tóc và da đầu cần làm sạch · Tóc khô xơ</p>
+              <a class="text-link" href="product-detail.html?id=6">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="7">
+            <div class="product-image">
+              <img src="images/care-7.jpg" alt="Dầu xả mềm mượt" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Dầu xả</span>
+              <h3>Dầu xả mềm mượt</h3>
+              <p>Giúp tóc dễ chải, mềm mại và giảm cảm giác khô rối sau khi gội.</p>
+              <p class="product-suitable">Tóc khô xơ · Tóc dễ rối</p>
+              <a class="text-link" href="product-detail.html?id=7">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="8">
+            <div class="product-image">
+              <img src="images/care-7.jpg" alt="Kem ủ tóc phục hồi" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Kem ủ tóc</span>
+              <h3>Kem ủ tóc phục hồi</h3>
+              <p>Nuôi dưỡng thân tóc khô xơ, giúp mái tóc mềm mại hơn sau liệu trình chăm sóc.</p>
+              <p class="product-suitable">Tóc khô xơ · Tóc cần ủ dưỡng</p>
+              <a class="text-link" href="product-detail.html?id=8">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="9">
+            <div class="product-image">
+              <img src="images/care-7.jpg" alt="Sữa dưỡng thể" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Sữa dưỡng thể</span>
+              <h3>Sữa dưỡng thể</h3>
+              <p>Bổ sung độ ẩm cho da cơ thể, giữ cảm giác mềm mại sau bước làm sạch.</p>
+              <p class="product-suitable">Da khô · Da thường</p>
+              <a class="text-link" href="product-detail.html?id=9">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="10">
+            <div class="product-image">
+              <img src="images/care-5.jpg" alt="Dầu massage thư giãn" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Dầu massage</span>
+              <h3>Dầu massage thư giãn</h3>
+              <p>Tạo độ trượt cho các thao tác massage cơ thể, mang lại cảm giác thư giãn nhẹ nhàng.</p>
+              <p class="product-suitable">Da khô · Da thường</p>
+              <a class="text-link" href="product-detail.html?id=10">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="11">
+            <div class="product-image">
+              <img src="images/care-7.jpg" alt="Kem dưỡng body" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Kem dưỡng body</span>
+              <h3>Kem dưỡng body</h3>
+              <p>Dưỡng ẩm da cơ thể sau massage hoặc tẩy tế bào chết, giúp da mềm mại.</p>
+              <p class="product-suitable">Da khô · Da thường</p>
+              <a class="text-link" href="product-detail.html?id=11">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="12">
+            <div class="product-image">
+              <img src="images/care-7.jpg" alt="Scrub body dịu nhẹ" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Tẩy tế bào chết body</span>
+              <h3>Scrub body dịu nhẹ</h3>
+              <p>Hỗ trợ làm sạch tế bào chết trên da cơ thể, chuẩn bị cho bước dưỡng ẩm.</p>
+              <p class="product-suitable">Da thường</p>
+              <a class="text-link" href="product-detail.html?id=12">Xem chi tiết</a>
+            </div>
+          </article>
+          <article class="product-card catalog-product" data-card-id="13">
+            <div class="product-image">
+              <img src="images/care-5.jpg" alt="Dầu dưỡng cơ thể" loading="lazy" width="700" height="700">
+            </div>
+            <div class="product-info">
+              <span class="eyebrow">Dầu dưỡng cơ thể</span>
+              <h3>Dầu dưỡng cơ thể</h3>
+              <p>Giúp giữ ẩm và nuôi dưỡng da cơ thể sau tắm hoặc sau liệu trình tẩy tế bào chết.</p>
+              <p class="product-suitable">Da khô · Da thường</p>
+              <a class="text-link" href="product-detail.html?id=13">Xem chi tiết</a>
+            </div>
+          </article>
+        </div>
+        <div class="catalog-empty" data-empty hidden>
+          <h2>
+            Chưa tìm thấy sản phẩm phù hợp
+          </h2>
+          <p>
+            Thử thay đổi từ khóa, loại sản phẩm hoặc đối tượng phù hợp.
+          </p>
+          <button class="button" type="button" data-reset>
+            Xóa bộ lọc
+          </button>
+        </div>
+        <p class="collection-note">
+          Thông tin tham khảo giúp bạn chăm sóc bản thân tại nhà.
+        </p>
+      </section>
+    </main>
+    <footer>
+      <div class="container footer-main">
+        <div class="footer-brand">
+          <a class="brand" href="index.html" >
+            <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+          </a>
+        </div>
+        <div>
+          <span class="eyebrow">
+            KHÁM PHÁ
+          </span>
+          <a href="services.html">
+            Dịch vụ
+          </a>
+          <a href="products.html">
+            Sản phẩm chăm sóc
+          </a>
+          <a href="promotions.html">
+            Khuyến mãi
+          </a>
+        </div>
+        <div>
+          <span class="eyebrow">
+            KẾT NỐI VỚI AN NHIÊN
+          </span>
+          <a href="tel:0901234567">
+            090 123 4567
+          </a>
+          <a href="mailto:hello@annhienspa.vn">
+            hello@annhienspa.vn
+          </a>
+          <p>
+            12 Dương Thưởng, Hòa Cường, Đà Nẵng
+          </p>
+        </div>
+        <div>
+          <span class="eyebrow">
+            GIỜ MỞ CỬA
+          </span>
+          <p>
+            Thứ Hai — Chủ Nhật
+          </p>
+          <p>
+            09:00 — 21:00
+          </p>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <span>
+          © 2026 An Nhiên Spa. All rights reserved.
+        </span>
+        <span>
+          Chăm sóc từ sự chân thành.
+        </span>
+      </div>
+    </footer>
+    <div class="toast" role="status" aria-live="polite" hidden>
+    </div>
+  </body>
+</html>

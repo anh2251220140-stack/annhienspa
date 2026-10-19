@@ -1,0 +1,618 @@
+TRƯỜNG ĐẠI HỌC KIẾN TRÚC ĐÀ NẴNGKHOA CÔNG NGHỆ THÔNG TIN
+
+
+
+
+TÀI LIỆU PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNGSRS + HLDĐỀ TÀI: XÂY DỰNG HỆ THỐNG QUẢN LÝ VÀ ĐẶT LỊCHDỊCH VỤ SPA TÍCH HỢP TRÍ TUỆ NHÂN TẠO (AI)
+
+
+  Người hướng dẫn khoa học
+:
+Nguyễn Anh Tú
+  Sinh viên thực hiện
+:
+Nguyễn Thị Lan Anh
+  Mã số sinh viên
+:
+2251220140
+  Lớp
+:
+22CT3
+  Khóa
+:
+2022–2026
+
+
+
+
+Đà Nẵng, năm 2026
+Phần 1: ĐẶC TẢ YÊU CẦU PHẦN MỀM (SRS)
+1. Giới thiệu
+1.1. Mục đích tài liệu
+Tài liệu SRS mô tả các yêu cầu chức năng, yêu cầu phi chức năng, phạm vi dữ liệu và các ràng buộc của hệ thống quản lý và đặt lịch dịch vụ Spa tích hợp trí tuệ nhân tạo (AI). Tài liệu là cơ sở để xác định và thống nhất phạm vi hệ thống trước khi tiến hành thiết kế giao diện, cơ sở dữ liệu và triển khai mã nguồn.
+1.2. Phạm vi hệ thống
+Hệ thống là một ứng dụng Web dành cho Spa quy mô nhỏ và vừa, với hai nhóm người dùng chính là Khách hàng (User) và Quản trị viên (Admin). Hệ thống hỗ trợ quản lý tài khoản, dịch vụ, sản phẩm chăm sóc, nhân viên, lịch làm việc, lịch hẹn, khuyến mãi, hóa đơn, thanh toán, đánh giá, thống kê và ba chức năng AI gồm chatbot tư vấn Spa, đề xuất dịch vụ cá nhân hóa và phân tích cảm xúc/nội dung đánh giá.
+1.3. Công nghệ định hướng sau góp ý
+Thành phần
+Công nghệ dự kiến
+Ghi chú
+Ngôn ngữ chính
+Python (Backend), HTML/CSS/JavaScript (Frontend)
+Python dùng cho Django và tích hợp AI; HTML/CSS/JavaScript dùng cho giao diện web.
+Web Framework
+Django
+Django xử lý URL, View, Template, Form, xác thực, nghiệp vụ, ORM và tích hợp bên thứ ba.
+Giao diện
+Django Templates + HTML/CSS/JavaScript
+HTML/CSS xuất từ Figma/Stitch được chuẩn hóa thành Django Templates và static assets; không sử dụng React.
+Cơ sở dữ liệu
+MySQL
+Kết nối thông qua Django ORM.
+Xác thực
+Django Authentication + Session
+Sử dụng cơ chế đăng nhập, session và phân quyền tích hợp sẵn của Django cho User/Admin.
+Upload ảnh
+Django ImageField/FileField + Pillow
+Quản lý ảnh dịch vụ, sản phẩm và avatar.
+AI
+Gemini/OpenAI Python SDK + RAG
+Chatbot sử dụng RAG để truy xuất dữ liệu nội bộ của Spa trước khi gửi ngữ cảnh phù hợp đến Gemini/OpenAI; đồng thời hỗ trợ recommendation và sentiment analysis.
+Thanh toán
+payOS REST API + webhook
+Tạo mã QR/checkout và cập nhật trạng thái giao dịch bằng webhook.
+Kiểm thử
+Django TestCase / pytest-django
+Tập trung view, model, service và nghiệp vụ quan trọng.
+Triển khai
+Docker + Docker Compose
+Đóng gói ứng dụng Django và MySQL; có thể bổ sung Nginx khi deploy thực tế.
+2. Tổng quan sản phẩm
+2.1. Đối tượng sử dụng
+Tác nhân
+Mô tả
+User/Khách hàng
+Đăng ký tài khoản, xem dịch vụ/sản phẩm, đặt lịch, thanh toán, đánh giá và sử dụng AI.
+Admin
+Quản trị dữ liệu, lịch hẹn, hóa đơn, thanh toán, đánh giá, thống kê và theo dõi kết quả AI.
+2.2. Các nhóm chức năng chính
+Tài khoản và hồ sơ người dùng.
+Danh mục dịch vụ và dịch vụ Spa.
+Sản phẩm chăm sóc và liên kết sản phẩm – dịch vụ.
+Nhân viên, phân công dịch vụ và lịch làm việc.
+Đặt lịch và quản lý lịch hẹn.
+Khuyến mãi, hóa đơn và thanh toán QR.
+Đánh giá dịch vụ và phản hồi đánh giá.
+Dashboard và thống kê cơ bản.
+Chatbot AI tư vấn Spa.
+Đề xuất dịch vụ cá nhân hóa bằng AI.
+Phân tích cảm xúc và nội dung đánh giá bằng AI.
+3. Yêu cầu chức năng
+Mã
+Chức năng
+Yêu cầu
+FR-01
+Đăng ký tài khoản
+User có thể tạo tài khoản với thông tin bắt buộc hợp lệ; hệ thống kiểm tra email/tên đăng nhập không trùng.
+FR-02
+Đăng nhập/đăng xuất
+Hệ thống sử dụng Django Authentication để xác thực; sau khi đăng nhập hợp lệ, Django tạo session cho người dùng và hủy session khi đăng xuất.
+FR-03
+Phân quyền
+User chỉ truy cập chức năng khách hàng; Admin được truy cập chức năng quản trị.
+FR-04
+Hồ sơ cá nhân
+User xem/cập nhật thông tin cá nhân, avatar, nhu cầu chăm sóc, loại da cơ bản, sở thích và ngân sách.
+FR-05
+Đổi mật khẩu
+User đổi mật khẩu sau khi xác thực mật khẩu hiện tại.
+FR-06
+Dịch vụ
+User xem danh sách, tìm kiếm, lọc theo danh mục và xem chi tiết dịch vụ đang hoạt động.
+FR-07
+Quản lý dịch vụ
+Admin thêm/sửa/ẩn-hiện danh mục và dịch vụ; quản lý hình ảnh, giá, thời lượng và mô tả.
+FR-08
+Sản phẩm chăm sóc
+User xem, tìm kiếm/lọc, xem chi tiết sản phẩm và các sản phẩm liên quan đến dịch vụ.
+FR-09
+Quản lý sản phẩm
+Admin quản lý sản phẩm chăm sóc và mối liên kết nhiều-nhiều giữa sản phẩm và dịch vụ.
+FR-10
+Nhân viên
+Admin quản lý nhân viên, phân công nhân viên thực hiện các dịch vụ.
+FR-11
+Lịch làm việc
+Admin thiết lập lịch làm việc; hệ thống ngăn ca bị chồng lấn.
+FR-12
+Đặt lịch
+User chọn dịch vụ, nhân viên, ngày và khung giờ; hệ thống kiểm tra ca làm, ca nghỉ và lịch bận.
+FR-13
+Chống trùng lịch
+Không cho phép trùng lịch nhân viên hoặc khách hàng trong cùng khoảng thời gian.
+FR-14
+Quản lý lịch hẹn
+User xem chi tiết lịch hẹn và chỉ được tự hủy khi lịch ở trạng thái Chờ xác nhận/Đã xác nhận, thời điểm hiện tại còn trước giờ bắt đầu và hóa đơn chưa thanh toán. Lịch đã thanh toán, đã bắt đầu, đã hoàn thành hoặc đã hủy không được User tự hủy; Admin có quyền cập nhật trạng thái theo nghiệp vụ. 
+FR-15
+Khuyến mãi
+Admin quản lý chương trình khuyến mãi; User xem khuyến mãi còn hiệu lực.
+FR-16
+Hóa đơn
+Mỗi lịch hẹn đã được Admin xác nhận có tối đa một hóa đơn dịch vụ. Hóa đơn lưu ảnh chụp giá dịch vụ, khuyến mãi áp dụng, số tiền giảm, tổng tiền và trạng thái; sản phẩm chăm sóc không được đưa vào hóa đơn. 
+FR-17
+Thanh toán QR
+User chỉ được tạo phiên thanh toán QR/payOS khi hóa đơn chưa thanh toán và thời điểm hiện tại còn trước giờ bắt đầu lịch hẹn. Từ thời điểm bắt đầu lịch hẹn trở đi, hóa đơn chưa thanh toán chỉ được thanh toán trực tiếp tại Spa. Trạng thái giao dịch online được cập nhật bằng webhook đã xác minh. 
+FR-18
+Đánh giá
+User chỉ được đánh giá lịch hẹn của chính mình sau khi Admin xác nhận trạng thái Đã hoàn thành. Mỗi lịch hẹn chỉ có một đánh giá; rating bắt buộc 1–5 sao, nội dung nhận xét là tùy chọn và tối đa 2.000 ký tự. User được sửa nhưng không được xóa đánh giá của mình. 
+FR-19
+Phản hồi đánh giá
+User/Admin trao đổi phản hồi dưới đánh giá; lưu người gửi và thời gian.
+FR-20
+Dashboard
+Admin theo dõi các chỉ số cơ bản: lịch hẹn, doanh thu, dịch vụ được sử dụng và trạng thái hoạt động.
+FR-21
+AI Chatbot
+Chatbot sử dụng mô hình Retrieval-Augmented Generation (RAG) để truy xuất thông tin liên quan từ dữ liệu nội bộ của Spa như dịch vụ, sản phẩm chăm sóc, khuyến mãi và thông tin Spa, sau đó kết hợp ngữ cảnh truy xuất với Gemini/OpenAI để tạo câu trả lời phù hợp. Chatbot không tự thực hiện các hành động nghiệp vụ.
+FR-22
+AI Recommendation
+Hệ thống đề xuất 1–3 dịch vụ dựa trên nhu cầu, ngân sách, loại da/thông tin chăm sóc do User cung cấp, sở thích và lịch sử.
+FR-23
+AI Review Analysis
+Hệ thống phân loại cảm xúc tích cực/trung tính/tiêu cực và tóm tắt nội dung nổi bật của đánh giá.
+4. Quy tắc nghiệp vụ chính
+  Chỉ các dịch vụ, sản phẩm chăm sóc và chương trình khuyến mãi đang ở trạng thái hoạt động và còn hiệu lực mới được hiển thị cho User.
+ Nhân viên chỉ có thể được User lựa chọn khi đã được phân công thực hiện dịch vụ tương ứng.
+ Khung giờ đặt lịch phải nằm trong lịch làm việc của nhân viên và không được trùng với lịch hẹn đã tồn tại của nhân viên hoặc khách hàng.
+User chỉ được tự hủy lịch hẹn khi lịch đang ở trạng thái Chờ xác nhận hoặc Đã xác nhận, còn trước giờ bắt đầu và hóa đơn chưa thanh toán; các trường hợp đã thanh toán hoặc đã tới giờ hẹn phải liên hệ Spa/Admin để xử lý.
+Trạng thái completed chỉ được xác lập khi dịch vụ đã được thực hiện xong và được Admin xác nhận; hệ thống không tự động chuyển sang completed chỉ dựa trên thời gian.
+ Thanh toán trực tuyến chỉ áp dụng cho hóa đơn dịch vụ Spa; sản phẩm chăm sóc chỉ phục vụ mục đích giới thiệu thông tin và liên kết với dịch vụ, không có giỏ hàng, đơn hàng hoặc thanh toán sản phẩm.
+ Chức năng AI chỉ có vai trò hỗ trợ tư vấn, đề xuất dịch vụ cá nhân hóa và phân tích đánh giá; không thay thế tư vấn chuyên môn y tế hoặc da liễu.
+4.1. Quy tắc hủy lịch hen
+-       User chỉ được tự hủy lịch khi lịch ở trạng thái Chờ xác nhận hoặc Đã xác nhận, thời điểm hủy còn trước giờ bắt đầu lịch hẹn và hóa đơn chưa được thanh toán.
+-       Khi hóa đơn đã thanh toán online, User không được tự hủy trên hệ thống; User phải liên hệ Spa/Admin. Việc hoàn tiền tự động không thuộc phạm vi phiên bản này.
+-       Từ thời điểm bắt đầu lịch hẹn trở đi, hoặc khi lịch đã ở trạng thái Đã hoàn thành/Đã hủy, User không được tự hủy.
+-       Khi hủy hợp lệ đối với hóa đơn chưa thanh toán, lịch hẹn chuyển sang Đã hủy, hóa đơn (nếu đã tạo) chuyển sang Đã hủy và khung giờ của nhân viên được giải phóng.
+4.2. Quy tắc đánh giá và phản hồi
+-       Chỉ User sở hữu lịch hẹn đã được Admin xác nhận Đã hoàn thành mới được tạo đánh giá cho dịch vụ của lịch hẹn đó.
+-       Mỗi lịch hẹn chỉ có tối đa một đánh giá; rating bắt buộc từ 1 đến 5 sao, nội dung nhận xét là tùy chọn và tối đa 2.000 ký tự.
+-       User được chỉnh sửa đánh giá của chính mình nhưng không được xóa. Hệ thống kiểm tra quyền sở hữu trước khi cho phép chỉnh sửa.
+-       User và Admin có thể phản hồi dưới đánh giá theo dạng phẳng (không lồng nhiều cấp); phản hồi lưu người gửi và thời gian, không hỗ trợ sửa/xóa trong phạm vi chính.
+4.3. Quy tắc hóa đơn và thanh toán
+ Một lịch hẹn sau khi được Admin xác nhận có tối đa một hóa đơn dịch vụ. Hóa đơn lưu giá dịch vụ tại thời điểm tạo, khuyến mãi áp dụng, số tiền giảm và tổng tiền phải thanh toán để tránh thay đổi lịch sử khi bảng giá về sau thay đổi.
+-        Sản phẩm chăm sóc chỉ phục vụ mục đích giới thiệu và không được đưa vào invoice_details hoặc thanh toán.
+-       Khi hóa đơn chưa thanh toán và currentTime < appointmentStartTime, User được chọn thanh toán online qua payOS hoặc thanh toán trực tiếp tại Spa.
+-       Khi currentTime >= appointmentStartTime mà hóa đơn vẫn chưa thanh toán, hệ thống không tạo phiên payOS mới và chỉ cho phép thanh toán trực tiếp tại Spa.
+-       Webhook payOS phải được xác minh, xử lý idempotent và là nguồn cập nhật trạng thái thanh toán online. Hóa đơn đã thanh toán không được thay đổi số tiền; trường hợp hủy lịch sau khi đã thanh toán được Admin xử lý thủ công, không hoàn tiền tự động.
+5. Yêu cầu phi chức năng
+Mã
+Nhóm
+Yêu cầu
+NFR-01
+Bảo mật
+Mật khẩu được băm bằng cơ chế của Django; hệ thống sử dụng session để xác thực, kiểm tra quyền User/Admin và bảo vệ thông tin nhạy cảm.
+NFR-02
+Toàn vẹn dữ liệu
+Sử dụng ràng buộc cơ sở dữ liệu, transaction và validation để hạn chế dữ liệu sai, trùng hoặc không hợp lệ.
+NFR-03
+Hiệu năng
+Các chức năng và trang danh sách cơ bản phản hồi trong thời gian chấp nhận được với quy mô dữ liệu của đồ án; sử dụng phân trang khi cần.
+NFR-04
+Khả dụng
+Giao diện responsive trên desktop, tablet và mobile; thông báo lỗi rõ ràng, dễ hiểu và sử dụng tiếng Việt.
+NFR-05
+Bảo trì
+Backend được tổ chức theo Django apps/module; giao diện dùng templates/static, tách layout dùng chung, business logic và tích hợp bên ngoài hợp lý.
+NFR-06
+Khả năng mở rộng
+Kiến trúc cho phép mở rộng thêm chi nhánh, ứng dụng mobile hoặc chức năng AI nâng cao trong tương lai mà không phải thay đổi toàn bộ hệ thống.
+NFR-07
+Kiểm thử
+Có kiểm thử tự động cho các chức năng và nghiệp vụ quan trọng như xác thực, phân quyền, đặt lịch/chống trùng, thanh toán, đánh giá và các chức năng AI.
+NFR-08
+Ghi log
+Ghi log lỗi server và lỗi tích hợp bên thứ ba; không ghi mật khẩu, session cookie, API key hoặc thông tin bí mật vào log.
+6. Phạm vi dữ liệu dự kiến
+Mô hình dữ liệu dự kiến gồm 19 bảng chính và sẽ được ánh xạ thành Django Models:
+  users, customers, service_categories, services
+employees, employee_services, employee_schedules
+appointments, promotions, promotion_services, invoices, invoice_details, payments
+reviews, review_replies
+ ai_recommendations, ai_review_analysis
+care_products, service_products
+6.1. Mô hình ERD mức cao
+ERD dưới đây mô tả 19 bảng nghiệp vụ chính và các quan hệ trọng yếu. Các trường thuộc tính chi tiết có thể được tinh chỉnh khi triển khai Django Models, nhưng khóa chính/khóa ngoại và bội số quan hệ được giữ nhất quán với phạm vi SRS.
+
+Hình 1. Sơ đồ ERD tổng quát
+7. Phạm vi AI
+Chức năng AI
+Đầu vào
+Đầu ra
+Giới hạn
+Chatbot tư vấn
+Câu hỏi của User + Top-k ngữ cảnh được RAG truy xuất từ dữ liệu Spa đã lập chỉ mục. 
+Câu trả lời tư vấn dựa trên ngữ cảnh truy xuất; fallback khi không đủ dữ liệu. 
+
+Không tự đặt/hủy lịch, thanh toán hoặc thay đổi dữ liệu; không thay thế tư vấn y tế/da liễu. 
+Đề xuất dịch vụ
+Nhu cầu, ngân sách, loại da cơ bản, sở thích, lịch sử
+1–3 dịch vụ + lý do
+Không chẩn đoán da/y tế; có fallback rule-based khi AI lỗi.
+Phân tích đánh giá
+Rating + nội dung review
+Sentiment + nội dung nổi bật
+Kết quả mang tính hỗ trợ Admin, không phải đánh giá tuyệt đối.
+8. Ngoài phạm vi
+Không triển khai mô hình quản lý nhiều chi nhánh trong phiên bản chính.
+Không triển khai chức năng nhận diện hoặc phân tích tình trạng da bằng hình ảnh/camera.
+Không xây dựng chức năng thương mại điện tử cho sản phẩm chăm sóc như giỏ hàng, quản lý tồn kho, đơn hàng, vận chuyển hoặc thanh toán sản phẩm.
+Không triển khai các chức năng tài chính nâng cao như hoàn tiền tự động, đối soát kế toán hoặc tích hợp nhiều cổng thanh toán.
+Không đặt mục tiêu đạt 100% test coverage; kiểm thử tập trung vào các chức năng và nghiệp vụ quan trọng của hệ thống.
+9. Tiêu chí nghiệm thu mức cao
+-        User và Admin có thể đăng nhập và truy cập đúng chức năng theo quyền được phân.
+-        Quy trình xem dịch vụ → chọn nhân viên → chọn thời gian → đặt lịch hoạt động đúng và có cơ chế chống trùng lịch.
+-        Admin có thể quản lý các dữ liệu nghiệp vụ chính của hệ thống.
+-        Hệ thống tạo hóa đơn cho lịch hẹn đã xác nhận, chỉ cho phép thanh toán online trước giờ bắt đầu lịch hẹn, ghi nhận giao dịch QR và cập nhật trạng thái qua webhook payOS đã xác minh.
+-        Chức năng đánh giá bảo đảm đúng quyền sở hữu, chỉ áp dụng cho lịch hẹn đã hoàn thành, tối đa một review/lịch hẹn và phản hồi hoạt động đúng quy tắc đã xác định.
+-        Ba chức năng AI gồm chatbot tư vấn, đề xuất dịch vụ cá nhân hóa và phân tích cảm xúc/nội dung đánh giá hoạt động được và có xử lý trường hợp AI Provider gặp lỗi.
+-        Hệ thống có thể chạy ổn định ở môi trường local và có phương án triển khai bằng Docker lên server để giảng viên truy cập và review.
+
+Phần 2: THIẾT KẾ MỨC CAO (HLD)
+1. Mục tiêu kiến trúc
+Hệ thống được thiết kế theo kiến trúc Web Client–Server sử dụng Django, bảo đảm tách biệt hợp lý giữa giao diện người dùng, xử lý nghiệp vụ, truy cập dữ liệu và các dịch vụ tích hợp bên ngoài. Kiến trúc hướng đến khả năng dễ bảo trì, mở rộng, kiểm thử và triển khai trong phạm vi đồ án.
+2. Kiến trúc tổng thể
+Kiến trúc đề xuất sử dụng Python + Django làm nền tảng chính. Giao diện được xây dựng bằng Django Templates kết hợp HTML, CSS và JavaScript; các file HTML/CSS xuất từ Figma hoặc Google Stitch được dùng làm cơ sở để chuẩn hóa thành template và static assets. Django xử lý định tuyến, view, form/validation, xác thực, nghiệp vụ và truy cập dữ liệu thông qua Django ORM. Các nghiệp vụ phức tạp được tách vào Service Layer; các tích hợp Gemini/OpenAI và payOS được đặt ở Integration/Service Layer. Đối với chức năng chatbot AI, hệ thống sử dụng RAG Service để truy xuất ngữ cảnh liên quan từ dữ liệu nội bộ của Spa trước khi gửi câu hỏi cùng ngữ cảnh đến Gemini/OpenAI, giúp câu trả lời bám sát dữ liệu của hệ thống và hạn chế thông tin không phù hợp. Dữ liệu nghiệp vụ được lưu trữ trên MySQL.
+
+Hình 2. Kiến trúc tổng thể hệ thống Spa
+3. Lựa chọn công nghệ
+Nhóm
+Công nghệ
+Lý do lựa chọn
+Ngôn ngữ
+Python (Backend), HTML/CSS/JavaScript (Frontend)
+Python phù hợp Django và tích hợp AI; HTML/CSS/JS phù hợp giao diện web.
+Framework Web
+Django
+Cung cấp URL routing, view, template, auth, admin, ORM, security và hệ sinh thái mạnh.
+Frontend
+Django Templates + HTML/CSS/JavaScript
+Tận dụng trực tiếp giao diện HTML/CSS từ Figma/Stitch, giảm bước chuyển đổi sang framework frontend riêng.
+Database
+MySQL
+Cơ sở dữ liệu quan hệ phù hợp nghiệp vụ đặt lịch/hóa đơn.
+ORM
+Django ORM
+Ánh xạ Model ↔ bảng, hỗ trợ migration, transaction và validation.
+Auth
+Django Authentication + Session
+Đơn giản, tích hợp trực tiếp với Django, phù hợp hệ thống web dùng server-side template.
+Media
+Pillow + ImageField/FileField
+Upload và quản lý ảnh dịch vụ/sản phẩm/avatar.
+AI
+Gemini/OpenAI Python SDK
+Hỗ trợ chatbot, recommendation và sentiment.
+Payment
+payOS qua REST API + webhook
+Hỗ trợ thanh toán QR và cập nhật trạng thái giao dịch thông qua webhook.
+Testing
+Django TestCase / pytest-django
+Kiểm thử model, view, service và nghiệp vụ quan trọng.
+Deploy
+Docker + Docker Compose
+Đóng gói Django và MySQL; dễ triển khai và đồng nhất môi trường.
+4. Phân rã module Django
+Django app
+Trách nhiệm chính
+accounts
+Quản lý tài khoản, đăng nhập/đăng xuất, hồ sơ cá nhân và phân quyền User/Admin.
+services
+Quản lý danh mục dịch vụ, dịch vụ, trạng thái hiển thị và hình ảnh dịch vụ.
+products
+Quản lý sản phẩm chăm sóc và mối liên kết giữa sản phẩm với dịch vụ.
+employees
+Quản lý nhân viên, phân công nhân viên theo dịch vụ và lịch làm việc.
+appointments
+Xử lý đặt lịch, kiểm tra khung giờ, chống trùng lịch và quản lý trạng thái lịch hẹn.
+promotions
+Quản lý chương trình khuyến mãi và điều kiện áp dụng.
+billing
+Quản lý hóa đơn, chi tiết hóa đơn và giao dịch thanh toán payOS.
+reviews
+Quản lý đánh giá dịch vụ, phản hồi đánh giá và điều kiện được phép đánh giá.
+dashboard
+Tổng hợp số liệu và thống kê cơ bản phục vụ Admin.
+ai_features
+Xử lý chatbot tư vấn, đề xuất dịch vụ cá nhân hóa và phân tích cảm xúc/nội dung đánh giá; kết nối Gemini/OpenAI.
+core
+Chứa cấu hình và các thành phần dùng chung như tiện ích thời gian, middleware, constants và helper.
+4.1. Danh sách URL/API dự kiến
+Các URL dưới đây là hợp đồng điều hướng/endpoint dự kiến cho Django. Tên URL có thể tinh chỉnh khi triển khai nhưng phải giữ nguyên mục đích, quyền truy cập và business rule tương ứng. Các request thay đổi dữ liệu dùng POST và CSRF; các endpoint /api/ trả JSON để phục vụ AJAX/AI.
+Method
+URL dự kiến
+Quyền
+Mục đích
+GET
+/
+Guest/User
+Hiển thị Home công khai hoặc điều hướng theo trạng thái đăng nhập.
+GET
+/services/
+Guest/User
+Xem danh sách dịch vụ đang hoạt động; hỗ trợ tìm kiếm/lọc/sắp xếp.
+GET
+/services/<id>/
+Guest/User
+Xem chi tiết một dịch vụ, chuyên viên và sản phẩm chăm sóc liên quan.
+GET
+/promotions/
+Guest/User
+Xem danh sách chương trình khuyến mãi đang còn hiệu lực.
+GET
+/promotions/<code>/
+Guest/User
+Xem chi tiết khuyến mãi, điều kiện và các dịch vụ áp dụng.
+GET/POST
+/accounts/login/
+Guest
+Hiển thị form và xử lý đăng nhập bằng Django Authentication + Session.
+GET/POST
+/accounts/register/
+Guest
+Hiển thị form, kiểm tra dữ liệu và tạo tài khoản khách hàng.
+POST
+/accounts/logout/
+User/Admin
+Hủy session sau khi người dùng xác nhận đăng xuất.
+GET/POST
+/accounts/profile/
+User
+Xem và cập nhật hồ sơ cá nhân, avatar, loại da, nhu cầu chăm sóc, sở thích và ngân sách.
+POST
+/accounts/change-password/
+User
+Đổi mật khẩu sau khi xác thực mật khẩu hiện tại.
+GET
+/products/
+User
+Xem, tìm kiếm và lọc danh sách sản phẩm chăm sóc tham khảo.
+GET
+/products/<id>/
+User
+Xem chi tiết sản phẩm và các dịch vụ Spa liên quan.
+GET
+/appointments/
+User
+Xem danh sách lịch hẹn của User; lọc theo trạng thái.
+GET/POST
+/appointments/book/
+User
+Hiển thị form và tạo lịch hẹn sau khi kiểm tra dịch vụ, nhân viên, lịch làm việc và xung đột thời gian.
+GET
+/appointments/<id>/
+User
+Xem chi tiết lịch hẹn thuộc quyền sở hữu của User.
+POST
+/appointments/<id>/cancel/
+User
+Hủy lịch khi thỏa điều kiện về trạng thái lịch hẹn, thời gian và trạng thái thanh toán.
+GET
+/api/appointments/available-slots/
+User
+Trả JSON các khung giờ khả dụng theo service_id, employee_id và date.
+GET
+/invoices/
+User
+Xem danh sách hóa đơn của User; hỗ trợ lọc theo trạng thái thanh toán.
+GET
+/invoices/<id>/
+User
+Xem chi tiết hóa đơn, tổng tiền, khuyến mãi và khu vực QR nếu còn đủ điều kiện thanh toán online.
+POST
+/invoices/<id>/payos/create/
+User
+Tạo phiên thanh toán payOS khi hóa đơn chưa thanh toán và thời điểm hiện tại còn trước giờ hẹn.
+GET
+/api/payments/<id>/status/
+User
+Lấy trạng thái giao dịch hiện tại để cập nhật giao diện thanh toán.
+POST
+/payments/payos/webhook/
+External/payOS
+Nhận webhook từ payOS, xác minh dữ liệu và cập nhật trạng thái Payment/Invoice.
+GET
+/reviews/
+User
+Xem danh sách các đánh giá của User.
+POST
+/reviews/create/<appointment_id>/
+User
+Tạo một review cho lịch hẹn của chính User đã ở trạng thái completed.
+POST
+/reviews/<id>/edit/
+User
+Sửa review thuộc quyền sở hữu của User.
+POST
+/reviews/<id>/replies/
+User/Admin
+Tạo phản hồi dạng phẳng dưới một review.
+POST
+/api/ai/chat/
+User
+Chatbot RAG: tiếp nhận câu hỏi, truy xuất ngữ cảnh Spa và gọi Gemini/OpenAI.
+POST
+/api/ai/recommendations/
+User
+Đề xuất 1–3 dịch vụ dựa trên nhu cầu, ngân sách, loại da, sở thích và lịch sử; có fallback rule-based.
+POST
+/api/ai/reviews/<id>/analyze/
+Admin/System
+Phân tích cảm xúc và nội dung nổi bật của review, lưu kết quả vào ai_review_analysis.
+GET
+/admin-dashboard/
+Admin
+Xem dashboard thống kê tổng quan về lịch hẹn, doanh thu, dịch vụ và hoạt động hệ thống.
+GET/POST
+/admin-panel/accounts/*
+Admin
+Quản lý tài khoản User, trạng thái hoạt động và thông tin tài khoản cơ bản.
+GET/POST
+/admin-panel/customers/*
+Admin
+Xem và quản lý hồ sơ khách hàng và thông tin chăm sóc.
+GET/POST
+/admin-panel/services/*
+Admin
+CRUD/ẩn-hiện danh mục dịch vụ và dịch vụ; quản lý giá, thời lượng, ảnh.
+GET/POST
+/admin-panel/products/*
+Admin
+Quản lý sản phẩm chăm sóc và liên kết nhiều-nhiều sản phẩm–dịch vụ.
+GET/POST
+/admin-panel/employees/*
+Admin
+Quản lý nhân viên, phân công nhân viên theo dịch vụ và lịch làm việc.
+GET/POST
+/admin-panel/appointments/*
+Admin
+Xem, duyệt và cập nhật trạng thái lịch hẹn; xác nhận completed sau khi thực hiện dịch vụ.
+GET/POST
+/admin-panel/promotions/*
+Admin
+Quản lý chương trình khuyến mãi, điều kiện và các dịch vụ áp dụng.
+GET/POST
+/admin-panel/billing/*
+Admin
+Quản lý hóa đơn, chi tiết hóa đơn và trạng thái thanh toán.
+GET/POST
+/admin-panel/payments/*
+Admin
+Xem giao dịch payOS và ghi nhận thanh toán trực tiếp tại Spa.
+GET/POST
+/admin-panel/reviews/*
+Admin
+Quản lý review, phản hồi và xem kết quả phân tích cảm xúc/nội dung.
+GET
+/admin-panel/reports/
+Admin
+Xem thống kê và báo cáo cơ bản của hệ thống.
+5. Luồng xử lý điển hình
+5.1. Luồng đặt lịch
+User truy cập trang dịch vụ và lựa chọn dịch vụ, nhân viên, ngày đặt lịch.
+Trình duyệt gửi request đến Django View để lấy các khung giờ còn trống.
+Backend kiểm tra thông tin dịch vụ, nhân viên, lịch làm việc và các lịch hẹn hiện có.
+Hệ thống xác định các khung giờ hợp lệ và render kết quả về giao diện; có thể dùng AJAX cho thao tác cập nhật khung giờ nếu cần.
+Khi User xác nhận đặt lịch, Backend kiểm tra lại điều kiện đặt lịch để tránh phát sinh trùng lịch.
+Nếu dữ liệu hợp lệ, hệ thống tạo lịch hẹn và lưu vào MySQL; nếu có xung đột, hệ thống trả thông báo lỗi và không ghi dữ liệu.
+Sau khi đặt lịch thành công, User có thể xem thông tin chi tiết lịch hẹn.
+5.2. Luồng thanh toán
+1.     User truy cập hóa đơn chưa thanh toán và chọn thanh toán trực tuyến bằng mã QR.
+2.     Trình duyệt gửi yêu cầu tạo thanh toán đến Django Backend.
+3.     Backend tạo bản ghi giao dịch ở trạng thái chờ thanh toán và gửi yêu cầu đến payOS.
+4.     payOS trả về thông tin thanh toán, bao gồm mã QR hoặc đường dẫn thanh toán.
+5.     Django render thông tin thanh toán cho User.
+6.     Sau khi giao dịch được xử lý, payOS gửi webhook về Backend.
+7.     Backend xác minh dữ liệu webhook, cập nhật trạng thái giao dịch và hóa đơn.
+8.     User có thể xem trạng thái thanh toán mới nhất trên hệ thống.
+5.3. Luồng AI
+1. User gửi câu hỏi đến chatbot từ giao diện web.
+2. Django Backend kiểm tra và chuẩn hóa câu hỏi.
+3. RAG Service truy xuất các dữ liệu liên quan từ nguồn dữ liệu nội bộ của Spa.
+4. Hệ thống lựa chọn các thông tin phù hợp nhất làm ngữ cảnh.
+5. Backend gửi câu hỏi cùng ngữ cảnh truy xuất đến Gemini/OpenAI.
+6. AI Provider tạo câu trả lời dựa trên câu hỏi và dữ liệu được cung cấp.
+7. Backend chuẩn hóa kết quả và trả về giao diện chatbot.
+8. Nếu không tìm thấy dữ liệu phù hợp, AI phải trả lời theo phạm vi an toàn hoặc thông báo chưa có đủ thông tin.
+9. Chatbot không được trực tiếp thay đổi lịch hẹn, thanh toán hoặc dữ liệu quản trị.Các chức năng AI chỉ có vai trò hỗ trợ tư vấn, gợi ý và phân tích; AI không được phép trực tiếp thay đổi lịch hẹn, thanh toán hoặc dữ liệu quản trị.
+5.4. Cơ chế truy xuất RAG
+Nguồn dữ liệu: Dữ liệu động từ MySQL qua Django ORM gồm service_categories, services, care_products và promotions đang hoạt động/còn hiệu lực; dữ liệu tĩnh đã kiểm duyệt như FAQ, chính sách, giờ hoạt động của Spa được lưu dưới dạng tài liệu nội bộ. Không đưa lịch hẹn, hóa đơn, thông tin khách hàng hoặc dữ liệu bí mật vào kho RAG công khai.
+Chuẩn hóa và lập chỉ mục: Mỗi bản ghi ngắn được chuyển thành một document có metadata (source_type, object_id, category/status, updated_at). Tài liệu dài được chia đoạn khoảng 300–500 token, overlap khoảng 50 token. Hệ thống tạo embedding và upsert vào Vector Store; triển khai dự kiến dùng ChromaDB cục bộ, có thể thay bằng giải pháp vector tương đương nếu cần.
+Truy xuất khi có câu hỏi: RAG Service chuẩn hóa câu hỏi, áp dụng metadata filter trước (ví dụ chỉ dịch vụ active, khuyến mãi còn hiệu lực), sau đó semantic search theo cosine similarity để lấy Top-k khoảng 3–5 đoạn liên quan. Có thể kết hợp tìm kiếm từ khóa cho mã khuyến mãi/tên dịch vụ để tăng độ chính xác.
+Tạo ngữ cảnh: Các kết quả được loại trùng, ưu tiên nguồn có điểm tương đồng cao và cắt theo giới hạn token. Context gửi tới Gemini/OpenAI gồm nội dung + tên nguồn/đối tượng để câu trả lời có thể nêu rõ thông tin dựa trên dữ liệu nào.
+Fallback và cập nhật chỉ mục: Nếu không có kết quả vượt ngưỡng liên quan, chatbot không suy đoán mà trả lời chưa đủ dữ liệu hoặc hướng User đến nhân viên Spa. Khi Admin thêm/sửa/ẩn dịch vụ, sản phẩm hoặc khuyến mãi, hệ thống cập nhật lại các document liên quan theo cơ chế upsert/delete thay vì rebuild toàn bộ chỉ mục.
+
+Hình 3. Luồng truy xuất dữ liệu của RAG Chatbot
+6. Thiết kế dữ liệu mức cao
+Các Django Models dự kiến tương ứng với 19 bảng nghiệp vụ chính. Một số quan hệ chính gồm:
+-        User 1–1 Customer.
+-        ServiceCategory 1–N Service.
+-        Employee N–N Service thông qua EmployeeService.
+-        Employee 1–N EmployeeSchedule.
+-        Promotion N–N Service thông qua PromotionService.
+-        Customer 1–N Appointment; Employee 1–N Appointment; Service 1–N Appointment.
+-        Appointment liên kết với Invoice; Invoice 1–N InvoiceDetail; Invoice 1–N Payment.
+-        Appointment/Service liên quan đến Review; Review 1–N ReviewReply.
+-        Service N–N CareProduct thông qua ServiceProduct.
+-        Customer 1–N AIRecommendation; Review liên kết với AIReviewAnalysis.
+Vector Store phục vụ RAG là kho chỉ mục hỗ trợ (không tính vào 19 bảng nghiệp vụ MySQL). Dữ liệu vector chỉ chứa nội dung đã chuẩn hóa, embedding và metadata tham chiếu đến nguồn; dữ liệu nghiệp vụ gốc vẫn được quản lý trong MySQL.
+7. Bảo mật
+Sử dụng Django Authentication và session để xác thực người dùng.
+Sử dụng @login_required, permission/group hoặc cơ chế phân quyền tương đương để kiểm soát quyền User/Admin.
+Mật khẩu người dùng được băm bằng cơ chế bảo mật của Django, không lưu mật khẩu dạng plain text.
+Sử dụng CSRF protection của Django cho các form POST và request thay đổi dữ liệu.
+Sử dụng Django ORM nhằm giảm nguy cơ SQL Injection; dữ liệu đầu vào được kiểm tra bằng Form/Model validation.
+File upload được kiểm tra định dạng, kích thước và quyền truy cập trước khi lưu.
+API key của Gemini/OpenAI, payOS, Django SECRET_KEY và các thông tin bí mật được lưu trong biến môi trường, không commit lên Git.
+Webhook của payOS phải được xác minh theo cơ chế bảo mật của nhà cung cấp trước khi cập nhật trạng thái thanh toán.
+Không ghi API key, mật khẩu, session cookie hoặc thông tin bí mật vào log.
+Khi deploy, hệ thống sử dụng HTTPS để mã hóa dữ liệu truyền giữa client và server.
+8. Kế hoạch kiểm thử
+Mức kiểm thử
+Đối tượng
+Ví dụ
+Unit Test
+Service, utility, helper
+Tính khung giờ khả dụng, kiểm tra trùng lịch, tính khuyến mãi, kiểm tra điều kiện nghiệp vụ.
+Model Test
+Django Model, constraint
+Kiểm tra unique, quan hệ dữ liệu, trạng thái hợp lệ, validation cơ bản.
+View / Integration Test
+Django View + Template + Database
+Đăng nhập, phân quyền, đặt lịch, hóa đơn, thanh toán, đánh giá, phản hồi đánh giá.
+External Integration Test
+Gemini/OpenAI, payOS
+Mock API bên ngoài; kiểm tra timeout, quota, lỗi provider và webhook thanh toán.
+Smoke Test
+Các luồng chính của hệ thống
+Đăng nhập → xem dịch vụ → đặt lịch → hóa đơn → thanh toán; Admin đăng nhập và quản lý dữ liệu cơ bản.
+9. Triển khai dự kiến
+Môi trường phát triển sử dụng Python virtual environment, Django development server và MySQL local. Khi triển khai, hệ thống được đóng gói bằng Docker để bảo đảm môi trường chạy nhất quán giữa máy phát triển và server.
+Thành phần
+Vai trò
+Docker
+Đóng gói các thành phần của hệ thống thành container độc lập.
+Docker Compose
+Quản lý và khởi chạy đồng thời các container ứng dụng Django và Database.
+Django App Container
+Chạy Python + Django, render giao diện, xử lý nghiệp vụ và tích hợp các dịch vụ bên ngoài.
+MySQL Container
+Lưu trữ cơ sở dữ liệu của hệ thống.
+Static/Media
+Được phục vụ bởi Django trong môi trường phát triển; khi deploy có thể cấu hình Nginx hoặc giải pháp tương đương.
+External Services
+Tích hợp Gemini/OpenAI API và payOS.
+HTTPS / Reverse Proxy
+Có thể sử dụng Nginx hoặc cấu hình tương đương khi deploy lên server thực tế.
+10. Rủi ro và phương án xử lý
+Rủi ro
+Mức
+Phương án xử lý
+Mã HTML/CSS do công cụ AI xuất khó tái sử dụng
+Trung bình
+Chuẩn hóa thành base template, partial/template dùng chung và static assets trước khi tích hợp nhiều trang.
+Sai lệch nghiệp vụ khi triển khai Backend Django
+Trung bình
+Bám sát SRS, use case, test case và quy tắc nghiệp vụ đã được duyệt; kiểm thử từng module trước khi tích hợp.
+AI Provider lỗi hoặc vượt quota
+Trung bình
+Thiết lập timeout, xử lý lỗi, fallback phù hợp và hiển thị thông báo rõ ràng cho người dùng.
+Webhook thanh toán khó kiểm thử ở môi trường local
+Trung bình
+Sử dụng tunnel khi kiểm thử và kiểm tra lại webhook trên môi trường deploy.
+Phát sinh trùng lịch khi có nhiều request đồng thời
+Cao
+Kiểm tra lại dữ liệu trong transaction và áp dụng ràng buộc/locking phù hợp ở tầng backend và cơ sở dữ liệu.
+Khác biệt môi trường triển khai
+Trung bình
+Sử dụng Docker + Docker Compose để chuẩn hóa môi trường Django và MySQL.
+11. Kết luận kiến trúc đề xuất
+Kiến trúc Python + Django với Django Templates cho giao diện, MySQL cho cơ sở dữ liệu và Docker cho triển khai được lựa chọn làm kiến trúc chính của hệ thống. Django chịu trách nhiệm render giao diện, xử lý nghiệp vụ, xác thực, truy cập dữ liệu, tích hợp thanh toán payOS và các chức năng AI. Kiến trúc này phù hợp với quy trình thiết kế giao diện bằng Figma/Stitch rồi xuất HTML/CSS, đồng thời giảm số lượng công nghệ cần quản lý, hỗ trợ kiểm thử và triển khai trên server trong các giai đoạn tiếp theo.

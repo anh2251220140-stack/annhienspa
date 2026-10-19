@@ -1,0 +1,33 @@
+{
+  "production_counts_match_backup": true,
+  "backup_hashes_verified": true,
+  "http": {
+    "/": 200,
+    "/index.html": 200,
+    "/services.html": 200,
+    "/service-detail.html": 200,
+    "/promotions.html": 200,
+    "/promotion-detail.html": 200,
+    "/login.html": 200,
+    "/register.html": 200,
+    "/static/css/auth.css": 200,
+    "/static/css/catalog.css": 200,
+    "/static/css/promotions.css": 200,
+    "/static/css/style.css": 200,
+    "/static/images/an-nhien-logo.png": 200,
+    "/static/images/candles.jpg": 200,
+    "/static/images/care-1.jpg": 200,
+    "/static/images/care-2.jpg": 200,
+    "/static/images/care-3.jpg": 200,
+    "/static/images/care-4.jpg": 200,
+    "/static/images/facial.jpg": 200,
+    "/static/images/hair-care.jpg": 200,
+    "/static/images/hero.jpg": 200,
+    "/static/js/app.js": 200,
+    "/static/js/auth.js": 200,
+    "/static/js/catalog-pages.js": 200,
+    "/static/js/live-data.js": 200,
+    "/static/js/promotions.js": 200,
+    "/static/js/ui.js": 200
+  }
+}

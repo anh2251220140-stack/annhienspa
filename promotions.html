@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="An Nhiên Spa — Không gian chăm sóc và thư giãn tại Đà Nẵng.">
+    <title>
+      Khuyến mãi | An Nhiên Spa
+    </title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/catalog.css">
+    <link rel="stylesheet" href="css/promotions.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/catalog.js" defer></script>
+    <script src="js/promotions-data.js" defer></script>
+    <script src="js/promotions.js" defer></script>
+    <script src="js/app.js" defer>
+    </script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="index.html" aria-label="An Nhiên Spa - Trang chủ">
+        <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+      </img>
+    </a>
+    <button class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+      Menu
+      <span>
+        ☰
+      </span>
+    </button>
+    <nav class="navigation" aria-label="Menu chính">
+      <a href="services.html">
+        Dịch vụ
+      </a>
+      <a href="products.html">
+        Sản phẩm chăm sóc
+      </a>
+      <a href="promotions.html">
+        Khuyến mãi
+      </a>
+      <a href="appointments.html">
+        Lịch hẹn của tôi
+      </a>
+      <a href="invoice.html">
+        Hóa đơn
+      </a>
+      <a href="profile.html">
+        Tài khoản
+      </a>
+      <a class="button header-book" href="booking.html">
+        Đặt lịch
+      </a>
+    </nav>
+    <button class="button header-logout">
+      Đăng xuất
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 4H4v16h5M9 12h11m-4-4 4 4-4 4">
+        </path>
+      </svg>
+    </button>
+  </header>
+  <main class="catalog-view promotions-view" data-promotions-page="list">
+    <section class="promotion-hero">
+      <div class="container">
+        <span class="eyebrow">
+          THÊM MỘT CHÚT YÊU THƯƠNG
+        </span>
+        <h1>
+          Ưu đãi
+          <em>
+            dành cho bạn
+          </em>
+        </h1>
+        <p>
+          Những món quà nhỏ cho hành trình chăm sóc và yêu thương bản thân.
+        </p>
+      </div>
+    </section>
+    <section class="container" aria-label="Danh sách khuyến mãi">
+      <form class="catalog-toolbar" data-promotion-filters role="search" aria-label="Tìm và lọc khuyến mãi">
+        <label class="search-field">
+          Tìm kiếm khuyến mãi
+          <input name="search" type="search" autocomplete="off" placeholder="Tên chương trình hoặc mã ưu đãi…">
+        </label>
+        <label>
+          Trạng thái
+          <select name="status">
+            <option value="all">
+              Tất cả
+            </option>
+            <option value="active">
+              Đang hiệu lực
+            </option>
+            <option value="ending">
+              Sắp hết hạn
+            </option>
+          </select>
+        </label>
+        <button class="button small filter-reset" type="button" data-reset-promotions>
+          Xóa bộ lọc
+        </button>
+      </form>
+      <div class="promotion-results">
+        <p data-promotion-count role="status" aria-live="polite">
+          6 ưu đãi đang hiệu lực
+        </p>
+        <span class="eyebrow">
+          NHỮNG MÓN QUÀ CHO MỘT KHOẢNG NGHỈ
+        </span>
+      </div>
+      <div class="offers">
+        <div class="offer-grid" data-promotion-grid>
+          <article class="offer-card promo-terracotta" id="WELCOME10">
+            <div class="offer-topline">
+              <span class="eyebrow">
+                WELCOME10
+              </span>
+              <span class="offer-badge">
+                Khách hàng mới
+              </span>
+            </div>
+            <div class="offer-ornament" aria-hidden="true">
+              <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9"/>
+              </svg>
+            </div>
+            <h2>
+              Ưu đãi khách hàng mới
+            </h2>
+            <div class="discount">
+              Giảm 10%
+            </div>
+            <p class="promotion-description">
+              Dành cho khách hàng lần đầu trải nghiệm dịch vụ tại An Nhiên Spa.
+            </p>
+            <div class="offer-bottom">
+              <div class="promotion-validity">
+                <span>
+                  01.10.2026 — 31.12.2026
+                </span>
+                <span class="promotion-status-line">
+                  Đang hiệu lực
+                </span>
+              </div>
+              <a class="button small" href="promotion-detail.html?code=WELCOME10">
+                Xem chi tiết
+              </a>
+            </div>
+          </article>
+          <article class="offer-card promo-champagne" id="ANNHIEN20">
+            <div class="offer-topline">
+              <span class="eyebrow">
+                ANNHIEN20
+              </span>
+              <span class="offer-badge">
+                Được yêu thích
+              </span>
+            </div>
+            <div class="offer-ornament" aria-hidden="true">
+              <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9"/>
+              </svg>
+            </div>
+            <h2>
+              Thư giãn cùng An Nhiên
+            </h2>
+            <div class="discount">
+              Giảm 20%
+            </div>
+            <p class="promotion-description">
+              Ưu đãi cho một số liệu trình thư giãn và chăm sóc được lựa chọn.
+            </p>
+            <div class="offer-bottom">
+              <div class="promotion-validity">
+                <span>
+                  01.10.2026 — 31.12.2026
+                </span>
+                <span class="promotion-status-line">
+                  Đang hiệu lực
+                </span>
+              </div>
+              <a class="button small" href="promotion-detail.html?code=ANNHIEN20">
+                Xem chi tiết
+              </a>
+            </div>
+          </article>
+          <article class="offer-card promo-caramel" id="RELAX50">
+            <div class="offer-topline">
+              <span class="eyebrow">
+                RELAX50
+              </span>
+              <span class="offer-badge">
+                Quà tặng
+              </span>
+            </div>
+            <div class="offer-ornament" aria-hidden="true">
+              <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9"/>
+              </svg>
+            </div>
+            <h2>
+              Món quà cho chính bạn
+            </h2>
+            <div class="discount">
+              Giảm 50.000 VND
+            </div>
+            <p class="promotion-description">
+              Nhẹ nhàng hơn một chút cho những buổi chăm sóc bản thân.
+            </p>
+            <div class="offer-bottom">
+              <div class="promotion-validity">
+                <span>
+                  01.10.2026 — 31.12.2026
+                </span>
+                <span class="promotion-status-line">
+                  Đang hiệu lực
+                </span>
+              </div>
+              <a class="button small" href="promotion-detail.html?code=RELAX50">
+                Xem chi tiết
+              </a>
+            </div>
+          </article>
+          <article class="offer-card promo-terracotta" id="FACIAL15">
+            <div class="offer-topline">
+              <span class="eyebrow">
+                FACIAL15
+              </span>
+              <span class="offer-badge">
+                Ưu đãi đặc biệt
+              </span>
+            </div>
+            <div class="offer-ornament" aria-hidden="true">
+              <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9"/>
+              </svg>
+            </div>
+            <h2>
+              Nâng niu làn da
+            </h2>
+            <div class="discount">
+              Giảm 15%
+            </div>
+            <p class="promotion-description">
+              Một lời hẹn dịu dàng cho làn da cần được chăm sóc.
+            </p>
+            <div class="offer-bottom">
+              <div class="promotion-validity">
+                <span>
+                  01.10.2026 — 30.11.2026
+                </span>
+                <span class="promotion-status-line">
+                  Đang hiệu lực
+                </span>
+              </div>
+              <a class="button small" href="promotion-detail.html?code=FACIAL15">
+                Xem chi tiết
+              </a>
+            </div>
+          </article>
+          <article class="offer-card promo-champagne" id="HAIR10">
+            <div class="offer-topline">
+              <span class="eyebrow">
+                HAIR10
+              </span>
+              <span class="offer-badge">
+                Một khoảng nghỉ
+              </span>
+            </div>
+            <div class="offer-ornament" aria-hidden="true">
+              <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9"/>
+              </svg>
+            </div>
+            <h2>
+              Khoảng nghỉ cho mái tóc
+            </h2>
+            <div class="discount">
+              Giảm 10%
+            </div>
+            <p class="promotion-description">
+              Chăm sóc tóc và da đầu, để bạn tìm lại cảm giác nhẹ nhõm.
+            </p>
+            <div class="offer-bottom">
+              <div class="promotion-validity">
+                <span>
+                  01.10.2026 — 15.10.2026
+                </span>
+                <span class="promotion-status-line ending">
+                  Sắp hết hạn
+                </span>
+              </div>
+              <a class="button small" href="promotion-detail.html?code=HAIR10">
+                Xem chi tiết
+              </a>
+            </div>
+          </article>
+          <article class="offer-card promo-caramel" id="BODY15">
+            <div class="offer-topline">
+              <span class="eyebrow">
+                BODY15
+              </span>
+              <span class="offer-badge">
+                Chăm sóc cơ thể
+              </span>
+            </div>
+            <div class="offer-ornament" aria-hidden="true">
+              <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+                <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9"/>
+              </svg>
+            </div>
+            <h2>
+              Nâng niu cơ thể
+            </h2>
+            <div class="discount">
+              Giảm 15%
+            </div>
+            <p class="promotion-description">
+              Chậm lại một chút với những nghi thức chăm sóc cơ thể.
+            </p>
+            <div class="offer-bottom">
+              <div class="promotion-validity">
+                <span>
+                  01.10.2026 — 30.11.2026
+                </span>
+                <span class="promotion-status-line">
+                  Đang hiệu lực
+                </span>
+              </div>
+              <a class="button small" href="promotion-detail.html?code=BODY15">
+                Xem chi tiết
+              </a>
+            </div>
+          </article>
+        </div>
+      </div>
+      <div class="catalog-empty promotion-empty" data-empty hidden>
+        <h2>
+          Chưa tìm thấy ưu đãi phù hợp
+        </h2>
+        <p>
+          Thử từ khóa khác hoặc thay đổi trạng thái để khám phá thêm.
+        </p>
+        <button class="button" type="button" data-reset-promotions>
+          Xóa bộ lọc
+        </button>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="container footer-main">
+      <div class="footer-brand">
+        <a class="brand" href="index.html" >
+          <img class="brand-logo" src="images/an-nhien-logo.png" alt="An Nhiên Spa" width="420" height="420"/>
+        </img>
+      </a>
+    </div>
+    <div>
+      <span class="eyebrow">
+        KHÁM PHÁ
+      </span>
+      <a href="services.html">
+        Dịch vụ
+      </a>
+      <a href="products.html">
+        Sản phẩm chăm sóc
+      </a>
+      <a href="promotions.html">
+        Khuyến mãi
+      </a>
+    </div>
+    <div>
+      <span class="eyebrow">
+        KẾT NỐI VỚI AN NHIÊN
+      </span>
+      <a href="tel:0901234567">
+        090 123 4567
+      </a>
+      <a href="mailto:hello@annhienspa.vn">
+        hello@annhienspa.vn
+      </a>
+      <p>
+        12 Dương Thưởng, Hòa Cường, Đà Nẵng
+      </p>
+    </div>
+    <div>
+      <span class="eyebrow">
+        GIỜ MỞ CỬA
+      </span>
+      <p>
+        Thứ Hai — Chủ Nhật
+      </p>
+      <p>
+        09:00 — 21:00
+      </p>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <span>
+      © 2026 An Nhiên Spa. All rights reserved.
+    </span>
+    <span>
+      Chăm sóc từ sự chân thành.
+    </span>
+  </div>
+</footer>
+<div class="toast" role="status" aria-live="polite" hidden>
+</div>
+</body>
+</html>
