@@ -30,10 +30,10 @@ class Appointment(TimestampedModel):
         from employees.models import EmployeeService, EmployeeSchedule
         if not EmployeeService.objects.filter(employee_id=self.employee_id, service_id=self.service_id).exists():
             raise ValidationError("Nhân viên chưa được phân công dịch vụ này.")
-        if not EmployeeSchedule.objects.filter(employee_id=self.employee_id, work_date=self.appointment_date,
+        if not EmployeeSchedule.objects.filter(is_active=True, employee_id=self.employee_id, work_date=self.appointment_date,
             status="working", start_time__lte=self.start_time, end_time__gte=self.end_time).exists():
             raise ValidationError("Khung giờ phải nằm trong ca làm việc.")
-        if EmployeeSchedule.objects.filter(employee_id=self.employee_id, work_date=self.appointment_date,
+        if EmployeeSchedule.objects.filter(is_active=True, employee_id=self.employee_id, work_date=self.appointment_date,
             status="off", start_time__lt=self.end_time, end_time__gt=self.start_time).exists():
             raise ValidationError("Khung giờ trùng ca nghỉ.")
         conflicts = type(self).objects.filter(appointment_date=self.appointment_date,

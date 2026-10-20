@@ -17,6 +17,7 @@
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/live-admin.css' %}">
 </head>
   <body class="admin-page">
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>

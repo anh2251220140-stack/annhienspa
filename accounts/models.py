@@ -48,5 +48,5 @@ class Customer(ValidatedModel):
         db_table = "customers"
         constraints = [models.CheckConstraint(condition=models.Q(budget__isnull=True) | models.Q(budget__gte=0), name="customer_budget_nonnegative")]
     def clean(self):
-        if self.user_id and self.user.role != User.Role.USER:
+        if self.user_id and (self.user.role != User.Role.USER or self.user.is_superuser):
             raise ValidationError({"user": "Hồ sơ khách hàng phải thuộc tài khoản User."})

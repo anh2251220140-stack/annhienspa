@@ -81,23 +81,23 @@
           <input type="file" id="profile-avatar" accept="image/png,image/jpeg,image/webp" hidden aria-label="Chọn ảnh đại diện">
         </div>
         <div class="profile-identity">
-          <h2 id="profile-name" data-profile-value="name">Lan Anh</h2>
+          <h2 id="profile-name" data-profile-value="name">{{ auth_ui.name }}</h2>
           <span class="membership-badge">Hạng thành viên sẽ được cập nhật khi có đủ dữ liệu</span>
-          <p>@<span data-profile-value="username">user</span></p>
-          <p data-profile-value="email">user@annhienspa.vn</p>
+          <p>@<span data-profile-value="username">{{ auth_ui.username }}</span></p>
+          <p data-profile-value="email">{{ auth_ui.email }}</p>
           <p>Điện thoại: <span data-profile-value="phone">Chưa cập nhật</span></p>
-          <p>Ngày tham gia: chờ dữ liệu tài khoản</p>
+          <p>Ngày tham gia: {{ request.user.date_joined|date:"d/m/Y" }}</p>
         </div>
         <button class="button" type="button" data-profile-edit aria-controls="profile-personal-editor" aria-expanded="false">Chỉnh sửa thông tin</button>
       </section>
-      <p class="form-note">Hồ sơ minh họa chỉ lưu trong phiên này. Chỉnh sửa username/email không thay đổi tài khoản đăng nhập demo. Ảnh PNG, JPG hoặc WebP, tối đa 1 MB; xem trước rồi lưu.</p>
+      <p class="form-note">Thông tin hồ sơ được lưu vào tài khoản của bạn. Ảnh PNG, JPG hoặc WebP, tối đa 1 MB; xem trước rồi lưu.</p>
       <section class="profile-section" aria-labelledby="personal-title">
         <span class="eyebrow">HIỂU THÊM VỀ BẠN</span>
         <h2 id="personal-title">Thông tin cá nhân</h2>
         <dl class="profile-facts" data-profile-facts>
-          <div><dt>Họ và tên</dt><dd data-profile-value="name">Lan Anh</dd></div>
-          <div><dt>Username</dt><dd data-profile-value="username">user</dd></div>
-          <div><dt>Email</dt><dd data-profile-value="email">user@annhienspa.vn</dd></div>
+          <div><dt>Họ và tên</dt><dd data-profile-value="name">{{ auth_ui.name }}</dd></div>
+          <div><dt>Username</dt><dd data-profile-value="username">{{ auth_ui.username }}</dd></div>
+          <div><dt>Email</dt><dd data-profile-value="email">{{ auth_ui.email }}</dd></div>
           <div><dt>Số điện thoại</dt><dd data-profile-value="phone">Chưa cập nhật</dd></div>
         </dl>
       </section>
@@ -152,7 +152,7 @@
             <button class="button" type="button" data-profile-cancel>Hủy thay đổi</button>
           </div>
           <p class="profile-care-status" data-profile-status role="status" aria-live="polite" hidden></p>
-          <p class="profile-care-demo">Bạn tự cung cấp thông tin · Chỉ lưu trong phiên demo, chưa đồng bộ backend.</p>
+          <p class="profile-care-demo">Thông tin do bạn cung cấp được lưu trong hồ sơ chăm sóc.</p>
           </section>
         </form>
       <section class="profile-section" aria-labelledby="membership-title">

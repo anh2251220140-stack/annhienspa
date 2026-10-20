@@ -27,7 +27,7 @@ def available_slots(user, service_id, employee_id, day):
     if not service or not employee or not EmployeeService.objects.filter(employee=employee,service=service).exists():
         raise ValidationError("Dịch vụ hoặc chuyên viên không khả dụng / chưa được phân công.")
     if day < timezone.localdate(): return []
-    shifts = EmployeeSchedule.objects.filter(employee=employee,work_date=day)
+    shifts = EmployeeSchedule.objects.filter(is_active=True, employee=employee,work_date=day)
     busy = list(Appointment.objects.filter(appointment_date=day).exclude(status="cancelled").filter(
         Q(employee=employee) | Q(customer=customer)))
     result = set()

@@ -89,8 +89,7 @@
   discount.textContent = formatMoneyInText(item.discount);
   discount.classList.toggle("is-amount", discount.textContent.includes(" VND"));
   main.querySelector("[data-promotion-description]").textContent = formatMoneyInText(item.description);
-  main.querySelector("[data-promotion-detail]").textContent = formatMoneyInText(item.code === "AUTUMN10"
-    ? item.description : item.detail);
+  main.querySelector("[data-promotion-detail]").textContent = formatMoneyInText(item.detail);
   main.querySelector("[data-promotion-period]").textContent = `${dateLabel(item.startDate)} — ${dateLabel(item.endDate)}`;
   main.querySelector("[data-promotion-status]").innerHTML = statusBadge(item);
   main.querySelector("[data-promotion-conditions]").replaceChildren(...item.conditions.map((text, index) => {
@@ -100,7 +99,9 @@
     return li;
   }));
   main.querySelector("[data-promotion-note]").textContent =
-    formatMoneyInText(item.note.replace(/^Không tự áp dụng mức giảm trong giao diện\.\s*/, ""));
+    formatMoneyInText(item.note);
+  main.querySelector("[data-promotion-aliases]").textContent = item.aliases.length ? "Mã thay thế: " + item.aliases.join(" · ") : "";
+  main.querySelector("[data-promotion-badge]").textContent = item.badge;
   const services = window.spaCatalog.services.filter((service) =>
     service.active === true && item.serviceIds.includes(service.id));
   const book = main.querySelector("[data-promotion-book]");
@@ -126,7 +127,7 @@
       <div class="catalog-card-actions"><a class="button small" href="service-detail.html?id=${service.id}">Xem chi tiết</a>
       ${canBook ? `<a class="button small filled" href="${window.spaAuth.urlFor(`booking.html?service=${service.id}`)}">${window.spaIcon("calendar")}Đặt lịch</a>` : ""}</div></div></article>`).join("");
   const scope = main.querySelector("[data-service-scope]");
-  scope.textContent = services.length
+  scope.textContent = (item.scopeNote ? item.scopeNote + " " : "") + (services.length
     ? "Giá hiển thị là giá gốc. Spa sẽ kiểm tra điều kiện chương trình trước khi xác nhận mức giảm."
-    : "Hiện chưa có dịch vụ phù hợp với điều kiện của chương trình.";
+    : "Hiện chưa có dịch vụ phù hợp với điều kiện của chương trình.");
 })();

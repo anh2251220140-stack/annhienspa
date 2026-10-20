@@ -7,6 +7,9 @@ from django.template.loader import render_to_string
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import never_cache
 from .permissions import api_role
+from .business_layout import groups_for
+from contextlib import nullcontext
+from promotions.services import code_lock
 from .business_forms import REGISTRY, ScheduleForm
 from employees.models import Employee, EmployeeSchedule
 from appointments.models import Appointment
@@ -22,7 +25,8 @@ def row(item):
     if hasattr(item,"services"):d["serviceIds"]=list(item.services.values_list("pk",flat=True))
     return d
 
-def form_html(request,form):return render_to_string("partials/business_form.html",{"form":form},request=request)
+def form_html(request,form,module="schedules",detail=False):
+    return render_to_string("partials/business_detail.html" if detail else "partials/business_form.html", {"form":form,"module":module,"groups":groups_for(form,module)},request=request)
 def error_json(error):
     return JsonResponse({"error":" ".join(error.messages) if isinstance(error,ValidationError) else "Dữ liệu trùng hoặc có liên kết không hợp lệ."},status=400)
 
@@ -34,11 +38,11 @@ def records(request,module,pk=None):
     if not Form:raise Http404
     Model=Form._meta.model
     if request.method=="GET":
-        if pk==0:return JsonResponse({"html":form_html(request,Form())})
-        if pk:return JsonResponse({"html":form_html(request,Form(instance=get_object_or_404(Model,pk=pk)))})
+        if pk==0:return JsonResponse({"html":form_html(request,Form(),module)})
+        if pk:return JsonResponse({"html":form_html(request,Form(instance=get_object_or_404(Model,pk=pk)),module,request.GET.get("view")=="1")})
         return JsonResponse({"items":[row(x) for x in Model.objects.order_by("pk")]})
     try:
-        with transaction.atomic():
+        with code_lock() if module=="promotions" else nullcontext(), transaction.atomic():
             item=get_object_or_404(Model.objects.select_for_update(),pk=pk) if pk else None
             if request.POST.get("_toggle") and item:
                 item.is_active=not item.is_active;item.save()
@@ -60,7 +64,7 @@ def schedules(request,employee_id,pk=None):
     employee=get_object_or_404(Employee,pk=employee_id)
     if request.method=="GET":
         if pk is None:
-            items=employee.schedules.order_by("work_date","start_time")
+            items=employee.schedules.filter(is_active=True).order_by("work_date","start_time")
             return JsonResponse({"items":[{"id":x.pk,"date":x.work_date,"start":x.start_time.strftime("%H:%M"),"end":x.end_time.strftime("%H:%M"),"status":x.get_status_display(),"note":x.note or ""} for x in items]})
         item=get_object_or_404(EmployeeSchedule,pk=pk,employee=employee) if pk else EmployeeSchedule(employee=employee)
         return JsonResponse({"html":form_html(request,ScheduleForm(instance=item))})

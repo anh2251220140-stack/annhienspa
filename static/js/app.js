@@ -553,7 +553,7 @@
     document.querySelectorAll("[data-profile-icon]").forEach((node) => { node.innerHTML = window.spaIcon(node.dataset.profileIcon) })
     const renderAvatar = () => {
       portrait.textContent = String(saved.name || "Lan Anh").trim().split(/\s+/).slice(-2).map((part) => part[0]).join("").toUpperCase()
-      if (/^data:image\/(?:png|jpeg|webp);base64,/.test(avatar)) {
+      if (/^data:image\/(?:png|jpeg|webp);base64,/.test(avatar) || String(avatar).startsWith("/media/")) {
         const image = document.createElement("img")
         image.src = avatar
         image.alt = "Ảnh đại diện xem trước"
@@ -642,12 +642,12 @@
         avatar = reader.result
         renderAvatar()
         setEditing(true)
-        notify("Ảnh đang được xem trước. Chọn Lưu thay đổi để lưu trong phiên này.")
+        notify("Ảnh đang được xem trước. Chọn Lưu thay đổi để lưu ảnh vào hồ sơ.")
       }
       reader.onerror = () => { avatarPending = false; notify("Không thể đọc ảnh. Vui lòng chọn lại.") }
       reader.readAsDataURL(file)
     })
-    profile.addEventListener("submit", (event) => {
+    profile.addEventListener("submit", async (event) => {
       event.preventDefault()
       if (avatarPending) { notify("Vui lòng đợi ảnh tải xong."); return }
       const next = Object.fromEntries(fields.map((key) => [key, profile.elements[key].value.trim()]))
@@ -677,14 +677,23 @@
           ? saved[key] : key === "skin" ? profile.elements.skin.value || "Chưa xác định" : careInputs(key).filter((input) => input.checked).map((input) => input.value)
       })
       next.budget = budget
-      if (write("spa-profile", { ...saved, ...next, avatar })) {
-        saved = { ...saved, ...next, avatar }
-        renderProfile()
-        setEditing(false)
-        document.dispatchEvent(new Event("spa-profile-updated"))
-        showProfileStatus("Đã lưu hồ sơ chăm sóc và thông tin cá nhân trong phiên demo.", "success")
-        notify("Đã lưu hồ sơ mẫu trong phiên này.")
-      } else showProfileStatus("Chưa lưu được hồ sơ. Vui lòng kiểm tra quyền lưu trữ phiên của trình duyệt.")
+      const submit = profile.querySelector('[type="submit"]'); submit.disabled = true;
+      try {
+        const body = new FormData();
+        for (const [key,value] of Object.entries(next)) {
+          if (Array.isArray(value)) value.forEach(v=>body.append(key,v));
+          else body.set(key,value ?? "");
+        }
+        if (picker.files[0]) body.set("avatar",picker.files[0]);
+        const response=await fetch("/api/profile/",{method:"POST",body,headers:{"X-CSRFToken":document.querySelector('[name="csrfmiddlewaretoken"]').value}});
+        const result=await response.json();
+        if(!response.ok)throw Error(result.error||Object.values(result.errors||{}).flat().join(" ")||"Không thể lưu hồ sơ.");
+        Object.assign(window.spaAuth.getProfile(),result.item);
+        saved=result.item;avatar=saved.avatar;picker.value="";
+        renderProfile();setEditing(false);document.dispatchEvent(new Event("spa-profile-updated"));
+        showProfileStatus("Đã lưu hồ sơ chăm sóc và thông tin cá nhân.","success");
+      } catch(error) { showProfileStatus(error.message); }
+      finally { submit.disabled=false; }
     })
     const password = document.querySelector("#profile-password")
     const passwordOpen = document.querySelector("[data-password-open]")

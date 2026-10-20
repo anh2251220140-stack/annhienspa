@@ -49,14 +49,7 @@
   const redirect = blockedDestination(currentPage);
   const allowed = redirect === null;
   function getProfile() {
-    let saved;
-    try { saved = JSON.parse(sessionStorage.getItem("spa-profile")); } catch { /* Use demo defaults. */ }
-    const defaults = {
-      name: serverSession?.name || "", username: serverSession?.username || "", email: serverSession?.email || "",
-      phone: "", skin: "", needs: "", interests: "", budget: null, avatar: "",
-    };
-    if (typeof saved === "string") return { ...defaults, name: saved || defaults.name };
-    return { ...defaults, ...(saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {}) };
+    return serverSession?.profile || {name:serverSession?.name||"",username:serverSession?.username||"",email:serverSession?.email||"",phone:serverSession?.phone||"",skin:"",needs:[],interests:[],budget:null,avatar:""};
   }
   window.spaAuth = { getSession, isAuthenticated, urlFor, logout, allowed, getProfile };
   if (!allowed) {

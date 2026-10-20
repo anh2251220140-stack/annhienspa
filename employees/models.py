@@ -5,9 +5,11 @@ from core.models import ValidatedModel
 class Employee(ValidatedModel):
     full_name = models.CharField(max_length=150)
     phone = models.CharField(max_length=20, blank=True, null=True)
-    specialty = models.CharField(max_length=150)
+    specialty = models.TextField()
     avatar = models.ImageField(upload_to="employees/", max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    email = models.EmailField(blank=True, default="")
+    avatar_preset = models.CharField(max_length=255, blank=True, default="")
     is_active = models.BooleanField(default=True)
     services = models.ManyToManyField("services.Service", through="EmployeeService", related_name="employees")
     class Meta:
@@ -25,6 +27,7 @@ class EmployeeSchedule(ValidatedModel):
         WORKING = "working", "Làm việc"
         OFF = "off", "Nghỉ"
     employee = models.ForeignKey(Employee, on_delete=models.PROTECT, related_name="schedules")
+    is_active = models.BooleanField(default=True)
     work_date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
@@ -36,8 +39,8 @@ class EmployeeSchedule(ValidatedModel):
         constraints = [models.CheckConstraint(condition=models.Q(end_time__gt=models.F("start_time")), name="schedule_positive_interval"),
                        models.CheckConstraint(condition=models.Q(status__in=["working", "off"]), name="schedule_valid_status")]
     def clean(self):
-        if self.employee_id and self.work_date and self.start_time and self.end_time:
-            if type(self).objects.filter(employee_id=self.employee_id, work_date=self.work_date,
+        if self.is_active and self.employee_id and self.work_date and self.start_time and self.end_time:
+            if type(self).objects.filter(is_active=True, employee_id=self.employee_id, work_date=self.work_date,
                 start_time__lt=self.end_time, end_time__gt=self.start_time).exclude(pk=self.pk).exists():
                 raise ValidationError("Ca làm hoặc ca nghỉ bị chồng lấn.")
 

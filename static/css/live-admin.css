@@ -1,0 +1,14 @@
+/* Only backend-connected controls; original Figma CSS remains unchanged. */
+.live-business-form .admin-service-form-grid { grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+.live-business-form .admin-ops-full { grid-column: 1 / -1; }
+.live-image-preview { display:block; max-width:160px; max-height:130px; object-fit:cover; border-radius:8px; }
+.admin-service-error { white-space:pre-line; }
+.live-business-form .admin-ops-choice-grid input[type=checkbox] { width:18px; height:18px; padding:0; }
+.live-schedule-row { display:flex; gap:12px; align-items:end; margin-bottom:12px; flex-wrap:wrap; }
+.live-schedule-row label { flex:1; min-width:110px; }
+.live-business-form details[open] .admin-service-form-grid { padding:20px; }
+@media(max-width:650px) { .live-business-form .admin-service-form-grid { grid-template-columns:minmax(0,1fr) !important; } }
+
+.admin-service-dialog:has(.live-business-form[data-module="services"]) { width:min(860px,calc(100% - 32px)) !important; }
+.live-business-form[data-module="categories"] .admin-service-form-grid { grid-template-columns:minmax(0,1fr) !important; }
+.live-business-form .admin-ops-form-section [data-ops-field]:not([data-ops-field="description"]):not([data-ops-field="conditions"]):not([data-ops-field="detail"]):not([data-ops-field="specialty"]):not([data-ops-field="scope_note"]):not([data-ops-field="note"]) { grid-column:auto; }

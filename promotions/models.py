@@ -14,6 +14,13 @@ class Promotion(ValidatedModel):
     max_discount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     start_date = models.DateField()
     end_date = models.DateField()
+    detail = models.TextField(blank=True, default="")
+    conditions = models.TextField(blank=True, default="")
+    note = models.TextField(blank=True, default="")
+    badge = models.CharField(max_length=80, blank=True, default="")
+    accent = models.CharField(max_length=20, default="champagne", choices=[("champagne","Champagne"),("terracotta","Terracotta"),("caramel","Caramel")])
+    aliases = models.TextField(blank=True, default="")
+    scope_note = models.TextField(blank=True, default="")
     is_active = models.BooleanField(default=True)
     services = models.ManyToManyField("services.Service", through="PromotionService", related_name="promotions")
     class Meta:
