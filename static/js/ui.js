@@ -56,6 +56,7 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('input[type="password"]').forEach((input) => {
+      if (input.closest(".password-control")) return;
       const label = input.labels?.[0]?.childNodes[0]?.textContent.trim() || "mật khẩu";
       const wrapper = document.createElement("span");
       wrapper.className = "password-control";
@@ -81,6 +82,9 @@
         if (start !== null && end !== null) input.setSelectionRange(start, end);
       });
       input.form?.addEventListener("reset", () => update(false));
+      input.form?.addEventListener("submit", () => update(false));
+      window.addEventListener("pagehide", () => update(false));
+      document.addEventListener("visibilitychange", () => { if (document.hidden) update(false); });
     });
   });
 })();

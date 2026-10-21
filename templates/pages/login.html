@@ -9,6 +9,7 @@
     <title>Đăng nhập | An Nhiên Spa</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link rel="stylesheet" href="{% static 'css/password-reset.css' %}">
     <script src="{% static 'js/ui.js' %}"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
@@ -60,6 +61,7 @@
               <input id="password" name="password" type="password" autocomplete="current-password" required maxlength="128" placeholder="Mật khẩu" aria-describedby="password-error">
               <span class="field-error" id="password-error" data-field-error="password" aria-live="polite">{{ form.password.errors }}</span>
             </label>
+            <a class="auth-forgot" href="{% url 'accounts:password_reset' %}">Quên mật khẩu?</a>
             <p class="auth-status" data-auth-status role="status" aria-live="polite" {% if not form.non_field_errors and request.GET.registered != "success" %}hidden{% endif %}>{{ form.non_field_errors }}{% if request.GET.registered == "success" %}Đăng ký thành công. Vui lòng đăng nhập.{% endif %}</p>
             <button class="button filled" type="submit">Đăng nhập</button>
             </fieldset>
