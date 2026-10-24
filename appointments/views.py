@@ -16,7 +16,7 @@ def serialize(item):
     return {"id":item.pk,"service":item.service.name,"serviceId":item.service_id,"employee":item.employee.full_name,
         "employeeId":item.employee_id,"customer":item.customer.full_name,"date":item.appointment_date.isoformat(),
         "time":item.start_time.strftime("%H:%M"),"end":item.end_time.strftime("%H:%M"),"status":item.status,
-        "statusLabel":item.get_status_display(),"note":item.note or "","invoiceStatus":invoice.payment_status if invoice else None,
+        "statusLabel":item.get_status_display(),"note":item.note or "","invoiceStatus":invoice.get_payment_status_display() if invoice else None,"invoiceId":invoice.pk if invoice else None,
         "cancellable":item.status in ("pending","confirmed") and start_datetime(item.appointment_date,item.start_time)>timezone.now() and (not invoice or invoice.payment_status!="paid")}
 
 def failure(error):

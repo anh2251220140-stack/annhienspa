@@ -12,6 +12,7 @@ class Promotion(ValidatedModel):
     discount_value = models.DecimalField(max_digits=12, decimal_places=2)
     min_amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     max_discount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    per_customer_limit = models.PositiveIntegerField(null=True, blank=True)
     start_date = models.DateField()
     end_date = models.DateField()
     detail = models.TextField(blank=True, default="")
@@ -26,6 +27,7 @@ class Promotion(ValidatedModel):
     class Meta:
         db_table = "promotions"
         constraints = [
+            models.CheckConstraint(condition=models.Q(per_customer_limit__isnull=True) | models.Q(per_customer_limit__gte=1), name="promotion_customer_limit_positive"),
             models.CheckConstraint(condition=models.Q(end_date__gte=models.F("start_date")), name="promotion_valid_dates"),
             models.CheckConstraint(condition=models.Q(discount_value__gt=0), name="promotion_positive_discount"),
             models.CheckConstraint(condition=models.Q(discount_type="amount") | models.Q(discount_type="percent", discount_value__lte=100), name="promotion_valid_discount"),

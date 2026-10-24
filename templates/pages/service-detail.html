@@ -23,7 +23,7 @@
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
-</head>
+<script src="{% static 'js/phase4-api.js' %}" defer></script><script src="{% static 'js/live-service-reviews.js' %}" defer></script></head>
   <body>
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
     <header class="site-header">
@@ -375,14 +375,14 @@
             </noscript>
           </div>
         </section>
-        <section id="reviews" class="catalog-related detail-related review-section" data-service-reviews aria-labelledby="service-reviews-title">
+        <section id="reviews" class="catalog-related detail-related review-section" data-service-reviews data-live-reviews aria-labelledby="service-reviews-title">
           <div class="related-heading">
             <div><span class="eyebrow">LẮNG NGHE TỪ SỰ CHÂN THÀNH</span><h2 id="service-reviews-title">Đánh giá khách hàng</h2></div>
             <button class="button" type="button" data-review-open aria-controls="review-form" aria-expanded="false" hidden>Viết đánh giá</button>
           </div>
           <div class="review-surface">
             <div class="review-overview"><strong data-review-average>— / 5</strong><span data-review-count>0 đánh giá</span></div>
-            <div id="review-list" aria-label="Đánh giá về dịch vụ"></div>
+            <div id="review-list" aria-label="Đánh giá về dịch vụ"></div><div class="review-actions" id="service-review-pages"></div>
             <p class="review-note" data-review-eligibility>Chỉ khách có cuộc hẹn đã hoàn thành mới có thể chia sẻ đánh giá.</p>
             <form id="review-form" hidden>
               <label data-review-appointment>Cuộc hẹn của bạn<select name="appointment" required></select></label>
@@ -394,11 +394,9 @@
                 <label><input type="radio" name="rating" value="4" aria-label="4 sao"><span data-rating-icon></span></label>
                 <label><input type="radio" name="rating" value="5" aria-label="5 sao"><span data-rating-icon></span></label>
               </fieldset>
-              <label for="review-message">Chia sẻ của bạn<textarea id="review-message" name="message" rows="4" required maxlength="2000"></textarea></label>
-              <label>Thêm ảnh trải nghiệm (không bắt buộc)<input type="file" name="photos" accept="image/jpeg,image/png,image/webp" multiple aria-describedby="review-photo-note"></label>
-              <p class="review-note" id="review-photo-note">JPG, PNG, WebP · tối đa 3 ảnh, 1 MB/ảnh. Ảnh chỉ lưu trong phiên mẫu.</p>
-              <div class="review-gallery" data-review-photo-preview></div>
-              <p class="review-note">Tối đa 2000 ký tự. Đánh giá chỉ lưu trong phiên mẫu, chưa gửi đến Spa.</p>
+              <label for="review-message">Chia sẻ của bạn<textarea id="review-message" name="message" rows="4" maxlength="2000"></textarea></label>
+
+              <p class="review-note">Nhận xét không bắt buộc, tối đa 2.000 ký tự. Đánh giá được lưu tại Spa.</p>
               <div class="review-actions"><button class="button filled" type="submit">Gửi đánh giá</button><button class="button" type="button" data-review-cancel>Đóng</button></div>
             </form>
             <p class="review-note" data-review-status role="status" aria-live="polite"></p>

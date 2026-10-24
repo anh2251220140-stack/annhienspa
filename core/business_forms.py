@@ -76,9 +76,11 @@ class EmployeeForm(BaseForm):
 class PromotionForm(BaseForm):
     services=NamedChoices(queryset=Service.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
     class Meta:
-        model=Promotion;fields=['name','code','discount_type','discount_value','start_date','end_date','description','detail','conditions','note','badge','accent','aliases','min_amount','max_discount','scope_note','services']
+        model=Promotion;fields=['name','code','discount_type','discount_value','start_date','end_date','description','detail','conditions','note','badge','accent','aliases','min_amount','max_discount','per_customer_limit','scope_note','services']
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs);self.fields['name'].label='Tên chương trình';self.fields['description'].label='Mô tả ngắn';self.fields['accent'].required=False
+        self.fields['per_customer_limit'].label='Giới hạn lượt mỗi khách (tùy chọn)'
+        self.fields['per_customer_limit'].min_value=1
     def clean(self):
         data=super().clean()
         import re

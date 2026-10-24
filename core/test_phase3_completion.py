@@ -103,7 +103,8 @@ class Phase3CompletionTests(Fixtures,TestCase):
         self.assertEqual(self.client.post(f'/api/admin/customers/{self.customer.pk}/',data).status_code,405)
         self.assertEqual(self.client.post('/api/profile/',data).status_code,403)
     def test_promotion_backend_rules_aliases_and_manual_conditions(self):
-        r=self.client.post('/api/admin/promotions/',self.promotion_data());self.assertEqual(r.status_code,201,r.content)
+        data=self.promotion_data();data['note']=''
+        r=self.client.post('/api/admin/promotions/',data);self.assertEqual(r.status_code,201,r.content)
         p=Promotion.objects.get(pk=r.json()['item']['id']);self.assertEqual(evaluate_code('alt10',self.service)['discount'],Decimal('40000'))
         duplicate={**self.promotion_data(),'code':'ANOTHER','aliases':'ALT10'};self.assertEqual(self.client.post('/api/admin/promotions/',duplicate).status_code,400)
         p.conditions='Khách cần giấy xác nhận';p.save();result=evaluate_code(p.code,self.service);self.assertTrue(result['requiresManualReview']);self.assertFalse(result['eligible']);self.assertIsNone(result['discount'])

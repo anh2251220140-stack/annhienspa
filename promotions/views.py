@@ -12,5 +12,7 @@ def validate_code(request):
     try:
         pk=int(request.POST.get('service',''))
         service=get_object_or_404(Service.objects.select_related('category'),pk=pk)
-        return JsonResponse(evaluate_code(request.POST.get('code',''),service))
+        from accounts.models import Customer
+        customer_id=Customer.objects.filter(user=request.user).values_list('pk',flat=True).first()
+        return JsonResponse(evaluate_code(request.POST.get('code',''),service,customer_id=customer_id))
     except (ValueError,ValidationError) as e:return JsonResponse({'error':' '.join(e.messages) if isinstance(e,ValidationError) else 'Dịch vụ không hợp lệ.'},status=400)

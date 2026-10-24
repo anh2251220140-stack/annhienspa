@@ -18,6 +18,7 @@ INSTALLED_APPS = [
 ] + "accounts services products employees appointments promotions billing reviews dashboard ai_features core".split()
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -77,3 +78,9 @@ EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "false").lower() == "true"
 EMAIL_TIMEOUT = 10
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "An Nhien Spa <noreply@example.com>")
 PASSWORD_RESET_TIMEOUT = int(os.getenv("PASSWORD_RESET_TIMEOUT", "3600"))
+
+PAYOS_CLIENT_ID = os.getenv("PAYOS_CLIENT_ID", "")
+PAYOS_API_KEY = os.getenv("PAYOS_API_KEY", "")
+PAYOS_CHECKSUM_KEY = os.getenv("PAYOS_CHECKSUM_KEY", "")
+PAYOS_RETURN_URL = os.getenv("PAYOS_RETURN_URL", "http://127.0.0.1:8000/invoice.html")
+PAYOS_CANCEL_URL = os.getenv("PAYOS_CANCEL_URL", "http://127.0.0.1:8000/invoice.html")

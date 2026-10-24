@@ -120,7 +120,7 @@ class Phase3Tests(Fixtures,TestCase):
     def test_user_scope_and_cancel_invoice(self):
         item=book(self.user,self.service.pk,self.employee.pk,self.day,time(10))
         transition(self.admin,item.pk,"confirmed")
-        item.refresh_from_db();invoice=Invoice.objects.create(appointment=item,subtotal=500000,total_amount=500000)
+        item.refresh_from_db();invoice=Invoice.objects.get(appointment=item)
         self.client.force_login(self.other)
         self.assertEqual(self.client.get("/api/appointments/").json()["items"],[])
         self.assertEqual(self.client.post(f"/api/appointments/{item.pk}/status/",{"status":"cancelled"}).status_code,403)
@@ -152,7 +152,7 @@ class Phase3Tests(Fixtures,TestCase):
 
     def test_paid_cancellation_rejected(self):
         item=book(self.user,self.service.pk,self.employee.pk,self.day,time(10));transition(self.admin,item.pk,"confirmed");item.refresh_from_db()
-        Invoice.objects.create(appointment=item,subtotal=500000,total_amount=500000,payment_status="paid")
+        invoice=Invoice.objects.get(appointment=item);invoice.payment_status="paid";invoice.save()
         self.login_user();self.assertEqual(self.client.post(f"/api/appointments/{item.pk}/status/",{"status":"cancelled"}).status_code,400)
 
     def test_admin_filters(self):

@@ -726,7 +726,7 @@
   const reviewSection = document.querySelector("[data-service-reviews]")
   const myReviews = document.querySelector(".reviews-page")
   const adminReviews = document.querySelector("[data-admin-review-analysis]")
-  if (reviewSection || myReviews || adminReviews) {
+  if ((reviewSection || myReviews || adminReviews) && !document.querySelector("[data-live-reviews]")) {
     const session = read("spa-auth", {})
     const isUser = window.spaAuth.isAuthenticated() && session.role === "User"
     const owner = isUser ? session.username : null

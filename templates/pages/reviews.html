@@ -18,7 +18,7 @@
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
-</head>
+<link rel="stylesheet" href="{% static 'css/phase4.css' %}"><script src="{% static 'js/phase4-api.js' %}" defer></script><script src="{% static 'js/live-reviews.js' %}" defer></script></head>
   <body>
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
     <header class="site-header">
@@ -63,7 +63,7 @@
       </svg>
     </button>
   </header>
-  <main class="page-main container reviews-page">
+  <main data-live-reviews class="page-main container reviews-page">
     <section class="page-panel">
       <span class="eyebrow">
         LẮNG NGHE TỪ SỰ CHÂN THÀNH
@@ -76,7 +76,7 @@
       </p>
       <div class="review-surface">
         <div id="review-list"></div>
-        <p class="review-note">Đánh giá và ảnh trải nghiệm chỉ lưu trong phiên trình duyệt, chưa gửi đến Spa.</p>
+        <p class="review-note">Đánh giá được lưu tại Spa. Bạn có thể cập nhật đánh giá sau khi hoàn thành lịch hẹn.</p>
       </div>
     </section>
   </main>

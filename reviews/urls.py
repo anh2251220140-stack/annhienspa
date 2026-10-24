@@ -1,4 +1,3 @@
 from django.urls import path
-
-app_name = "reviews"
-urlpatterns = []
+from . import views
+urlpatterns=[path("",views.listing),path("services/<int:pk>/",views.service_reviews),path("appointments/<int:pk>/",views.save),path("<int:pk>/replies/",views.reply)]

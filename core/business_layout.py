@@ -5,7 +5,7 @@ LAYOUTS={
 'services': [('Thông tin dịch vụ','leaf','name category price duration_minutes description image_preset image',False),('Nội dung chi tiết liệu trình','note','introduction benefits steps suitable note gallery_preset gallery care_group',True)],
 'products': [('Thông tin sản phẩm','droplet','name product_type image_preset image care_group description',False),('Thông tin chăm sóc','leaf','ingredients usage_instructions note skin_type suitable_for benefits services',False)],
 'employees': [('Hồ sơ & liên hệ','heart','full_name avatar_preset avatar email phone',False),('Chuyên môn & dịch vụ','leaf','specialty services description',False)],
-'promotions': [('Thông tin chương trình','star','name code discount_type discount_value start_date end_date',False),('Nội dung & điều kiện','note','description detail conditions note badge accent aliases min_amount max_discount',False),('Phạm vi dịch vụ áp dụng','leaf','scope_note services',False)],
+'promotions': [('Thông tin chương trình','star','name code discount_type discount_value start_date end_date',False),('Nội dung & điều kiện','note','description detail conditions note badge accent aliases min_amount max_discount per_customer_limit',False),('Phạm vi dịch vụ áp dụng','leaf','scope_note services',False)],
 'schedules': [('Ca làm việc','calendar','work_date start_time end_time status note',False)]}
 
 def groups_for(form,module):

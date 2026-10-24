@@ -72,6 +72,10 @@ def transition(user, appointment_id, status, employee_id=None, consent=False, re
     Customer.objects.select_for_update().get(pk=current.customer_id)
     item = Appointment.objects.select_for_update().get(pk=appointment_id)
     invoice = Invoice.objects.select_for_update().filter(appointment=item).first()
+    if user.role == "Admin" and item.status == "confirmed" and status == "confirmed" and not employee_id:
+        if not invoice:
+            raise ValidationError("Lịch cũ thiếu hóa đơn: Admin cần đối soát giá lịch sử trước khi bổ sung hóa đơn.")
+        return item
     if item.status not in LIVE: raise ValidationError("Lịch đã hoàn thành hoặc đã hủy không được thay đổi.")
     if user.role == "User":
         if item.customer.user_id != user.pk: raise PermissionDenied
@@ -98,9 +102,17 @@ def transition(user, appointment_id, status, employee_id=None, consent=False, re
         raise ValidationError("Chưa đến thời điểm kết thúc liệu trình.")
     if status == "cancelled" and invoice and invoice.payment_status == "paid":
         raise ValidationError("Hóa đơn đã thanh toán: cần xử lý thủ công với khách; không hoàn tiền tự động.")
+    if status == "cancelled" and invoice:
+        from billing.services import stop_pending
+        stop_pending(invoice)
+    if status == "confirmed" and not invoice and item.status != "pending":
+        raise ValidationError("Lịch cũ thiếu hóa đơn: cần đối soát giá lịch sử, kể cả khi đổi chuyên viên.")
     item.status = status
     # Existing historical schedule/assignment may be inactive; status changes do not rebook.
     Appointment.objects.filter(pk=item.pk).update(status=status,employee_id=item.employee_id,note=item.note,updated_at=timezone.now())
+    if status == "confirmed":
+        from billing.services import ensure_invoice
+        ensure_invoice(item)
     if status == "cancelled" and invoice:
         invoice.payment_status = "cancelled"; invoice.save()
     return item

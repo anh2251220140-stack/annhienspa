@@ -13,7 +13,7 @@
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
     <script src="{% static 'js/admin.js' %}" defer></script>
-    <script src="{% static 'js/live-admin.js' %}" defer></script>
+    <script src="{% static 'js/live-admin.js' %}?v=phase4-20261023" defer></script>
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>

@@ -1,0 +1,35 @@
+.phase4-form { display:grid; gap:16px; margin:24px 0; }
+.phase4-form label { display:grid; gap:8px; }
+.phase4-form textarea { width:100%; min-height:100px; font:inherit; padding:12px; color:inherit; background:transparent; border:1px solid #c6a07e80; border-radius:8px; }
+.phase4-form .review-rating { display:flex; }
+.phase4-form .review-rating label { display:grid; }
+.phase4-form button { justify-self:start; }
+[data-cash-form] label:has([type=checkbox]) { display:flex; align-items:center; gap:8px; }
+[data-cash-form] [type=checkbox] { width:auto; min-height:auto; }
+[data-live-invoice] .invoice-tools { display:grid; gap:18px; margin:28px 0; }
+[data-live-invoice] #invoice-filter { display:grid; grid-template-columns:minmax(0,1fr) minmax(160px,220px) auto; align-items:end; gap:12px; margin:0; max-width:none; }
+[data-live-invoice] #invoice-filter label { display:grid; gap:9px; min-width:0; font-size:11px; color:var(--muted); }
+[data-live-invoice] #invoice-filter :is(input,select) { width:100%; min-width:0; height:46px; padding:10px 14px; border:1px solid #c6a07e40; background:transparent; color:inherit; border-radius:12px; font:inherit; }
+[data-live-invoice] #invoice-filter .button { min-height:46px; margin:0; padding:10px 24px; font-size:11px; }
+[data-live-invoice] .invoice-navigation { display:flex; align-items:end; justify-content:space-between; gap:18px; }
+[data-live-invoice] .invoice-navigation .journey-filter { flex:1; min-width:0; max-width:550px; margin:0; }
+[data-live-invoice] .invoice-navigation select { min-height:46px; width:100%; }
+[data-live-invoice] .invoice-pagination { display:flex; flex-shrink:0; align-items:center; gap:12px; font-size:11px; }
+[data-live-invoice] .invoice-pagination .button { min-height:46px; margin:0; font-size:10px; padding:9px 16px; }
+.journey-page .appointment-card .journey-actions > .button.filled { background:#3a2419; border-color:#3a2419; color:#fff8f1; }
+.journey-page .appointment-card .journey-actions > .button.filled:hover { background:#513325; }
+.journey-page .appointment-card [data-cancel] { color:#946b56; border-color:#c6a07e55; }
+@media(max-width:600px) {
+  [data-live-invoice] #invoice-filter { grid-template-columns:minmax(0,1fr) auto; }
+  [data-live-invoice] #invoice-filter label:first-child { grid-column:1 / -1; }
+  [data-live-invoice] .invoice-navigation { display:grid; gap:16px; }
+  [data-live-invoice] .invoice-pagination { justify-content:center; }
+  .journey-page .appointment-card .journey-actions { flex-direction:row; }
+  .journey-page .appointment-card .journey-actions > .button { flex:1 1 auto; text-align:center; }
+}
+.admin-service-modal-scroll .review-reply { padding:16px 0; border-bottom:1px solid #c6a07e40; overflow-wrap:anywhere; }
+.admin-service-modal-scroll .review-comment { white-space:pre-wrap; overflow-wrap:anywhere; }
+.payos-qr-image { display:block; width:280px; max-width:100%; height:auto; margin:18px auto; background:#fff; image-rendering:pixelated; }
+.payos-qr-image[hidden] { display:none; }
+.payos-countdown { font-variant-numeric:tabular-nums; }
+[data-payment-qr] [data-payment-refresh] { margin-top:12px; }

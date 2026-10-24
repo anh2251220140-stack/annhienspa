@@ -33,6 +33,9 @@ def promotions():
     today=timezone.localdate();items=[]
     for x in Promotion.objects.filter(is_active=True,start_date__lte=today,end_date__gte=today).prefetch_related("services"):
         conditions=lines(x.conditions)
+        from promotions.services import policy
+        limit,_=policy(x)
+        if limit is not None:conditions.append(f'Mỗi khách hàng được sử dụng tối đa {limit} lần; hóa đơn chưa thanh toán giữ lượt cho đến khi xóa mã hoặc hủy hợp lệ.')
         if x.min_amount is not None:conditions.append("Giá trị tối thiểu: "+money(x.min_amount))
         if x.max_discount is not None:conditions.append("Giảm tối đa: "+money(x.max_discount))
         items.append({"id":x.pk,"code":x.code,"aliases":lines(x.aliases),"active":True,"name":x.name,
