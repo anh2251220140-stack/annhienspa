@@ -21,6 +21,12 @@ def row(item):
        "description":getattr(item,"description","") or ""}
     for attr in ("price","duration_minutes","product_type","specialty","phone","code","discount_type","discount_value","start_date","end_date","category_id"):
         if hasattr(item,attr):d[attr]=getattr(item,attr)
+    if isinstance(item,Service):
+        from django.templatetags.static import static
+        from pathlib import PurePosixPath
+        preset=item.image_preset or ""
+        safe_preset=preset and PurePosixPath(preset).name==preset and "\\" not in preset and PurePosixPath(preset).suffix.lower() in (".jpg",".jpeg",".png",".webp")
+        d["image_url"]=item.image.url if item.image else (static("images/"+preset) if safe_preset else "")
     if hasattr(item,"category"):d["category"]=item.category.name
     if hasattr(item,"services"):d["serviceIds"]=list(item.services.values_list("pk",flat=True))
     return d

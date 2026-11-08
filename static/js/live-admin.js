@@ -4,6 +4,10 @@
   if (!root) return;
   const servicePage = root.hasAttribute("data-admin-services");
   const module = servicePage ? "services" : root.dataset.adminOperations;
+  const serviceIcon = name => {
+    const paths={folder:'<path d="M3 7V5h6l2 2h10v13H3Z"/>',plus:'<path d="M12 4v16M4 12h16"/>',edit:'<path d="m16 3 5 5-12 12H4v-5ZM14 5l5 5"/>',power:'<path d="M12 2v10M6 5a9 9 0 1 0 12 0"/>',check:'<path d="m4 12 5 5L20 6"/>',search:'<circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/>'};
+    return paths[name]?`<svg class="line-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]}</svg>`:window.spaIcon(name);
+  };
   const $ = (s) => document.querySelector(s);
   const escape = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const token = () => document.querySelector('[name="csrfmiddlewaretoken"]').value;
@@ -24,8 +28,12 @@
     dialog.dataset.opsModule = module;
     dialog.innerHTML = `<header class="admin-service-modal-heading"><span class="admin-service-modal-icon">${window.spaIcon(({services:"leaf",products:"droplet",employees:"heart",promotions:"star",appointments:"calendar"})[module]||"folder")}</span><div><span class="admin-eyebrow">AN NHIÊN SPA</span><h2 id="${servicePage ? "service" : "ops"}-dialog-title">${escape(title)}</h2></div><button class="admin-icon-button" data-close aria-label="Đóng">×</button></header>${body}`;
     dialog.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => dialog.close()));
-    dialog.querySelectorAll("[data-live-icon]").forEach(el=>el.innerHTML=window.spaIcon(el.dataset.liveIcon));
+    dialog.querySelectorAll("[data-live-icon]").forEach(el=>el.innerHTML=(servicePage?serviceIcon:window.spaIcon)(el.dataset.liveIcon));
     dialog.querySelectorAll("select[name$='_preset']").forEach(select=>{const preview=document.createElement("img");preview.className="live-image-preview";preview.alt="Ảnh minh họa đã chọn";select.after(preview);const show=()=>{preview.hidden=!select.value;if(select.value)preview.src="/static/images/"+encodeURIComponent(select.value);};select.onchange=show;show();});
+    if(servicePage){
+      dialog.querySelectorAll(".admin-dialog-actions button").forEach(b=>{if(!b.querySelector("svg,[data-live-icon]"))b.insertAdjacentHTML("afterbegin",serviceIcon(b.type==="submit"?"check":"close"));});
+      const error=dialog.querySelector("[data-error]");if(error)error.tabIndex=-1;
+    }
     if (!dialog.open) dialog.showModal();
   }
   dialog.addEventListener("close", () => returnFocus?.isConnected && returnFocus.focus());
@@ -48,7 +56,26 @@
     if (r.end_date < today) return "expired";
     return (Date.parse(r.end_date)-Date.parse(today))/86400000 <= 7 ? "ending" : "active";
   };
+  const serviceCode = (type,id) => `${type === "categories" ? "DM" : "DV"}-${String(id).padStart(3,"0")}`;
+  function renderServices(type) {
+    const icon=serviceIcon, query=($(`#${type}-search`).value||"").trim().toLocaleLowerCase("vi"), status=$(`#${type}-status`).value, category=$("#services-category").value;
+    const items=(cache[type]||[]).filter(r=>`${r.name} ${serviceCode(type,r.id)}`.toLocaleLowerCase("vi").includes(query)&&(!status||r.active===(status==="active"))&&(type!=="services"||!category||String(r.category_id)===category));
+    const totalPages=Math.max(1,Math.ceil(items.length/5));pages[type]=Math.max(1,Math.min(pages[type]||1,totalPages));
+    const start=(pages[type]-1)*5, visible=items.slice(start,start+5);
+    $(`#${type}-rows`).innerHTML=visible.map(r=>{
+      const image=r.image_url?`<img src="${escape(r.image_url)}" alt="" loading="lazy">`:`<span class="service-image-fallback" aria-label="Chưa có ảnh">${icon("leaf")}</span>`;
+      const cells=type==="categories"?`<td><strong>${escape(r.name)}</strong></td><td>${escape(r.description)||"Chưa cập nhật"}</td>`:`<td><div class="admin-service-name">${image}<strong>${escape(r.name)}</strong></div></td><td><span class="admin-service-category-chip">${escape(r.category)}</span></td><td class="admin-service-price">${money(r.price)}</td><td><span class="admin-service-duration">${icon("clock")}${r.duration_minutes} phút</span></td>`;
+      const actions=[["view","eye","Xem"],["edit","edit","Sửa"],["toggle","power",r.active?"Ẩn":"Hiện"]].map(([action,symbol,label])=>`<button type="button" class="admin-button" data-${action}="${r.id}" data-type="${type}" aria-label="${label} ${escape(r.name)}">${icon(symbol)}${label}</button>`).join("");
+      return `<tr><td class="admin-appointment-code">${serviceCode(type,r.id)}</td>${cells}<td>${badge(r.active)}</td><td><div class="admin-row-actions">${actions}</div></td></tr>`;
+    }).join("");
+    $(`#${type}-rows`).querySelectorAll("img").forEach(img=>img.onerror=()=>{const fallback=document.createElement("span");fallback.className="service-image-fallback";fallback.setAttribute("aria-label","Không tải được ảnh");fallback.innerHTML=icon("leaf");img.replaceWith(fallback);});
+    $(`#${type}-empty`).hidden=items.length>0;
+    const pager=$(`#${type}-pagination`);
+    pager.innerHTML=`<span>${visible.length} / ${items.length} ${type==="categories"?"danh mục":"dịch vụ"}${items.length?` · ${start+1}–${start+visible.length}`:""}</span><div><button class="admin-button" data-page="-1" ${pages[type]===1?"disabled":""}>Trước</button><span>${pages[type]} / ${totalPages}</span><button class="admin-button" data-page="1" ${pages[type]===totalPages?"disabled":""}>Sau</button></div>`;
+    pager.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{pages[type]+=Number(b.dataset.page);render(type);});
+  }
   function render(type) {
+    if(servicePage)return renderServices(type);
     const prefix = servicePage ? type : "ops";
     const query = $(`#${prefix}-search`)?.value.toLocaleLowerCase("vi") || "";
     const status = $(`#${prefix}-status`)?.value || "";
@@ -78,10 +105,13 @@
     const select = $(servicePage ? "#services-category" : "#ops-category");
     if (select) { const value=select.value; const options=servicePage ? cache.categories.map(c=>[c.id,c.name]) : [...new Set(cache[module].map(r=>r.product_type))].map(v=>[v,v]); select.replaceChildren(new Option("Tất cả danh mục",""), ...options.map(([v,l])=>new Option(l,v))); select.value=value; }
     types.forEach(render);
+    if(servicePage){
+      $("#services-stats").innerHTML=[["Danh mục dịch vụ",cache.categories.length,"folder"],["Dịch vụ hoạt động",cache.services.filter(r=>r.active).length,"leaf"],["Dịch vụ tạm ngưng",cache.services.filter(r=>!r.active).length,"power"]].map(([label,n,symbol])=>`<article><span class="admin-service-stat-icon">${serviceIcon(symbol)}</span><span>${label}</span><strong>${n}</strong></article>`).join("");return;
+    }
     const all=types.flatMap(t=>cache[t]);
     $(servicePage ? "#services-stats" : "#ops-stats").innerHTML = [["Tổng bản ghi",all.length],["Hoạt động",all.filter(x=>x.active).length],["Tạm ngừng",all.filter(x=>!x.active).length]].map(([label,n])=>`<article><span>${label}</span><strong>${n}</strong></article>`).join("");
   }
-  async function edit(type,id=0) { const data=await api(url(type,id)); open(`${id ? "Sửa" : "Thêm"} ${nouns[type]}`,data.html); bindForm(url(type,id),refresh); }
+  async function edit(type,id=0) { const data=await api(url(type,id)); open(`${id ? "Sửa" : "Thêm"} ${nouns[type]}${servicePage && id ? " · " + serviceCode(type,id) : ""}`,data.html); bindForm(url(type,id),refresh); }
   async function schedule(employee) { await window.spaSchedule(employee,{open,api,dialog,notify}); }
   if (module === "appointments") {
     const toolbar=$(".admin-toolbar");
@@ -249,7 +279,9 @@
   }
   if(servicePage){
     root.querySelectorAll("[data-service-tab]").forEach(button=>button.onclick=()=>{root.querySelectorAll("[data-service-tab]").forEach(b=>{const selected=b===button;b.setAttribute("aria-selected",selected);b.tabIndex=selected?0:-1;$(`#panel-${b.dataset.serviceTab}`).hidden=!selected;});});
-    root.querySelectorAll("[data-service-icon]").forEach(el=>el.innerHTML=window.spaIcon(el.dataset.serviceIcon));
+    const tabs=[...root.querySelectorAll("[data-service-tab]")];
+    tabs.forEach((tab,i)=>tab.addEventListener("keydown",e=>{if(!["ArrowLeft","ArrowRight","Home","End"].includes(e.key))return;e.preventDefault();const next=e.key==="Home"?0:e.key==="End"?tabs.length-1:(i+(e.key==="ArrowRight"?1:-1)+tabs.length)%tabs.length;tabs[next].click();tabs[next].focus();}));
+    root.querySelectorAll("[data-service-icon]").forEach(el=>el.innerHTML=serviceIcon(el.dataset.serviceIcon));
   }
   root.querySelectorAll(".admin-toolbar").forEach(bar=>bar.addEventListener("input",()=>{(servicePage?["categories","services"]:[module]).forEach(type=>{pages[type]=1;render(type);});}));
   $("#ops-reset")?.addEventListener("click",()=>{root.querySelectorAll(".admin-toolbar input,.admin-toolbar select").forEach(el=>el.value="");render(module);});
@@ -257,9 +289,9 @@
     const b=event.target.closest("button");if(!b)return;
     try {
       if(b.hasAttribute("data-service-add") || b.id==="ops-add") await edit(b.dataset.serviceAdd || module);
-      if(b.dataset.view){const data=await api(url(b.dataset.type,b.dataset.view)+"?view=1");open("Thông tin "+nouns[b.dataset.type],data.html);}
+      if(b.dataset.view){const data=await api(url(b.dataset.type,b.dataset.view)+"?view=1");open("Thông tin "+nouns[b.dataset.type]+(servicePage?" · "+serviceCode(b.dataset.type,b.dataset.view):""),data.html);}
       if(b.dataset.edit) await edit(b.dataset.type,Number(b.dataset.edit));
-      if(b.dataset.toggle){const r=cache[b.dataset.type].find(x=>String(x.id)===b.dataset.toggle);open(`${r.active?"Tắt":"Bật"} ${nouns[b.dataset.type]}`,`<form class="admin-service-form"><div class="admin-service-modal-scroll"><p>${r.active?"Tạm ngừng":"Bật lại"} “${escape(r.name)}”?</p><p>Dữ liệu lịch sử được giữ nguyên.</p><input type="hidden" name="_toggle" value="1"><p data-error class="admin-service-error" role="alert" hidden></p></div><div class="admin-dialog-actions"><button class="admin-button" type="button" data-close>Hủy</button><button class="admin-button admin-button-primary" type="submit">Xác nhận</button></div></form>`);bindForm(url(b.dataset.type,b.dataset.toggle),refresh);}
+      if(b.dataset.toggle){const r=cache[b.dataset.type].find(x=>String(x.id)===b.dataset.toggle);open(`${servicePage?(r.active?"Ẩn":"Hiện"):(r.active?"Tắt":"Bật")} ${nouns[b.dataset.type]}${servicePage?" · "+serviceCode(b.dataset.type,r.id):""}`,`<form class="admin-service-form"><div class="admin-service-modal-scroll"><p>${r.active?"Tạm ngừng":"Bật lại"} “${escape(r.name)}”?</p><p>Dữ liệu lịch sử được giữ nguyên.</p><input type="hidden" name="_toggle" value="1"><p data-error class="admin-service-error" role="alert" hidden></p></div><div class="admin-dialog-actions"><button class="admin-button" type="button" data-close>Hủy</button><button class="admin-button admin-button-primary" type="submit">Xác nhận</button></div></form>`);bindForm(url(b.dataset.type,b.dataset.toggle),refresh);}
       if(b.dataset.schedule)await schedule(b.dataset.schedule);
     }catch(error){notify(error.message);}finally{b.disabled=false;}
   });

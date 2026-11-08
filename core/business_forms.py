@@ -52,7 +52,9 @@ class ServiceForm(BaseForm):
         model=Service;fields=['name','category','price','duration_minutes','description','image_preset','image','introduction','benefits','steps','suitable','note','gallery_preset','gallery','care_group']
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        self.fields['category'].label_from_instance=lambda obj:obj.name
+        self.fields['category'].label_from_instance=lambda obj:obj.name + (" (Tạm ngưng)" if not obj.is_active else "")
+        self.fields['category'].label="Danh mục dịch vụ"
+        self.fields['care_group'].label="Nhóm hiển thị trên trang khách hàng"
         self.fields['name'].label='Tên dịch vụ';self.fields['benefits'].label='Lợi ích — mỗi dòng một ý'
         self.fields['price'].min_value=0;self.fields['duration_minutes'].min_value=1
 

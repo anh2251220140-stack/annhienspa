@@ -1,0 +1,36 @@
+/* Services only: preserve all other Admin screens. */
+[data-admin-services] { min-width:0; }
+[data-admin-services] .admin-core-stats article { min-width:0; gap:12px; flex-wrap:wrap; }
+[data-admin-services] .admin-core-stats article>span:not(.admin-service-stat-icon) { flex:1; min-width:100px; }
+[data-admin-services] .admin-core-stats strong { font-size:40px; }
+[data-admin-services] .admin-table-scroll { overflow-x:auto; max-width:100%; }
+[data-admin-services] .admin-data-table { min-width:850px; width:100%; }
+[data-admin-services] #panel-services .admin-data-table { min-width:1080px; }
+[data-admin-services] .admin-data-table td { overflow-wrap:anywhere; }
+[data-admin-services] .admin-data-table th:last-child { min-width:170px; }
+[data-admin-services] .admin-row-actions { display:flex; flex-wrap:wrap; gap:8px; }
+[data-admin-services] .admin-row-actions .admin-button { white-space:nowrap; }
+[data-admin-services] .admin-appointment-code { white-space:nowrap; }
+[data-admin-services] .admin-service-name { display:flex; align-items:center; gap:12px; }
+[data-admin-services] .admin-service-name img,.service-image-fallback { width:52px; height:60px; object-fit:cover; border-radius:8px; flex-shrink:0; }
+[data-admin-services] .service-image-fallback { display:grid; place-items:center; background:#f3ede4; color:#9b754a; }
+[data-admin-services] .admin-button svg,#service-dialog .admin-button svg { width:18px; height:18px; flex-shrink:0; }
+[data-admin-services] .admin-pagination>div { display:flex; align-items:center; gap:12px; }
+#service-dialog[open] { display:flex; flex-direction:column; width:min(860px,calc(100% - 32px)); max-height:calc(100dvh - 32px); padding:0; overflow:hidden; }
+#service-dialog .admin-service-modal-heading,#service-dialog .admin-dialog-actions { flex-shrink:0; }
+#service-dialog form { display:flex; flex-direction:column; min-height:0; overflow:hidden; margin:0; }
+#service-dialog .admin-service-modal-scroll { overflow-y:auto; min-height:0; overflow-wrap:anywhere; }
+#service-dialog .admin-dialog-actions { display:flex; flex-wrap:wrap; gap:12px; }
+#service-dialog input,#service-dialog select,#service-dialog textarea { min-width:0; max-width:100%; }
+#service-dialog [hidden] { display:none !important; }
+@media(max-width:800px) {
+ [data-admin-services] .admin-core-stats { grid-template-columns:1fr; }
+ [data-admin-services] .admin-card-heading,[data-admin-services] .admin-pagination { flex-wrap:wrap; gap:16px; }
+ [data-admin-services] .admin-toolbar>label { min-width:0; max-width:100%; }
+ [data-admin-services] .admin-toolbar input,[data-admin-services] .admin-toolbar select { min-width:0; max-width:100%; }
+}
+@media(max-width:600px) {
+ #service-dialog .live-business-form .admin-service-form-grid { grid-template-columns:minmax(0,1fr) !important; }
+ #service-dialog .admin-service-modal-heading { padding:20px; }
+ #service-dialog .admin-service-modal-heading h2 { font-size:28px; }
+}

@@ -11,4 +11,4 @@
 {% endfor %}
 {% if module == 'promotions' %}<p class="admin-data-note">Hóa đơn chưa thanh toán giữ lượt; thanh toán thành công mới tính là đã sử dụng. Câu “Mỗi khách hàng chỉ sử dụng mã một lần” trong điều kiện hoặc lưu ý luôn giới hạn một lượt, kể cả khi để trống giới hạn số. Những điều kiện khác chưa kiểm tra tự động được sẽ cần Spa xem xét trước khi áp mã.</p>{% endif %}
 <p class="admin-data-note">Các trường * là bắt buộc. Bật/Tắt được quản lý tại danh sách. Ảnh tải lên tối đa 5 MB; chọn ảnh có sẵn sẽ thay ảnh đang hiển thị.</p><p class="admin-service-error" data-error role="alert" tabindex="-1" hidden></p></div>
-<div class="admin-dialog-actions"><button type="button" class="admin-button" data-close>Hủy</button><button type="submit" class="admin-button admin-button-primary"><span data-live-icon="check"></span>Lưu thay đổi</button></div></form>
+<div class="admin-dialog-actions"><button type="button" class="admin-button" data-close>Hủy</button><button type="submit" class="admin-button admin-button-primary"><span data-live-icon="check"></span>{% if module == 'services' or module == 'categories' %}Lưu{% else %}Lưu thay đổi{% endif %}</button></div></form>
