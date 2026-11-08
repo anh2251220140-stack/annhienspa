@@ -31,7 +31,7 @@ class ProductSafeChecks(unittest.TestCase):
   f=ProductForm();f.fields['services'].choices=[(1,'Dịch vụ thật')];f.initial['image']='products/current.jpg'
   html=render_to_string('partials/business_form.html',{'form':f,'module':'products','groups':groups_for(f,'products')})
   self.assertIn('image-clear',html);self.assertNotIn('Currently:',html);self.assertIn('>Lưu</button>',html);self.assertIn('Nhóm hiển thị trên trang khách hàng',html)
-  other=render_to_string('partials/business_form.html',{'module':'employees','groups':[]});self.assertIn('Lưu thay đổi',other)
+  other=render_to_string('partials/business_form.html',{'module':'promotions','groups':[]});self.assertIn('Lưu thay đổi',other)
  def test_permissions_and_csrf(self):
   rf=RequestFactory();r=rf.get('/api/admin/products/');r.user=AnonymousUser();self.assertEqual(records(r,'products').status_code,401)
   r.user=SimpleNamespace(is_authenticated=True,is_active=True,role='User');self.assertEqual(records(r,'products').status_code,403)

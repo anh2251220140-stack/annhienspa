@@ -34,12 +34,19 @@ def row(item):
         preset=item.image_preset or ""
         safe=preset and PurePosixPath(preset).name==preset and "\\" not in preset and PurePosixPath(preset).suffix.lower() in (".jpg",".jpeg",".png",".webp")
         d["image_url"]=item.image.url if item.image else (static("images/"+preset) if safe else "")
+    if isinstance(item,Employee):
+        from django.templatetags.static import static
+        from pathlib import PurePosixPath
+        preset=item.avatar_preset or ""
+        safe=preset and PurePosixPath(preset).name==preset and "\\" not in preset and PurePosixPath(preset).suffix.lower() in (".jpg",".jpeg",".png",".webp")
+        d["image_url"]=item.avatar.url if item.avatar else (static("images/"+preset) if safe else "")
+        d["email"]=item.email
     if hasattr(item,"category"):d["category"]=item.category.name
     if hasattr(item,"services"):d["serviceIds"]=list(item.services.values_list("pk",flat=True))
     return d
 
 def form_html(request,form,module="schedules",detail=False):
-    return render_to_string("partials/business_detail.html" if detail else "partials/business_form.html", {"form":form,"module":module,"groups":groups_for(form,module)},request=request)
+    return render_to_string(("partials/employee_detail.html" if module=="employees" else "partials/business_detail.html") if detail else "partials/business_form.html", {"form":form,"module":module,"groups":groups_for(form,module)},request=request)
 def error_json(error):
     return JsonResponse({"error":" ".join(error.messages) if isinstance(error,ValidationError) else "Dữ liệu trùng hoặc có liên kết không hợp lệ."},status=400)
 

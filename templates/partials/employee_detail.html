@@ -1,0 +1,5 @@
+<div class="admin-service-modal-scroll">
+{% for group in groups %}<section class="admin-ops-detail-section"><h4><span data-live-icon="{{ group.icon }}"></span>{{ group.title }}</h4><dl class="admin-profile-facts admin-ops-facts">
+{% if forloop.first %}<div><dt><span data-live-icon="note"></span>Mã nhân viên</dt><dd data-employee-detail-code></dd></div>{% endif %}
+{% for item in group.fields %}{% if item.name != 'avatar' and item.name != 'avatar_preset' and item.name != 'full_name' %}<div><dt><span data-live-icon="{% if item.name == 'services' %}leaf{% else %}note{% endif %}"></span>{{ item.bound.label }}</dt><dd>{{ item.value|default_if_none:''|default:'Chưa cập nhật'|linebreaksbr }}</dd></div>{% endif %}{% endfor %}
+</dl></section>{% endfor %}</div><div class="admin-dialog-actions"><button class="admin-button" type="button" data-close>Đóng</button></div>

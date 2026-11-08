@@ -1,0 +1,135 @@
+[data-admin-operations="employees"] { min-width:0; }
+[data-admin-operations="employees"] .admin-core-stats article { display:flex; justify-content:space-between; gap:16px; min-width:0; }
+[data-admin-operations="employees"] .admin-core-stats article>div { display:flex; flex-direction:column; gap:14px; }
+[data-admin-operations="employees"] .admin-core-stats strong { font-size:44px; align-self:center; }
+.employee-stat-icon { display:grid; place-items:center; width:50px; height:50px; border:1px solid #b9905766; border-radius:14px; color:#B99057; }
+[data-admin-operations="employees"] .admin-table-scroll { overflow-x:auto; max-width:100%; }
+[data-admin-operations="employees"] .admin-data-table { min-width:1040px; width:100%; }
+[data-admin-operations="employees"] .admin-data-table th:last-child { min-width:180px; }
+[data-admin-operations="employees"] .admin-row-actions { display:flex; flex-wrap:nowrap; gap:8px; }
+[data-admin-operations="employees"] .admin-button { white-space:nowrap; }
+.employee-code { white-space:nowrap; font-weight:500; }
+.employee-name { display:flex; align-items:center; gap:16px; min-width:220px; }
+.employee-name img,.employee-placeholder { width:64px; height:78px; object-fit:cover; border-radius:10px; flex-shrink:0; }
+.employee-placeholder { display:grid; place-items:center; background:#F7F2EA; color:#B99057; }
+.employee-name p { color:#897768; margin:8px 0 0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.65; }
+.employee-chip { display:inline-block; padding:8px 12px; border:1px solid #D9C7B2; border-radius:7px; }
+[data-admin-operations="employees"] .admin-pagination>div { display:flex; align-items:center; gap:12px; }
+[data-admin-operations="employees"] .admin-button svg,dialog:has([data-module="employees"]) .admin-button svg { width:18px; height:18px; flex-shrink:0; }
+body:has([data-admin-operations="employees"]) #ops-dialog[open] { display:flex; flex-direction:column; width:min(960px,calc(100% - 32px)); max-height:calc(100dvh - 32px); overflow:hidden; padding:0; }
+body:has([data-admin-operations="employees"]) #ops-dialog form { display:flex; flex-direction:column; min-height:0; overflow:hidden; margin:0; }
+body:has([data-admin-operations="employees"]) #ops-dialog .admin-service-modal-heading,body:has([data-admin-operations="employees"]) #ops-dialog .admin-dialog-actions { flex-shrink:0; }
+body:has([data-admin-operations="employees"]) #ops-dialog .admin-service-modal-scroll { overflow-y:auto; min-height:0; overflow-wrap:anywhere; }
+body:has([data-admin-operations="employees"]) #ops-dialog [hidden] { display:none !important; }
+body:has([data-admin-operations="employees"]) #ops-dialog .admin-dialog-actions { flex-wrap:wrap; gap:12px; }
+body:has([data-admin-operations="employees"]) #ops-dialog :is(input,select,textarea) { min-width:0; max-width:100%; }
+.employee-summary { display:flex; align-items:center; gap:20px; border-bottom:1px solid #D9C7B2; margin-bottom:24px; padding-bottom:24px; }
+.employee-summary>img { width:100px; height:120px; object-fit:cover; border-radius:12px; }
+.employee-summary h3 { font-size:28px; }
+.employee-upload { display:flex; flex-direction:column; gap:12px; }
+.employee-clear { display:flex !important; align-items:center; gap:10px; font-size:14px; }
+.employee-clear input { width:18px !important; height:18px; }
+.employee-clear-selected { color:#9A6857; }
+.live-business-form[data-module="employees"] .admin-ops-choice-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; max-height:280px; overflow-y:auto; }
+.live-business-form[data-module="employees"] .admin-ops-choice-grid label { display:flex; align-items:center; gap:12px; padding:16px; border:1px solid #D9C7B2; border-radius:12px; }
+.live-business-form[data-module="employees"] .admin-ops-choice-grid input { width:20px; height:20px; flex-shrink:0; }
+@media(max-width:800px) {
+ [data-admin-operations="employees"] .admin-core-stats { grid-template-columns:1fr; }
+ [data-admin-operations="employees"] :is(.admin-card-heading,.admin-pagination) { flex-wrap:wrap; gap:16px; }
+ [data-admin-operations="employees"] .admin-toolbar>label { min-width:0; max-width:100%; }
+ [data-admin-operations="employees"] .admin-toolbar :is(input,select) { min-width:0; max-width:100%; }
+}
+@media(max-width:600px) {
+ body:has([data-admin-operations="employees"]) #ops-dialog .admin-service-modal-heading { padding:20px; }
+ body:has([data-admin-operations="employees"]) #ops-dialog h2 { font-size:27px; }
+ .live-business-form[data-module="employees"] :is(.admin-service-form-grid,.admin-ops-choice-grid) { grid-template-columns:minmax(0,1fr) !important; }
+ .employee-summary { align-items:flex-start; }
+}
+/* Product controls: search inputs must not inherit checkbox geometry. */
+body:has([data-admin-operations="employees"]) #ops-dialog .admin-ops-checks input[type="search"] { display:block; width:100%; height:auto; min-height:48px; flex:none; margin:8px 0 14px; padding:12px 16px; border:1px solid #D9C7B2; border-radius:9px; background:#fff; color:#251913; box-shadow:none; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-link-controls { width:100%; min-width:0; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-link-controls label { display:block; margin:10px 0 0; padding:0; }
+body:has([data-admin-operations="employees"]) #ops-dialog .admin-ops-choice-grid input[type="checkbox"] { width:20px; height:20px; min-height:20px; flex:0 0 20px; }
+body:has([data-admin-operations="employees"]) #ops-dialog input.employee-file-native { position:absolute; width:1px; height:1px; min-height:0; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); opacity:0; pointer-events:none; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-file-picker { align-self:flex-start; display:inline-flex; align-items:center; gap:8px; }
+.employee-file-name { font-size:14px; color:#796856; overflow-wrap:anywhere; }
+[data-admin-operations="employees"] .admin-row-actions .admin-button { display:inline-flex; align-items:center; justify-content:center; gap:7px; color:#3A2419; }
+[data-admin-operations="employees"] .admin-row-actions .admin-button svg { color:#B99057; stroke:currentColor; stroke-width:1.5; width:18px; height:18px; vertical-align:middle; }
+[data-admin-operations="employees"] .admin-row-actions .admin-button:hover { background:#D9C7B2; border-color:#B99057; }
+[data-admin-operations="employees"] .admin-button:focus-visible,body:has([data-admin-operations="employees"]) #ops-dialog :is(button,input):focus-visible { outline:2px solid #B99057; outline-offset:3px; }
+[data-admin-operations="employees"] .admin-data-table :is(th,td):nth-child(3) { min-width:145px; width:16%; }
+[data-admin-operations="employees"] .employee-chip { white-space:normal; word-break:normal; overflow-wrap:normal; min-width:90px; }
+[data-admin-operations="employees"] .admin-data-table :is(th,td):nth-child(1) { width:10%; }
+[data-admin-operations="employees"] .admin-data-table :is(th,td):nth-child(2) { width:35%; }
+[data-admin-operations="employees"] .admin-data-table :is(th,td):nth-child(4) { min-width:130px; }
+[data-admin-operations="employees"] .admin-data-table :is(th,td):last-child { min-width:310px; width:310px; }
+
+/* Product action column keeps three full-size buttons on one line. */
+[data-admin-operations="employees"] .admin-row-actions { width:max-content; flex-wrap:nowrap; }
+[data-admin-operations="employees"] .admin-row-actions .admin-button { background:#F1E8DC; border-color:#C6A07E; min-height:42px; padding:10px 12px; flex:0 0 auto; }
+[data-admin-operations="employees"] .admin-row-actions .admin-button:hover svg { color:#9B7648; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-upload-board { display:grid; grid-template-columns:110px minmax(0,1fr); gap:18px; align-items:center; padding:18px; border:1px solid #D9C7B2; border-radius:12px; background:#FAF7F2; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-upload-visual { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; min-height:130px; color:#9B7648; text-align:center; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-upload-visual img { width:110px; height:140px; max-width:100%; object-fit:cover; margin:0; border-radius:10px; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-upload-actions { display:flex; flex-direction:column; align-items:flex-start; gap:12px; min-width:0; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-upload-actions small { color:#897768; font-size:12px; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-upload-board.is-empty { grid-template-columns:1fr; gap:8px; text-align:center; }
+body:has([data-admin-operations="employees"]) #ops-dialog .is-empty .employee-upload-visual { min-height:80px; }
+body:has([data-admin-operations="employees"]) #ops-dialog .is-empty .employee-upload-actions { align-items:center; }
+body:has([data-admin-operations="employees"]) #ops-dialog .is-empty .employee-file-picker { align-self:stretch; justify-content:center; min-height:48px; border-style:dashed; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-upload-symbol svg { width:34px; height:34px; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-clear { margin:0; }
+@media(max-width:600px) {
+ body:has([data-admin-operations="employees"]) #ops-dialog .employee-upload-board.has-current { grid-template-columns:90px minmax(0,1fr); gap:12px; padding:12px; }
+ body:has([data-admin-operations="employees"]) #ops-dialog .employee-upload-visual img { height:115px; }
+ body:has([data-admin-operations="employees"]) #ops-dialog .employee-file-picker { white-space:normal; text-align:left; }
+}
+
+/* Add Product uses the native file chooser; Edit keeps its existing image board. */
+body:has([data-admin-operations="employees"]) #ops-dialog input.employee-file-simple { display:block; width:100%; min-height:48px; padding:10px 12px; border:1px solid #C6A07E; border-radius:9px; background:#fff; color:#3A2419; font:inherit; font-size:14px; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-file-simple::file-selector-button { padding:7px 10px; margin-right:10px; border:1px solid #D9C7B2; border-radius:5px; background:#F7F2EA; color:#3A2419; cursor:pointer; }
+
+[data-admin-operations="employees"] .admin-data-table { min-width:1200px; }
+[data-admin-operations="employees"] .admin-data-table :is(th,td):last-child { min-width:460px; width:460px; }
+.employee-specialty { display:block; min-width:180px; white-space:pre-line; overflow-wrap:anywhere; }
+body:has([data-admin-operations="employees"]) #ops-dialog .admin-row-actions { display:flex; flex-wrap:wrap; gap:10px; }
+body:has([data-admin-operations="employees"]) #ops-dialog [data-plan] { display:inline-flex; gap:8px; align-items:center; }
+body:has([data-admin-operations="employees"]) #ops-dialog .live-schedule-row { display:flex; flex-wrap:wrap; align-items:end; gap:12px; }
+
+[data-admin-operations="employees"] .admin-data-table :is(th,td):nth-child(2) { width:20%; }
+[data-admin-operations="employees"] .admin-data-table :is(th,td):nth-child(3) { min-width:210px; overflow-wrap:anywhere; }
+[data-admin-operations="employees"] .admin-data-table :is(th,td):nth-child(4) { min-width:180px; }
+[data-admin-operations="employees"] .admin-data-table :is(th,td):nth-child(5) { min-width:130px; }
+
+@media(min-width:651px) {
+ .live-business-form[data-module="employees"] .employee-upload { grid-row:span 2; }
+}
+/* Employee detail and schedule only. */
+.employee-summary>img,.employee-summary>.employee-placeholder { width:80px; height:80px; border-radius:50%; object-fit:cover; flex:0 0 80px; }
+.employee-summary>div:not(.employee-summary-status) { min-width:0; flex:1; }
+.employee-summary-status { margin-left:auto; flex-shrink:0; }
+.employee-summary .admin-status-badge { white-space:nowrap; }
+body:has([data-admin-operations="employees"]) #ops-dialog .admin-ops-facts dt { display:flex; align-items:center; gap:8px; }
+.employee-schedule-identity { color:#D9C7B2; margin:6px 0 0; font-size:14px; }
+.employee-schedule-section { margin-top:28px; }
+.employee-schedule-section h3 { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.employee-schedule-section h3 svg { color:#B99057; width:22px; height:22px; }
+.employee-schedule-section>p { font-size:14px; color:#897768; margin:0 0 18px; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-shift-scroll { overflow:auto; position:relative; border:1px solid #E8DED1; border-radius:10px; scrollbar-gutter:stable; }
+body:has([data-admin-operations="employees"]) #ops-dialog :is(.employee-shift-table,.employee-booked-table) { min-width:650px; width:100%; table-layout:fixed; border-collapse:separate; border-spacing:0; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-shift-table thead th { position:sticky; top:0; z-index:2; background:#F7F2EA; height:48px; padding:12px; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-shift-table tbody tr { height:64px; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-shift-table td { height:64px; padding:12px; white-space:nowrap; }
+.employee-schedule-note { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.employee-date-control { display:flex; align-items:center; position:relative; margin-top:8px; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-date-control input[type="text"] { margin:0; width:100%; padding:14px; border:1px solid #C6A07E; border-radius:9px 0 0 9px; background:#fff; }
+.employee-date-control>button { align-self:stretch; border-radius:0 9px 9px 0; border:1px solid #C6A07E; border-left:0; background:#FAF7F2; flex:0 0 48px; }
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-date-picker { position:absolute; opacity:0; width:1px; height:1px; min-height:0; padding:0; border:0; bottom:0; right:0; pointer-events:none; }
+@media(max-width:600px) {
+ .employee-summary { flex-wrap:wrap; align-items:center; gap:12px; }
+ .employee-summary h3 { font-size:25px; }
+ .employee-summary-status { margin-left:92px; }
+ body:has([data-admin-operations="employees"]) #ops-dialog .live-schedule-row>label { flex:1 1 130px; min-width:0; }
+}
+
+body:has([data-admin-operations="employees"]) #ops-dialog .employee-schedule-identity { color:#D9C7B2; }
