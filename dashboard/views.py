@@ -68,8 +68,12 @@ def summary(request):
         'monthly': [dict(month=k, total=v) for k, v in sorted(months.items())],
         'daily': [dict(day=k, total=v) for k, v in sorted(days.items())],
         'statuses': list(appointments.values('status').annotate(count=Count('pk'))),
-        'services': list(appointments.filter(status='completed').values('service__name').annotate(count=Count('pk')).order_by('-count')[:10]),
-        'popular': list(appointments.exclude(status='cancelled').values('service__name').annotate(count=Count('pk')).order_by('-count')[:10]),
+        'services': [{'service__name': row['service__name'], 'count': row['count']}
+            for row in appointments.filter(status='completed').values('service_id', 'service__name')
+                .annotate(count=Count('pk')).order_by('-count', 'service_id')[:10]],
+        'popular': [{'service__name': row['service__name'], 'count': row['count']}
+            for row in appointments.exclude(status='cancelled').values('service_id', 'service__name')
+                .annotate(count=Count('pk')).order_by('-count', 'service_id')[:10]],
         'reviewCount': review.count(), 'rating': review.aggregate(n=Avg('rating'))['n'] or 0,
         'ratings': list(review.values('rating').annotate(count=Count('pk'))), 'report': report,
         'recent': [dict(id=x.pk, customer=x.customer.full_name, service=x.service.name,
