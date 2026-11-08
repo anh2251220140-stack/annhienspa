@@ -8,7 +8,7 @@
 [data-admin-services] #panel-services .admin-data-table { min-width:1080px; }
 [data-admin-services] .admin-data-table td { overflow-wrap:anywhere; }
 [data-admin-services] .admin-data-table th:last-child { min-width:170px; }
-[data-admin-services] .admin-row-actions { display:flex; flex-wrap:wrap; gap:8px; }
+[data-admin-services] .admin-row-actions { display:flex; flex-wrap:nowrap; gap:8px; }
 [data-admin-services] .admin-row-actions .admin-button { white-space:nowrap; }
 [data-admin-services] .admin-appointment-code { white-space:nowrap; }
 [data-admin-services] .admin-service-name { display:flex; align-items:center; gap:12px; }
@@ -34,3 +34,8 @@
  #service-dialog .admin-service-modal-heading { padding:20px; }
  #service-dialog .admin-service-modal-heading h2 { font-size:28px; }
 }
+
+/* Both service tabs retain full-size actions on one line within the table scroller. */
+[data-admin-services] .admin-data-table :is(th,td):last-child { min-width:300px; width:300px; }
+[data-admin-services] .admin-row-actions { flex-wrap:nowrap; width:max-content; }
+[data-admin-services] .admin-row-actions .admin-button { flex:0 0 auto; }

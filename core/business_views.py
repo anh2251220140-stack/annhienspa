@@ -14,6 +14,7 @@ from .business_forms import REGISTRY, ScheduleForm
 from employees.models import Employee, EmployeeSchedule
 from appointments.models import Appointment
 from services.models import Service
+from products.models import CareProduct
 
 
 def row(item):
@@ -27,6 +28,12 @@ def row(item):
         preset=item.image_preset or ""
         safe_preset=preset and PurePosixPath(preset).name==preset and "\\" not in preset and PurePosixPath(preset).suffix.lower() in (".jpg",".jpeg",".png",".webp")
         d["image_url"]=item.image.url if item.image else (static("images/"+preset) if safe_preset else "")
+    if isinstance(item,CareProduct):
+        from django.templatetags.static import static
+        from pathlib import PurePosixPath
+        preset=item.image_preset or ""
+        safe=preset and PurePosixPath(preset).name==preset and "\\" not in preset and PurePosixPath(preset).suffix.lower() in (".jpg",".jpeg",".png",".webp")
+        d["image_url"]=item.image.url if item.image else (static("images/"+preset) if safe else "")
     if hasattr(item,"category"):d["category"]=item.category.name
     if hasattr(item,"services"):d["serviceIds"]=list(item.services.values_list("pk",flat=True))
     return d

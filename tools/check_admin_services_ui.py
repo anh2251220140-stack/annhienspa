@@ -22,6 +22,9 @@ tests=r'''
 
 (async()=>{let count=0;const wait=()=>new Promise(r=>setTimeout(r,80)),check=(ok,msg)=>{if(!ok)throw Error(msg);count++;},$=s=>document.querySelector(s);try{await wait();await wait();
 check($('#services-stats').textContent.includes('Danh mục dịch vụ'),'KPI labels');check([...document.querySelectorAll('#services-stats strong')].map(e=>e.textContent).join(',')==='2,6,1','KPI sources');
+for(const tab of ['categories','services']){
+$('#tab-'+tab).click();const buttons=[...document.querySelectorAll('#'+tab+'-rows tr:first-child .admin-row-actions button')];check(buttons.length===3,'three actions '+tab);const rects=buttons.map(b=>b.getBoundingClientRect());check(rects.every(r=>Math.abs(r.top-rects[0].top)<1),'same action row '+tab);check(document.documentElement.scrollWidth<=innerWidth,'no page overflow '+tab);
+}
 $('#tab-services').click();check(!$('#panel-services').hidden&&$('#panel-categories').hidden,'tabs');check($('#services-rows').children.length===5,'five rows');check($('#services-rows').textContent.includes('DV-001'),'display code');check($('#services-rows .service-image-fallback'),'no demo image');
 $('#services-pagination [data-page="1"]').click();check($('#services-rows').children.length===2,'page two');
 $('#services-search').value='DV-001';$('#services-search').dispatchEvent(new Event('input',{bubbles:true}));check($('#services-rows').children.length===1,'code search resets page');
