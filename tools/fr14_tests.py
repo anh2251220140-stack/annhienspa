@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 DATABASE = "annhien_spa_fr14_tests"
 REGRESSION = ["accounts", "core", "billing", "appointments.test_fr14"]
-EXPECTED_COUNTS = {"accounts": 17, "core": 47, "billing": 70, "appointments.test_fr14": 17}
+EXPECTED_COUNTS = {"accounts": 17, "core": 66, "billing": 70, "appointments.test_fr14": 17}
 
 
 def discover():
