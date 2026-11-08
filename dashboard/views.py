@@ -61,6 +61,7 @@ def summary(request):
     return JsonResponse({
         'start': start, 'end': end, 'today': today,
         'customers': customers_qs().count(), 'appointments': appointments.count(),
+        'periodCustomers': appointments.order_by().values('customer_id').distinct().count(),
         'todayCount': Appointment.objects.filter(appointment_date=today).count(),
         'activeServices': Service.objects.filter(is_active=True, category__is_active=True).count(),
         'revenue': paid.aggregate(n=Sum('amount'))['n'] or 0,

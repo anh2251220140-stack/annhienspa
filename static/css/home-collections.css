@@ -1,0 +1,22 @@
+/* Home only: use B2's left-to-right grid even when fewer records exist. */
+html[data-page="home.html"] .home-collection-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  justify-content: start;
+}
+html[data-page="home.html"] .home-collection-grid > .journey-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+html[data-page="home.html"] .home-collection-grid :is(h3, .eyebrow, p) {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 900px) {
+  html[data-page="home.html"] .home-collection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+  }
+}
+@media (max-width: 600px) {
+  html[data-page="home.html"] .home-collection-grid { gap: 13px; }
+}

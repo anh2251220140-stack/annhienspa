@@ -12,13 +12,14 @@
     <script src="{% static 'js/ui.js' %}"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
-    <script src="{% static 'js/admin.js' %}" defer></script>
-    <script src="{% static 'js/live-people.js' %}" defer></script>
+    <script src="{% static 'js/admin.js' %}?v=core-2" defer></script>
+    <script src="{% static 'js/live-people.js' %}?v=core-2" defer></script>
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/admin-core-luxury.css' %}?v=2">
 </head>
-  <body class="admin-page">
+  <body class="admin-page admin-core-luxury">
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
     <a class="admin-skip-link" href="#admin-main">Đến nội dung chính</a>
     <aside class="admin-sidebar" id="admin-sidebar" aria-label="Thanh điều hướng quản trị">
@@ -32,15 +33,15 @@
       <nav class="admin-nav" aria-label="Menu Admin">
         <div class="admin-nav-group">
           <p class="admin-nav-label">Tổng quan</p>
-          <a class="admin-nav-item is-active" href="{% url 'core:admin-dashboard' as page_url %}{{ page_url|slice:'1:' }}" aria-current="page" title="Dashboard"><span data-admin-icon="grid"></span><span>Dashboard</span><i aria-hidden="true"></i></a>
+          <a class="admin-nav-item is-active" href="{% url 'core:admin-dashboard' as page_url %}{{ page_url|slice:'1:' }}" aria-current="page" title="Dashboard"><span data-admin-icon="grid"></span><span>Tổng quan</span><i aria-hidden="true"></i></a>
         </div>
         <div class="admin-nav-group">
-          <p class="admin-nav-label">Admin Core</p>
+          <p class="admin-nav-label">Tài khoản và khách hàng</p>
           <button class="admin-nav-item" type="button" data-admin-pending="Tài khoản" title="Tài khoản — chưa triển khai"><span data-admin-icon="account"></span><span>Tài khoản</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Khách hàng" title="Khách hàng — chưa triển khai"><span data-admin-icon="users"></span><span>Khách hàng</span></button>
         </div>
         <div class="admin-nav-group">
-          <p class="admin-nav-label">Admin Operations</p>
+          <p class="admin-nav-label">Quản lý hoạt động</p>
           <button class="admin-nav-item" type="button" data-admin-pending="Dịch vụ" title="Dịch vụ — chưa triển khai"><span data-admin-icon="leaf"></span><span>Dịch vụ</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Sản phẩm" title="Sản phẩm — chưa triển khai"><span data-admin-icon="product"></span><span>Sản phẩm</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Nhân viên" title="Nhân viên — chưa triển khai"><span data-admin-icon="staff"></span><span>Nhân viên</span></button>
@@ -48,7 +49,7 @@
           <button class="admin-nav-item" type="button" data-admin-pending="Khuyến mãi" title="Khuyến mãi — chưa triển khai"><span data-admin-icon="tag"></span><span>Khuyến mãi</span></button>
         </div>
         <div class="admin-nav-group">
-          <p class="admin-nav-label">Finance &amp; Quality</p>
+          <p class="admin-nav-label">Tài chính và chất lượng</p>
           <button class="admin-nav-item" type="button" data-admin-pending="Hóa đơn" title="Hóa đơn — chưa triển khai"><span data-admin-icon="note"></span><span>Hóa đơn</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Thanh toán" title="Thanh toán — chưa triển khai"><span data-admin-icon="wallet"></span><span>Thanh toán</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Đánh giá" title="Đánh giá — chưa triển khai"><span data-admin-icon="star"></span><span>Đánh giá</span></button>
@@ -56,7 +57,7 @@
         </div>
       </nav>
       <div class="admin-sidebar-foot">
-        <span class="admin-sidebar-note"><span class="admin-dot"></span> Không gian quản trị</span>
+
         <button class="admin-collapse" type="button" data-sidebar-toggle aria-controls="admin-sidebar" aria-expanded="true" aria-label="Thu gọn thanh bên"><span data-admin-icon="panel"></span><span>Thu gọn thanh bên</span></button>
       </div>
     </aside>
@@ -68,7 +69,7 @@
           <div><p class="admin-topbar-title">Quản lý khách hàng</p><nav class="admin-breadcrumb" aria-label="Đường dẫn"><span>Quản trị</span><span aria-hidden="true">/</span><span aria-current="page">Quản lý khách hàng</span></nav></div>
         </div>
         <div class="admin-topbar-actions">
-          <span class="admin-demo-label"><span class="admin-dot"></span> Hệ thống Spa</span>
+
           <div class="admin-account">
             <button class="admin-account-trigger" type="button" aria-controls="admin-account-menu" aria-expanded="false">
               <span class="admin-avatar" aria-hidden="true">AD</span><span class="admin-account-name"><strong>Quản trị viên</strong><small>Admin · An Nhiên Spa</small></span><span data-admin-icon="chevron"></span>
@@ -82,17 +83,19 @@
       </header>
       <main class="admin-content" id="admin-main" tabindex="-1" data-admin-customers>
 
-        <div class="admin-page-heading"><div><span class="admin-eyebrow">AN NHIÊN SPA / ADMIN CORE / KHÁCH HÀNG</span><h1>Quản lý khách hàng</h1><p>Thấu hiểu từng nhu cầu, để chăm sóc mỗi trải nghiệm riêng.</p></div><span class="admin-status-badge">Quyền hạn: Chỉ xem</span></div>
-        <p class="admin-readonly-note">Hồ sơ chỉ đọc. Chỉ khách hàng có thể cập nhật thông tin chăm sóc qua User Profile.</p>
-        <div class="admin-customers-grid">
+        <div class="admin-page-heading"><div><span class="admin-eyebrow">AN NHIÊN SPA / TÀI KHOẢN VÀ KHÁCH HÀNG / KHÁCH HÀNG</span><h1>Quản lý khách hàng</h1><p>Thấu hiểu từng nhu cầu, để chăm sóc mỗi trải nghiệm riêng.</p></div><span class="admin-status-badge">Quyền hạn: Chỉ xem</span></div>
+        <p class="admin-readonly-note">Hồ sơ chỉ đọc. Chỉ khách hàng có thể cập nhật thông tin chăm sóc qua Hồ sơ cá nhân.</p>
+        <div class="admin-chat-tabs" role="group" aria-label="Nội dung khách hàng"><button type="button" class="admin-button" data-customer-tab="profile" aria-pressed="true" aria-controls="customer-profile-panel">Hồ sơ khách hàng</button><button type="button" class="admin-button" data-customer-tab="chat" aria-pressed="false" aria-controls="admin-chat">Lịch sử hội thoại</button></div>
+        <section id="admin-chat" class="admin-table-card" hidden aria-label="Lịch sử hội thoại"><div class="admin-empty-state"><h2>Lịch sử hội thoại</h2><p>Chưa kết nối backend FR-24. Chưa có API và bảng chat_sessions/chat_messages để hiển thị lịch sử hội thoại thật.</p><p>Chức năng lưu và truy xuất hội thoại sẽ được triển khai riêng.</p></div></section>
+        <div class="admin-customers-grid" id="customer-profile-panel">
           <section class="admin-table-card" aria-labelledby="customers-list-title"><div class="admin-card-heading"><h2 id="customers-list-title">Danh sách khách hàng</h2></div>
-            <div class="admin-toolbar admin-customer-toolbar"><label class="admin-search">Tìm khách hàng<input type="search" id="customers-search" placeholder="Họ tên, email hoặc số điện thoại…"></label><label>Hạng thành viên<select id="customers-tier"><option value="">Tất cả hạng</option><option value="unset">Chưa áp dụng</option></select></label></div>
-            <div class="admin-table-scroll" tabindex="0" role="region" aria-label="Danh sách khách hàng có thể cuộn ngang"><table class="admin-data-table"><thead><tr><th>Khách hàng</th><th>Liên hệ</th><th>Chăm sóc / Hạng</th></tr></thead><tbody id="customers-rows"></tbody></table></div>
-            <div class="admin-empty-state" id="customers-empty" hidden><h3>Không tìm thấy khách hàng</h3><p>Thử từ khóa hoặc hạng thành viên khác.</p></div><div class="admin-pagination" id="customers-pagination" aria-live="polite"></div>
+            <div class="admin-toolbar admin-customer-toolbar"><label class="admin-search">Tìm khách hàng<input type="search" id="customers-search" placeholder="Họ tên, email hoặc số điện thoại…"></label></div>
+            <div class="admin-table-scroll" tabindex="0" role="region" aria-label="Danh sách khách hàng có thể cuộn ngang"><table class="admin-data-table"><thead><tr><th>Khách hàng</th><th>Liên hệ</th><th>Loại da</th></tr></thead><tbody id="customers-rows"></tbody></table></div>
+            <div class="admin-empty-state" id="customers-empty" hidden><h3>Không tìm thấy khách hàng</h3><p>Thử họ tên, tên đăng nhập, email hoặc số điện thoại khác.</p></div><div class="admin-pagination" id="customers-pagination" aria-live="polite"></div>
           </section>
           <aside class="admin-profile-panel admin-table-card" id="customer-profile" aria-label="Hồ sơ khách hàng được chọn" aria-live="polite"></aside>
         </div>
-        <p class="admin-data-note">Hồ sơ khách hàng thật · Chỉ xem. Chưa áp dụng hạng thành viên vì chưa có quy tắc tính.</p>
+        <p class="admin-data-note">Hồ sơ khách hàng chỉ được xem, không chỉnh sửa.</p>
       </main>
     </div>
     <div class="admin-chart-tooltip" id="admin-chart-tooltip" role="tooltip" hidden></div>

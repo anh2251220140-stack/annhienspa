@@ -92,6 +92,16 @@ class Phase4Tests(Fixtures,TestCase):
         self.client.force_login(self.user);self.assertEqual(self.client.get("/api/dashboard/").status_code,403)
         self.client.force_login(self.admin);r=self.client.get("/api/dashboard/",{"start":"2000-01-01","end":"2000-01-02"}).json();self.assertEqual(r["appointments"],0);self.assertEqual(r["revenue"],0)
         self.assertEqual(self.client.get("/api/dashboard/",{"start":"bad"}).status_code,400)
+        self.assertEqual(r["periodCustomers"],0)
+        duplicate=book(self.user,self.service.pk,self.employee.pk,self.day,time(13))
+        Appointment.objects.filter(pk=duplicate.pk).update(status="cancelled")
+        period=self.client.get("/api/dashboard/",{"start":self.day.isoformat(),"end":self.day.isoformat()}).json()
+        self.assertEqual(period["appointments"],2)
+        self.assertEqual(period["periodCustomers"],1)  # Same owner, two appointments.
+        self.assertEqual(sum(row["count"] for row in period["popular"]),1)
+        self.assertEqual(sum(row["count"] for row in period["statuses"]),2)
+        self.assertTrue(all(row["date"]==self.day.isoformat() for row in period["recent"]))
+
 
     def test_pending_has_no_invoice_then_confirmed_and_completed_keep_same_invoice(self):
         a=book(self.user,self.service.pk,self.employee.pk,self.day,time(13))

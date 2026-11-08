@@ -52,6 +52,8 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+# Explicitly opt in on the local development machine only.
+LOCAL_MEDIA_ENABLED = os.getenv("DJANGO_LOCAL_MEDIA_ENABLED", "false").lower() == "true"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"

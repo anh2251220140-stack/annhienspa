@@ -136,7 +136,7 @@ class Phase3Tests(Fixtures,TestCase):
         self.assertEqual(self.client.post(path,{"status":"confirmed"}).status_code,200)
         item.refresh_from_db();self.assertEqual(item.employee,self.employee)
         self.assertEqual(self.client.post(path,{"status":"completed"}).status_code,400)
-        self.assertEqual(self.client.post(path,{"status":"cancelled"}).status_code,200)
+        self.assertEqual(self.client.post(path,{"status":"cancelled","reason":"Khách đề nghị hủy"}).status_code,200)
         self.assertEqual(self.client.post(path,{"status":"confirmed"}).status_code,400)
 
     def test_reassignment_requires_consent_checks_conflict_and_records_notice(self):
@@ -144,9 +144,11 @@ class Phase3Tests(Fixtures,TestCase):
         self.login_admin();path=f"/api/appointments/{item.pk}/status/"
         data={"status":"confirmed","employee":self.employee2.pk,"reason":"Khách đồng ý thay thế"}
         self.assertEqual(self.client.post(path,data).status_code,400)
-        data["consent"]="on"
+        data.update(consent="on", expected_employee=item.employee_id, expected_updated_at=item.updated_at.isoformat(),
+                    consent_method="phone", consent_note="Đã thông báo và khách đồng ý", consent_at=timezone.now().isoformat())
         self.assertEqual(self.client.post(path,data).status_code,200)
-        item.refresh_from_db();self.assertEqual(item.employee,self.employee2);self.assertIn("Khách đồng ý",item.note)
+        item.refresh_from_db();self.assertEqual(item.employee,self.employee2);self.assertEqual(item.reassignments.get().previous_employee_id,self.employee.pk)
+        data.update(expected_employee=item.employee_id, expected_updated_at=item.updated_at.isoformat())
         second=book(self.other,self.service.pk,self.employee.pk,self.day,time(10))
         self.assertEqual(self.client.post(path,{**data,"employee":self.employee.pk}).status_code,400)
 

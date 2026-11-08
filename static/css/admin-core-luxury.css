@@ -1,0 +1,44 @@
+/* Admin Core only: Dashboard, Accounts, Customers. */
+.admin-core-luxury .admin-profile-panel dd.is-unset, .admin-core-luxury .admin-profile-panel .admin-care-facts dd.is-unset { color: var(--admin-muted); font-size: 14px; font-weight: 400; }
+.admin-core-luxury .admin-profile-panel :is(.admin-profile-facts, .admin-care-facts) > div:has(dd.is-unset) { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; }
+.admin-core-luxury .admin-profile-panel :is(.admin-profile-facts, .admin-care-facts) > div:has(dd.is-unset) dt { margin-bottom: 0; }
+.admin-core-luxury .admin-care-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.admin-core-luxury .admin-care-facts > div { padding: 16px 18px; border-left: 2px solid var(--admin-sand); background: var(--admin-surface-muted); }
+.admin-core-luxury .admin-care-facts > div:nth-child(2), .admin-core-luxury .admin-care-facts > div:nth-child(3) { grid-column: 1 / -1; background: none; padding-block: 2px; }
+.admin-core-luxury .admin-care-facts > div:last-child { grid-column: 2; grid-row: 1; border-color: var(--admin-sage); background: #596b5610; }
+.admin-core-luxury .admin-care-facts > div:last-child dd { color: #42543f; font-weight: 500; }
+.admin-core-luxury .admin-tier, .admin-core-luxury .admin-status-badge { white-space:nowrap; }
+.admin-core-luxury .admin-data-table td:first-child { white-space:nowrap; }
+.admin-core-luxury [data-admin-accounts] .admin-data-table { min-width:1120px; }
+.admin-core-luxury [data-admin-accounts] .admin-data-table td:nth-child(2) { min-width:180px; }
+.admin-core-luxury [data-admin-accounts] .admin-data-table td:nth-child(3) { min-width:230px; }
+.admin-core-luxury .admin-customer-initials { flex-shrink:0; overflow:hidden; }
+.admin-core-luxury .admin-customer-initials img { width:100%; height:100%; object-fit:cover; border-radius:inherit; }
+.admin-core-luxury .admin-profile-facts dd { overflow-wrap:anywhere; }
+.admin-core-luxury .admin-dialog { overflow-wrap:anywhere; }
+.admin-core-luxury .admin-pagination > div { display:flex; align-items:center; gap:10px; }
+@media(max-width:650px) { .admin-core-luxury .admin-care-facts { grid-template-columns:minmax(0,1fr); } .admin-core-luxury .admin-care-facts > div:last-child { grid-column:auto; grid-row:auto; } .admin-core-luxury .admin-pagination { flex-wrap:wrap; gap:12px; } }
+
+.admin-core-luxury [data-admin-accounts] .admin-data-table { table-layout:auto; min-width:1250px; }
+.admin-core-luxury [data-admin-accounts] .admin-data-table th:nth-child(4), .admin-core-luxury [data-admin-accounts] .admin-data-table td:nth-child(4) { min-width:160px; width:160px; padding-inline:18px; }
+.admin-core-luxury [data-admin-accounts] .admin-data-table th:nth-child(5), .admin-core-luxury [data-admin-accounts] .admin-data-table td:nth-child(5) { min-width:160px; width:160px; padding-inline:18px; }
+.admin-core-luxury [data-admin-accounts] .admin-tier, .admin-core-luxury [data-admin-accounts] .admin-status-badge { max-width:100%; white-space:normal; overflow-wrap:normal; }
+.admin-core-luxury .admin-chat-tabs { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+.admin-core-luxury .admin-chat-tabs [aria-pressed=true] { background:var(--admin-espresso); color:var(--admin-surface); }
+.admin-core-luxury [hidden] { display:none !important; }
+.admin-core-luxury #dashboard-filters { margin-bottom:20px; flex-wrap:wrap; }
+.admin-core-luxury #dashboard-filters label { flex:1; min-width:160px; }
+
+.admin-core-luxury .core-date-control { display:flex; position:relative; }
+.admin-core-luxury .core-date-control input[type=text] { width:100%; min-width:0; border-radius:9px 0 0 9px; }
+.admin-core-luxury .core-date-control button { border-radius:0 9px 9px 0; }
+.admin-core-luxury .core-date-control input[type=date] { position:absolute; right:0; bottom:0; opacity:0; width:1px; height:1px; pointer-events:none; }
+
+/* Keep the action footer visible; only long account details scroll. */
+.admin-core-luxury .admin-people-dialog[open] { display:flex; flex-direction:column; overflow:hidden; max-height:calc(100dvh - 32px); }
+.admin-core-luxury .admin-people-dialog > .admin-eyebrow,
+.admin-core-luxury .admin-people-dialog > h2,
+.admin-core-luxury .admin-people-dialog > .admin-dialog-actions { flex-shrink:0; }
+.admin-core-luxury .admin-people-dialog > .admin-dialog-body { overflow-y:auto; min-height:0; overscroll-behavior:contain; }
+.admin-core-luxury .admin-people-dialog .admin-dialog-actions { flex-wrap:wrap; }
+.admin-core-luxury .admin-people-dialog [data-error][hidden] { display:none; }

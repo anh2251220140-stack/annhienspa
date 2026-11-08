@@ -80,7 +80,7 @@ class PromotionUsageTests(UsageFixtures,TestCase):
 
     def test_valid_cancellation_releases_but_late_payment_needs_review(self):
         self.claim();old=services.online(self.user,self.i.pk)
-        transition(self.admin,self.a.pk,'cancelled')
+        transition(self.admin,self.a.pk,'cancelled',reason='Khách đề nghị hủy')
         self.assertEqual(usage(self.promo,self.customer.pk),dict(used=0,reserved=0))
         self.claim(self.next_invoice)
         self.assertEqual(self.deliver(old).status_code,200)

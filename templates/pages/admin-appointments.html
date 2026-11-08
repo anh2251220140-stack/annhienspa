@@ -13,13 +13,14 @@
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
     <script src="{% static 'js/admin.js' %}" defer></script>
-    <script src="{% static 'js/live-admin.js' %}?v=phase4-20261023" defer></script>
+    <script src="{% static 'js/live-admin.js' %}?v=fr14-luxury-3" defer></script>
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/live-admin.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin-appointments.css' %}?v=3">
 </head>
-  <body class="admin-page">
+  <body class="admin-page appointments-luxury">
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
     <a class="admin-skip-link" href="#admin-main">Đến nội dung chính</a>
     <aside class="admin-sidebar" id="admin-sidebar" aria-label="Thanh điều hướng quản trị">
@@ -33,15 +34,15 @@
       <nav class="admin-nav" aria-label="Menu Admin">
         <div class="admin-nav-group">
           <p class="admin-nav-label">Tổng quan</p>
-          <a class="admin-nav-item is-active" href="{% url 'core:admin-dashboard' as page_url %}{{ page_url|slice:'1:' }}" aria-current="page" title="Dashboard"><span data-admin-icon="grid"></span><span>Dashboard</span><i aria-hidden="true"></i></a>
+          <a class="admin-nav-item is-active" href="{% url 'core:admin-dashboard' as page_url %}{{ page_url|slice:'1:' }}" aria-current="page" title="Dashboard"><span data-admin-icon="grid"></span><span>Tổng quan</span><i aria-hidden="true"></i></a>
         </div>
         <div class="admin-nav-group">
-          <p class="admin-nav-label">Admin Core</p>
+          <p class="admin-nav-label">Tài khoản và khách hàng</p>
           <button class="admin-nav-item" type="button" data-admin-pending="Tài khoản" title="Tài khoản — chưa triển khai"><span data-admin-icon="account"></span><span>Tài khoản</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Khách hàng" title="Khách hàng — chưa triển khai"><span data-admin-icon="users"></span><span>Khách hàng</span></button>
         </div>
         <div class="admin-nav-group">
-          <p class="admin-nav-label">Admin Operations</p>
+          <p class="admin-nav-label">Quản lý hoạt động</p>
           <button class="admin-nav-item" type="button" data-admin-pending="Dịch vụ" title="Dịch vụ — chưa triển khai"><span data-admin-icon="leaf"></span><span>Dịch vụ</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Sản phẩm" title="Sản phẩm — chưa triển khai"><span data-admin-icon="product"></span><span>Sản phẩm</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Nhân viên" title="Nhân viên — chưa triển khai"><span data-admin-icon="staff"></span><span>Nhân viên</span></button>
@@ -49,7 +50,7 @@
           <button class="admin-nav-item" type="button" data-admin-pending="Khuyến mãi" title="Khuyến mãi — chưa triển khai"><span data-admin-icon="tag"></span><span>Khuyến mãi</span></button>
         </div>
         <div class="admin-nav-group">
-          <p class="admin-nav-label">Finance &amp; Quality</p>
+          <p class="admin-nav-label">Tài chính và chất lượng</p>
           <button class="admin-nav-item" type="button" data-admin-pending="Hóa đơn" title="Hóa đơn — chưa triển khai"><span data-admin-icon="note"></span><span>Hóa đơn</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Thanh toán" title="Thanh toán — chưa triển khai"><span data-admin-icon="wallet"></span><span>Thanh toán</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Đánh giá" title="Đánh giá — chưa triển khai"><span data-admin-icon="star"></span><span>Đánh giá</span></button>
@@ -57,7 +58,7 @@
         </div>
       </nav>
       <div class="admin-sidebar-foot">
-        <span class="admin-sidebar-note"><span class="admin-dot"></span> Không gian quản trị</span>
+
         <button class="admin-collapse" type="button" data-sidebar-toggle aria-controls="admin-sidebar" aria-expanded="true" aria-label="Thu gọn thanh bên"><span data-admin-icon="panel"></span><span>Thu gọn thanh bên</span></button>
       </div>
     </aside>
@@ -69,7 +70,7 @@
           <div><p class="admin-topbar-title">Quản lý lịch hẹn</p><nav class="admin-breadcrumb" aria-label="Đường dẫn"><span>Quản trị</span><span aria-hidden="true">/</span><span aria-current="page">Quản lý lịch hẹn</span></nav></div>
         </div>
         <div class="admin-topbar-actions">
-          <span class="admin-demo-label"><span class="admin-dot"></span> Hệ thống Spa</span>
+
           <div class="admin-account">
             <button class="admin-account-trigger" type="button" aria-controls="admin-account-menu" aria-expanded="false">
               <span class="admin-avatar" aria-hidden="true">AD</span><span class="admin-account-name"><strong>Quản trị viên</strong><small>Admin · An Nhiên Spa</small></span><span data-admin-icon="chevron"></span>
@@ -82,12 +83,12 @@
         </div>
       </header>
       <main class="admin-content admin-operations-page" id="admin-main" tabindex="-1" data-admin-operations="appointments">
-        <div class="admin-page-heading"><div><span class="admin-eyebrow">AN NHIÊN SPA / ADMIN OPERATIONS / LỊCH HẸN</span><h1>Quản lý lịch hẹn</h1><p>Theo dõi từng cuộc hẹn, chăm sóc từng bước trải nghiệm.</p></div><span class="admin-service-heading-mark" data-admin-icon="calendar" aria-hidden="true"></span></div>
+        <div class="admin-page-heading"><div><span class="admin-eyebrow">AN NHIÊN SPA / QUẢN LÝ HOẠT ĐỘNG / LỊCH HẸN</span><h1>Quản lý lịch hẹn</h1><p>Theo dõi từng cuộc hẹn, chăm sóc từng bước trải nghiệm.</p></div><span class="admin-service-heading-mark" data-admin-icon="calendar" aria-hidden="true"></span></div>
         <section class="admin-core-stats" id="ops-stats" aria-label="Thống kê lịch hẹn"></section>
-        <p class="admin-data-note admin-ops-context" id="ops-context">Dữ liệu được cập nhật từ hệ thống Spa.</p>
+        <p class="admin-data-note admin-ops-context" id="ops-context">Xác nhận lịch hợp lệ sẽ tạo một hóa đơn dịch vụ.</p>
         <section class="admin-table-card admin-service-panel" aria-labelledby="ops-list-title">
-          <div class="admin-card-heading"><div><h2 id="ops-list-title">Danh sách lịch hẹn</h2><p id="ops-caption">Thông tin hiện tại của Spa.</p></div></div>
-          <div class="admin-toolbar"><label class="admin-search">Tìm kiếm<input type="search" id="ops-search" placeholder="Mã lịch hẹn, khách hàng, dịch vụ…"></label><label>Ngày hẹn<input id="ops-date" type="date"></label><label>Trạng thái<select id="ops-status"><option value="">Tất cả trạng thái</option><option value="pending">Chờ xác nhận</option><option value="confirmed">Đã xác nhận</option><option value="completed">Đã hoàn thành</option><option value="cancelled">Đã hủy</option></select></label><button type="button" class="admin-button" id="ops-reset">Đặt lại</button></div>
+          <div class="admin-card-heading"><div><h2 id="ops-list-title">Danh sách lịch hẹn</h2><p id="ops-caption">Thông tin từ hệ thống An Nhiên. KPI thống kê toàn bộ lịch hẹn; bộ lọc áp dụng cho danh sách.</p></div></div>
+          <div class="admin-toolbar"><label class="admin-search">Tìm kiếm<input type="search" id="ops-search" placeholder="Mã lịch hẹn, khách hàng, dịch vụ…"></label><label>Ngày hẹn<input id="ops-date" type="date" lang="vi" aria-label="Ngày hẹn"></label><label>Trạng thái<select id="ops-status"><option value="">Tất cả trạng thái</option><option value="pending">Chờ xác nhận</option><option value="confirmed">Đã xác nhận</option><option value="completed">Đã hoàn thành</option><option value="cancelled">Đã hủy</option></select></label><button type="button" class="admin-button" id="ops-reset">Đặt lại</button></div>
           <div class="admin-table-scroll" tabindex="0" role="region" aria-label="Bảng lịch hẹn, có thể cuộn ngang"><table class="admin-data-table"><caption class="admin-sr-only">Danh sách lịch hẹn</caption><thead><tr><th scope="col">Mã lịch hẹn</th><th scope="col">Khách hàng</th><th scope="col">Dịch vụ</th><th scope="col">Ngày / giờ</th><th scope="col">Nhân viên</th><th scope="col">Trạng thái</th><th scope="col">Thao tác</th></tr></thead><tbody id="ops-rows"></tbody></table></div>
           <div class="admin-empty-state" id="ops-empty" hidden><span data-admin-icon="calendar"></span><h3>Không tìm thấy lịch hẹn</h3><p>Thử từ khóa hoặc bộ lọc khác.</p></div>
           <div class="admin-pagination" id="ops-pagination" aria-live="polite"></div>

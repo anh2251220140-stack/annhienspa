@@ -84,29 +84,167 @@
   async function edit(type,id=0) { const data=await api(url(type,id)); open(`${id ? "Sửa" : "Thêm"} ${nouns[type]}`,data.html); bindForm(url(type,id),refresh); }
   async function schedule(employee) { await window.spaSchedule(employee,{open,api,dialog,notify}); }
   if (module === "appointments") {
-    const toolbar=$(".admin-toolbar"); const label=document.createElement("label");label.textContent="Nhân viên";
-    const employees=document.createElement("select");employees.id="ops-employee";label.append(employees);toolbar.append(label);
-    let items=[];
+    const toolbar=$(".admin-toolbar");
+    const icon=name=>window.spaIcon(name);
+    const nativeDate=$("#ops-date"), dateControl=document.createElement("span");
+    dateControl.className="appointment-date-control";
+    nativeDate.before(dateControl);dateControl.append(nativeDate);
+    const dateText=document.createElement("input");dateText.type="text";dateText.placeholder="dd/mm/yyyy";dateText.inputMode="numeric";
+    dateText.setAttribute("aria-label","Ngày hẹn, định dạng ngày/tháng/năm");
+    const picker=document.createElement("button");picker.type="button";picker.className="admin-button";picker.innerHTML=icon("calendar");picker.setAttribute("aria-label","Mở lịch chọn ngày");
+    dateControl.append(dateText,picker);nativeDate.tabIndex=-1;
+    picker.onclick=()=>{try{nativeDate.showPicker();}catch(_){dateText.focus();}};
+    dateText.addEventListener("input",()=>{
+      const match=/^(\d{2})\/(\d{2})\/(\d{4})$/.exec(dateText.value);
+      let iso="";
+      if(match){const candidate=`${match[3]}-${match[2]}-${match[1]}`;const parsed=new Date(candidate+"T12:00:00Z");if(!isNaN(parsed)&&parsed.toISOString().slice(0,10)===candidate)iso=candidate;}
+      nativeDate.value=iso;dateText.setCustomValidity(dateText.value&&!iso?"Nhập ngày hợp lệ theo dd/mm/yyyy.":"");
+      dateText.setAttribute("aria-invalid",String(Boolean(dateText.validationMessage)));
+      $("#ops-notice").textContent=dateText.validationMessage;$("#ops-notice").hidden=!dateText.validationMessage;
+    });
+    nativeDate.addEventListener("input",()=>{dateText.value=nativeDate.value?nativeDate.value.split("-").reverse().join("/"):"";dateText.setCustomValidity("");dateText.removeAttribute("aria-invalid");$("#ops-notice").hidden=true;});
+
+    const code=id=>"LH-"+String(id).padStart(6,"0");
+    const day=value=>/^\d{4}-\d{2}-\d{2}$/.test(value)?value.split("-").reverse().join("/"):value;
+    const normalize=value=>String(value).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").toLocaleLowerCase("vi");
+    const duration=r=>{const minutes=t=>Number(t.slice(0,2))*60+Number(t.slice(3,5));return minutes(r.end)-minutes(r.time);};
+    const statusBadge=r=>`<span class="admin-status-badge admin-status-${escape(r.status)}">${escape(r.statusLabel)}</span>`;
+    let items=[],page=1,loadVersion=0;
+    function renderAppointments() {
+      const q=normalize($("#ops-search").value.trim());
+      const rows=items.filter(r=>!dateText.validationMessage&&(!$("#ops-date").value||r.date===$("#ops-date").value)&&
+        (!$("#ops-status").value||r.status===$("#ops-status").value)&&
+        normalize(`${code(r.id)} LH-${r.id} ${r.customer} ${r.service} ${r.employee}`).includes(q));
+      const count=Math.max(1,Math.ceil(rows.length/5));page=Math.max(1,Math.min(page,count));
+      const visible=rows.slice((page-1)*5,page*5);
+      $("#ops-rows").innerHTML=visible.map(r=>`<tr>
+        <td class="admin-appointment-code"><strong>${code(r.id)}</strong></td><td><strong>${escape(r.customer)}</strong></td>
+        <td><div class="admin-ops-wrap">${escape(r.service)}</div></td>
+        <td><span class="admin-ops-date">${icon("calendar")}${day(r.date)}</span><small class="admin-table-time">${escape(r.time)} · ${duration(r)} phút</small></td>
+        <td><span class="admin-ops-assignee">${icon("heart")}${escape(r.employee)}</span></td><td>${statusBadge(r)}</td>
+        <td><div class="admin-row-actions"><button class="admin-button" data-appointment="${r.id}" data-readonly>${icon("eye")} Xem</button>${["pending","confirmed"].includes(r.status)?`<button class="admin-button" data-appointment="${r.id}">${icon("calendar")} Xử lý</button>`:""}</div></td></tr>`).join("");
+      $("#ops-empty").hidden=rows.length>0;
+      $("#ops-pagination").innerHTML=`<span>${visible.length} / ${rows.length} lịch hẹn${rows.length?` · ${(page-1)*5+1}–${(page-1)*5+visible.length}`:""}</span><div><button type="button" class="admin-button" data-appointment-page="${page-1}" ${page===1?"disabled":""}>Trước</button><span>${page} / ${count}</span><button type="button" class="admin-button" data-appointment-page="${page+1}" ${page===count?"disabled":""}>Sau</button></div>`;
+    }
     async function load() {
-      const params=new URLSearchParams({date:$("#ops-date").value,status:$("#ops-status").value,employee:employees.value});
-      items=(await api("/api/appointments/?"+params)).items;
-      const q=$("#ops-search").value.toLocaleLowerCase("vi");
-      const rows=items.filter(r=>`${r.id} ${r.customer} ${r.service}`.toLocaleLowerCase("vi").includes(q));
-      $("#ops-rows").innerHTML=rows.map(r=>`<tr>${["LH-"+r.id,r.customer,r.service,`${r.date} ${r.time}–${r.end}`,r.employee,r.statusLabel].map(x=>`<td>${escape(x)}</td>`).join("")}<td><button class="admin-button" data-appointment="${r.id}" data-readonly>Xem</button>${["pending","confirmed"].includes(r.status)?`<button class="admin-button" data-appointment="${r.id}">Xử lý</button>`:""}</td></tr>`).join("");
-      $("#ops-empty").hidden=rows.length>0;$("#ops-pagination").textContent=`${rows.length} lịch hẹn`;
-      $("#ops-stats").innerHTML=[["Tổng lịch hẹn",items.length],["Chờ xác nhận",items.filter(x=>x.status==="pending").length],["Đã xác nhận",items.filter(x=>x.status==="confirmed").length]].map(([l,n])=>`<article><span>${l}</span><strong>${n}</strong></article>`).join("");
+      const version=++loadVersion;
+      // The existing Admin endpoint returns the complete authorized collection (no server pagination).
+      const result=await api("/api/appointments/");if(version!==loadVersion)return;
+      items=result.items;
+      $("#ops-stats").innerHTML=[["Tổng lịch hẹn",items.length,"calendar"],["Chờ xác nhận",items.filter(x=>x.status==="pending").length,"leaf"],["Đã xác nhận",items.filter(x=>x.status==="confirmed").length,"clock"]].map(([label,n,symbol])=>`<article><div><span class="admin-ops-stat-symbol">${icon(symbol)}</span><span>${label}</span></div><strong>${n}</strong></article>`).join("");
+      renderAppointments();
+    }
+    const dateTime=value=>value?new Date(value).toLocaleString("vi-VN",{timeZone:"Asia/Ho_Chi_Minh"}):"Chưa ghi nhận";
+    async function detail(id, editable, message="") {
+      const {item:r,history}=await api(`/api/appointments/${id}/admin-detail/`);
+      const facts=[["Mã lịch hẹn",code(r.id),"note"],["Khách hàng",r.customer,"heart"],
+        ["Dịch vụ",r.service,"note"],["Ngày / giờ",`${day(r.date)} · ${r.time}–${r.end}`,"calendar"],
+        ["Thời lượng",`${duration(r)} phút`,"clock"],["Nhân viên",r.employee,"heart"],
+        ["Ghi chú",r.note||"—","note"],["Hóa đơn",r.invoiceStatus||"Chưa lập hóa đơn","note"]];
+      const cancellation=r.cancelReason||r.cancelledBy||r.cancelledAt;
+      const actions=[["confirm","Xác nhận lịch",r.canConfirm],["complete","Xác nhận đã hoàn thành",r.canComplete],
+        ["cancel","Hủy lịch",r.canCancel],["no_show","Khách không đến",r.canNoShow],["reassign","Đổi chuyên viên ngoại lệ",r.canReassign]].filter(x=>x[2]);
+      open(editable?"Xử lý lịch hẹn":"Thông tin lịch hẹn",`<div class="admin-service-modal-scroll">
+        <p role="status" class="appointment-feedback" ${message?"":"hidden"}>${escape(message)}</p><div class="admin-ops-detail-heading"><span class="admin-ops-detail-symbol">${icon("calendar")}</span><h3>${escape(r.customer)}</h3>${statusBadge(r)}</div>
+        <dl class="admin-profile-facts admin-ops-facts">${facts.map(([k,v,symbol])=>`<div><dt>${icon(symbol)}${escape(k)}</dt><dd>${escape(v)}</dd></div>`).join("")}</dl>
+        ${r.invoiceId?`<a class="admin-button" href="admin-invoices.html?invoice=HD-${r.invoiceId}">Xem hóa đơn HD-${r.invoiceId}</a>`:""}
+        ${cancellation?`<section class="admin-ops-detail-section"><h4>${icon("note")}Thông tin hủy</h4><dl class="admin-profile-facts admin-ops-facts">${[["Lý do hủy",r.cancelReason||"Chưa ghi nhận"],["Người hủy",r.cancelledBy||"Chưa ghi nhận"],["Thời điểm hủy",dateTime(r.cancelledAt)]].map(([k,v])=>`<div><dt>${escape(k)}</dt><dd>${escape(v)}</dd></div>`).join("")}</dl></section>`:""}
+        <details class="appointment-history" ${history.length?"open":""}><summary>Lịch sử phân công lại (${history.length})</summary>${history.length?history.map(h=>`<article class="admin-ops-form-section"><h4>${escape(h.previousEmployee)} → ${escape(h.newEmployee)}</h4><p>${escape(h.reason)}</p><p>${escape(h.changedBy)} · ${escape(dateTime(h.changedAt))}</p><p>Khách đã đồng ý · ${escape(h.consentMethod)} · ${escape(dateTime(h.consentAt))}</p><p>${escape(h.consentNote)}</p></article>`).join(""):"<p>Chưa có lịch sử phân công được ghi nhận.</p>"}</details>
+        ${editable&&actions.length?`<form class="admin-service-form admin-ops-form">
+          ${r.canReassign?`<fieldset class="admin-ops-reassignment"><legend>${icon("heart")}Phân công lại ngoại lệ</legend><p>Giữ nhân viên khách đã chọn khi xác nhận thông thường. Chỉ đổi trước giờ hẹn khi nhân viên không thể phục vụ và khách đã đồng ý.</p><label><input type="checkbox" data-reassign-toggle>Nhân viên hiện tại không thể phục vụ — cần phân công lại</label></fieldset>`:""}
+          <label>Thao tác<select name="action" required><option value="">Chọn thao tác</option>${actions.filter(([v])=>v!=="reassign").map(([v,l])=>`<option value="${v}">${l}</option>`).join("")}</select></label>
+          <fieldset class="admin-ops-form-section" data-reason hidden disabled><legend>Lý do hủy</legend><textarea name="reason" maxlength="500" required aria-label="Lý do hủy"></textarea></fieldset>
+          <fieldset class="admin-ops-form-section" data-reassign-fields hidden disabled><legend>${icon("heart")}Thông tin phân công và sự đồng ý của khách</legend>
+            <label>Chuyên viên thay thế<select name="employee" required><option value="">Chọn chuyên viên</option>${window.spaCatalog.staff.filter(x=>x.serviceIds.includes(r.serviceId)&&x.id!==r.employeeId).map(x=>`<option value="${x.id}">${escape(x.name)}</option>`).join("")}</select></label>
+            <label>Lý do ngoại lệ<textarea name="reassign_reason" maxlength="500" required></textarea></label>
+            <label><input type="checkbox" name="consent" required>Đã thông báo và được khách đồng ý</label>
+            <label>Kênh xác nhận<select name="consent_method" required><option value="">Chọn kênh</option><option value="phone">Điện thoại</option><option value="in_person">Trực tiếp</option><option value="other">Kênh khác</option></select></label>
+            <label>Ghi chú / bằng chứng xác nhận<textarea name="consent_note" maxlength="500" required></textarea></label>
+            <label>Thời điểm khách đồng ý (giờ Việt Nam)<input type="datetime-local" name="consent_at" required></label>
+          </fieldset>
+          <p data-action-note role="status"></p><p data-error class="admin-service-error" tabindex="-1" role="alert" hidden></p>
+          <div class="appointment-confirm" data-confirm hidden tabindex="-1"><h3>Xác nhận thao tác</h3><p data-confirm-text></p><div class="admin-dialog-actions"><button type="button" class="admin-button" data-back>Quay lại</button><button type="button" class="admin-button admin-button-primary" data-commit>Xác nhận</button></div></div>
+          <button class="admin-button admin-button-primary" type="submit" disabled>Tiếp tục</button>
+        </form>`:"<p>Chế độ xem thông tin. Lịch đã hoàn thành hoặc đã hủy không được chỉnh sửa. Yêu cầu hủy lịch đã thanh toán cần xử lý thủ công theo quy định.</p>"}</div><footer class="admin-dialog-actions"><button type="button" class="admin-button" data-close>Đóng</button></footer>`);
+      dialog.querySelector(".admin-eyebrow").textContent="AN NHIÊN SPA / QUẢN TRỊ";
+      dialog.querySelector(".admin-service-modal-heading [data-close]").innerHTML=icon("close");
+      const form=dialog.querySelector("form");if(!form)return;
+      const submit=form.querySelector('[type="submit"]');
+      form.id="appointment-action-form";
+      submit.setAttribute("form",form.id);
+      const footer=dialog.querySelector(":scope > .admin-dialog-actions");
+      footer.querySelector("[data-close]").textContent="Hủy";
+      footer.append(submit);
+      const toggle=form.querySelector("[data-reassign-toggle]");
+      const selectedAction=()=>toggle?.checked?"reassign":form.elements.action.value;
+      if(toggle)toggle.onchange=()=>{
+        // Reassignment is a separate API operation, never an implicit side effect of confirmation.
+        form.elements.action.disabled=toggle.checked;
+        form.elements.action.required=!toggle.checked;
+        form.elements.action.closest("label").hidden=toggle.checked;
+        form.elements.action.value="";
+        if(!toggle.checked){
+          form.querySelectorAll("[data-reassign-fields] input,[data-reassign-fields] select,[data-reassign-fields] textarea").forEach(field=>{if(field.type==="checkbox")field.checked=false;else field.value="";});
+        }
+        form.elements.action.onchange();resetConfirmation();
+      };
+      form.elements.action.onchange=()=>{
+        const action=selectedAction();
+        for(const [selector,on] of [["[data-reason]",action==="cancel"],["[data-reassign-fields]",action==="reassign"]]){
+          const fieldset=form.querySelector(selector);fieldset.hidden=!on;fieldset.disabled=!on;
+        }
+        submit.disabled=!action;
+        form.querySelector("[data-action-note]").textContent=action==="no_show"?"Chỉ xác nhận sau khi đã kiểm tra khách không đến. Không tự động hủy theo thời gian.":action==="reassign"?"Backend kiểm tra lại chuyên môn, ca làm và lịch trùng. Thông tin đồng ý được lưu nội bộ.":"";
+      };
+      const confirmation=form.querySelector("[data-confirm]");
+      const resetConfirmation=()=>{confirmation.hidden=true;submit.hidden=false;};
+      form.addEventListener("input",resetConfirmation);
+      form.querySelector("[data-back]").onclick=()=>{resetConfirmation();submit.focus();};
+      form.onsubmit=event=>{
+        event.preventDefault();if(!form.reportValidity())return;
+        const action=selectedAction();
+        form.querySelector("[data-confirm-text]").textContent=`${actions.find(x=>x[0]===action)[1]} — ${code(r.id)}, ${day(r.date)} ${r.time}. `+(action==="reassign"?`Chuyên viên mới: ${form.elements.employee.selectedOptions[0].textContent}. Lý do: ${form.elements.reassign_reason.value}`:action==="cancel"?`Lý do: ${form.elements.reason.value}`:"Vui lòng kiểm tra trước khi xác nhận.");
+        confirmation.hidden=false;submit.hidden=true;confirmation.focus();
+      };
+      let saving=false;
+      form.querySelector("[data-commit]").onclick=async ()=>{
+        if(saving||!form.reportValidity())return;
+        saving=true;submit.disabled=true;
+        const snapshot=new FormData(form);snapshot.set("action",selectedAction());
+        const controls=[...form.querySelectorAll("input,select,textarea,button")].filter(el=>!el.disabled);
+        controls.forEach(el=>el.disabled=true);
+        const errorNode=form.querySelector("[data-error]");errorNode.hidden=true;
+        try {
+          const latest=(await api(`/api/appointments/${id}/admin-detail/`)).item;
+          if(latest.updatedAt!==r.updatedAt){await load();await detail(id,true,"Lịch đã thay đổi. Vui lòng kiểm tra dữ liệu mới và xác nhận lại.");return;}
+          const data=snapshot,action=data.get("action");data.delete("action");
+          data.set("status",({confirm:"confirmed",complete:"completed",cancel:"cancelled",no_show:"cancelled",reassign:r.status})[action]);
+          if(action==="no_show"){data.set("no_show","true");data.set("reason","Khách không đến");}
+          if(action==="reassign"){
+            data.set("reason",data.get("reassign_reason"));data.delete("reassign_reason");
+            data.set("expected_employee",r.employeeId);data.set("expected_updated_at",r.updatedAt);
+            data.set("consent_at",data.get("consent_at")+(data.get("consent_at").length===16?":00":"")+"+07:00");
+          }
+          await api(`/api/appointments/${id}/status/`,data);
+          await load();await detail(id,true,"Đã cập nhật lịch hẹn.");
+        } catch(error) {
+          try {
+            const latest=(await api(`/api/appointments/${id}/admin-detail/`)).item;
+            if(latest.updatedAt!==r.updatedAt){await load();await detail(id,true,"Lịch đã thay đổi. Vui lòng kiểm tra và xác nhận lại.");return;}
+          } catch (_) { /* Keep original failure visible; never retry a mutation. */ }
+          errorNode.textContent=error.message;errorNode.hidden=false;errorNode.focus();
+        } finally {saving=false;controls.forEach(el=>el.disabled=false);form.elements.action.disabled=Boolean(toggle?.checked);submit.disabled=!selectedAction();resetConfirmation();}
+      };
     }
     root.addEventListener("click",event=>{
+      const pager=event.target.closest("[data-appointment-page]");
+      if(pager){page=Number(pager.dataset.appointmentPage);renderAppointments();$(".admin-table-scroll").focus();return;}
       const b=event.target.closest("[data-appointment]");if(!b)return;
-      const r=items.find(x=>String(x.id)===b.dataset.appointment);
-      const editable=!b.hasAttribute("data-readonly")&&["pending","confirmed"].includes(r.status);
-      const statuses=r.status==="pending"?[["confirmed","Xác nhận"],["cancelled","Hủy lịch"]]:[["completed","Xác nhận đã hoàn thành"],["cancelled","Hủy lịch"]];
-      open("Lịch hẹn LH-"+r.id,`<div class="admin-service-modal-scroll"><dl class="admin-profile-facts admin-ops-facts">${[["Khách hàng",r.customer],["Dịch vụ",r.service],["Chuyên viên",r.employee],["Thời gian",`${r.date} ${r.time}–${r.end}`],["Trạng thái",r.statusLabel],["Hóa đơn",r.invoiceStatus || (["confirmed","completed"].includes(r.status)?"Thiếu hóa đơn: cần đối soát giá lịch sử":"Chưa lập hóa đơn")],["Ghi chú / Thông báo",r.note || "—"]].map(([k,v])=>`<div><dt>${k}</dt><dd>${escape(v)}</dd></div>`).join("")}</dl>${r.invoiceId?`<a class="admin-button" href="admin-invoices.html?invoice=HD-${r.invoiceId}">Xem hóa đơn HD-${r.invoiceId}</a>`:""}${editable?`<form class="admin-service-form admin-ops-form"><fieldset class="admin-ops-form-section"><legend>Phân công &amp; trạng thái</legend><div class="admin-service-form-grid"><label>Cập nhật trạng thái<select name="status">${statuses.map(([v,l])=>`<option value="${v}">${l}</option>`).join("")}<option value="${r.status}">Giữ trạng thái (chỉ khi đổi chuyên viên)</option></select></label></div></fieldset><fieldset class="admin-ops-reassignment"><legend>Phân công lại ngoại lệ</legend><p>Giữ chuyên viên khách đã chọn khi xác nhận thông thường. Chỉ thay đổi sau khi đã thống nhất với khách.</p><label><input type="checkbox" data-reassign>Đổi chuyên viên trong trường hợp ngoại lệ</label><label>Chuyên viên thay thế<select name="employee" disabled><option value="">Chọn chuyên viên</option>${window.spaCatalog.staff.filter(x=>x.serviceIds.includes(r.serviceId)&&x.id!==r.employeeId).map(x=>`<option value="${x.id}">${escape(x.name)}</option>`).join("")}</select></label><label><input type="checkbox" name="consent">Đã được khách đồng ý và thông báo việc đổi chuyên viên</label><label>Lý do / thông báo hiển thị cho khách<textarea name="reason" maxlength="500"></textarea></label></fieldset><p class="admin-service-error" data-error hidden></p><div class="admin-dialog-actions"><button class="admin-button admin-button-primary" type="submit">Xác nhận cập nhật</button></div></form>`:"<p>Thông tin lịch hẹn · Chỉ xem</p>"}</div>`);
-      if(editable){const form=dialog.querySelector("form");form.querySelector("[data-reassign]").onchange=e=>{form.elements.employee.disabled=!e.target.checked;form.elements.employee.required=e.target.checked;};bindForm(`/api/appointments/${r.id}/status/`,load);}
+      detail(b.dataset.appointment,!b.hasAttribute("data-readonly")).catch(e=>notify(e.message));
     });
-    toolbar.addEventListener("input",()=>load().catch(e=>notify(e.message)));
-    $("#ops-reset").onclick=()=>{toolbar.querySelectorAll("input,select").forEach(e=>e.value="");load().catch(e=>notify(e.message));};
-    api(url("employees")).then(data=>{employees.replaceChildren(new Option("Tất cả nhân viên",""),...data.items.map(e=>new Option(e.name,e.id)));return load();}).catch(e=>notify(e.message));
+    toolbar.addEventListener("input",()=>{page=1;renderAppointments();});
+    $("#ops-reset").onclick=()=>{toolbar.querySelectorAll("input,select").forEach(e=>e.value="");dateText.setCustomValidity("");dateText.removeAttribute("aria-invalid");$("#ops-notice").hidden=true;page=1;renderAppointments();};
+    load().catch(e=>notify(e.message));
     return;
   }
   if(servicePage){

@@ -7,7 +7,7 @@ from accounts.models import Customer
 from employees.models import Employee, EmployeeService, EmployeeSchedule
 from services.models import Service
 from billing.models import Invoice
-from .models import Appointment
+from .models import Appointment, AppointmentReassignment
 
 LIVE = ["pending", "confirmed"]
 
@@ -60,7 +60,8 @@ def book(user, service_id, employee_id, day, clock, note=""):
         start_time=clock,end_time=finish.time(),note=note,status="pending")
 
 @transaction.atomic
-def transition(user, appointment_id, status, employee_id=None, consent=False, reason=""):
+def transition(user, appointment_id, status, employee_id=None, consent=False, reason="", *, expected_employee=None, expected_updated_at=None,
+               consent_method="", consent_note="", consent_at=None, no_show=False):
     if not user.is_authenticated or not user.is_active: raise PermissionDenied
     # Serialize status changes and reassignment using the same parent lock order as booking.
     current = Appointment.objects.get(pk=appointment_id)
@@ -83,6 +84,22 @@ def transition(user, appointment_id, status, employee_id=None, consent=False, re
         if start_datetime(item.appointment_date,item.start_time) <= timezone.now() or (invoice and invoice.payment_status == "paid"):
             raise ValidationError("Không thể tự hủy lịch đã tới giờ hoặc đã thanh toán. Vui lòng liên hệ Spa.")
     elif user.role != "Admin": raise PermissionDenied
+    now = timezone.now()
+    reason = reason.strip()
+    if len(reason) > 500:
+        raise ValidationError("Lý do tối đa 500 ký tự.")
+    if no_show or reason.casefold() == "khách không đến":
+        if user.role != "Admin" or status != "cancelled" or item.status != "confirmed" or now <= start_datetime(item.appointment_date, item.start_time):
+            raise ValidationError("Chỉ Admin xác nhận khách không đến sau giờ bắt đầu của lịch đã xác nhận.")
+        reason = "Khách không đến"
+    if status == "cancelled" and user.role == "Admin" and not reason:
+        raise ValidationError("Admin phải ghi lý do hủy lịch.")
+    history = None
+    if employee_id:
+        if expected_employee != item.employee_id or expected_updated_at != item.updated_at:
+            raise ValidationError("Lịch đã thay đổi hoặc thiếu phiên bản đối chiếu. Vui lòng tải lại.")
+        if employee_id == item.employee_id:
+            raise ValidationError("Chuyên viên mới phải khác chuyên viên hiện tại.")
     allowed = {"pending":{"confirmed","cancelled"}, "confirmed":{"completed","cancelled"}}
     changing_employee = employee_id and employee_id != item.employee_id
     if changing_employee:
@@ -92,10 +109,16 @@ def transition(user, appointment_id, status, employee_id=None, consent=False, re
             raise ValidationError("Chỉ đổi chuyên viên trước giờ hẹn, khi lịch còn hiệu lực.")
         employee = locked_employees.get(employee_id)
         if not employee or not employee.is_active: raise ValidationError("Chuyên viên không khả dụng.")
-        old = item.employee.full_name
+        if consent_at is None or timezone.is_naive(consent_at) or consent_at > now:
+            raise ValidationError("Thời điểm khách đồng ý phải hợp lệ và không ở tương lai.")
+        history = AppointmentReassignment(
+            appointment=item, previous_employee_id=item.employee_id, new_employee=employee,
+            reason=reason, changed_by=user, changed_at=now, customer_consent=consent,
+            consent_method=consent_method, consent_note=consent_note, consent_at=consent_at)
+        history.full_clean()
         item.employee = employee
         item.full_clean()  # assignment, working hours and employee/customer overlaps
-        item.note = (item.note or "") + f"\n[{timezone.localtime():%d/%m/%Y %H:%M}] Admin {user.pk}: Khách đã đồng ý đổi {old} → {employee.full_name}. {reason.strip()}"
+        # Keep legacy notes unchanged; new audit data is stored separately.
     if status not in allowed[item.status] and not (changing_employee and status == item.status):
         raise ValidationError("Chuyển trạng thái không hợp lệ.")
     if status == "completed" and start_datetime(item.appointment_date,item.end_time) > timezone.now():
@@ -107,9 +130,17 @@ def transition(user, appointment_id, status, employee_id=None, consent=False, re
         stop_pending(invoice)
     if status == "confirmed" and not invoice and item.status != "pending":
         raise ValidationError("Lịch cũ thiếu hóa đơn: cần đối soát giá lịch sử, kể cả khi đổi chuyên viên.")
+    if status == "cancelled":
+        item.cancel_reason = reason or "Khách hàng tự hủy"
+        item.cancelled_by = user
+        item.cancelled_at = now
     item.status = status
     # Existing historical schedule/assignment may be inactive; status changes do not rebook.
-    Appointment.objects.filter(pk=item.pk).update(status=status,employee_id=item.employee_id,note=item.note,updated_at=timezone.now())
+    Appointment.objects.filter(pk=item.pk).update(status=status,employee_id=item.employee_id,note=item.note,updated_at=now,
+        cancel_reason=item.cancel_reason,cancelled_by_id=item.cancelled_by_id,cancelled_at=item.cancelled_at)
+    item.updated_at = now
+    if history:
+        history.save()
     if status == "confirmed":
         from billing.services import ensure_invoice
         ensure_invoice(item)

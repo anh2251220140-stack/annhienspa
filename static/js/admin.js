@@ -137,22 +137,31 @@
   // The layout above can be reused without initializing Dashboard-only data widgets.
   if (!document.querySelector("[data-admin-dashboard]")) return;
 
-  let dashboard;
-  const currentYear=Number(new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Ho_Chi_Minh'}).slice(0,4));
+  let dashboard, periodVersion=0, yearVersion=0;
+  const today=new Date().toLocaleDateString('sv-SE',{timeZone:'Asia/Ho_Chi_Minh'});
+  const currentYear=Number(today.slice(0,4));
+  const dateLabel=value=>value.split('-').reverse().join('/');
+  const filters=document.querySelector('#dashboard-filters'), from=document.querySelector('#dashboard-from'), to=document.querySelector('#dashboard-to');
+  const periodError=document.querySelector('#dashboard-error');
+  const currentMonth=()=>{from.value=today.slice(0,7)+'-01';to.value=new Date(Date.UTC(Number(today.slice(0,4)),Number(today.slice(5,7)),0)).toISOString().slice(0,10);[from,to].forEach(input=>input.dispatchEvent(new Event('input')));};
+  currentMonth();
+  [from,to].forEach(native=>{
+    const wrap=document.createElement('span');wrap.className='core-date-control';native.before(wrap);
+    const display=document.createElement('input');display.type='text';display.required=true;display.inputMode='numeric';display.placeholder='dd/mm/yyyy';display.id=native.id+'-display';display.setAttribute('aria-label',native.id==='dashboard-from'?'Từ ngày, dd/mm/yyyy':'Đến ngày, dd/mm/yyyy');
+    const picker=document.createElement('button');picker.type='button';picker.className='admin-button';picker.innerHTML=window.spaIcon('calendar');picker.setAttribute('aria-label','Mở lịch chọn ngày');
+    wrap.append(display,picker,native);native.tabIndex=-1;
+    const sync=()=>{display.value=native.value?dateLabel(native.value):'';display.setCustomValidity('');};sync();native.addEventListener('input',sync);
+    display.addEventListener('input',()=>{const match=/^(\d{2})\/(\d{2})\/(\d{4})$/.exec(display.value);let value='';if(match&&Number(match[3])>0){const iso=match[3]+'-'+match[2]+'-'+match[1],parsed=new Date(iso+'T12:00:00Z');if(!isNaN(parsed)&&parsed.toISOString().slice(0,10)===iso)value=iso;}native.value=value;display.setCustomValidity(value?'':'Nhập ngày hợp lệ theo dd/mm/yyyy.');});
+    picker.onclick=()=>{try{native.showPicker();}catch(_){display.focus();}};
+  });
   const yearSelect=document.querySelector('#admin-revenue-year');
   yearSelect.innerHTML=Array.from({length:6},(_,i)=>`<option value="${currentYear-i}">${currentYear-i}</option>`).join('');
-  try {dashboard=await window.spaLive.api(`/api/dashboard/?start=${currentYear}-01-01&end=${currentYear}-12-31`);}
-  catch(error){document.querySelector('[data-recent-caption]').textContent=error.message;return;}
-  const statuses=Object.entries({pending:'Chờ xác nhận',confirmed:'Đã xác nhận',completed:'Đã hoàn thành',cancelled:'Đã hủy'}).map(([key,label])=>({key,label,count:dashboard.statuses.find(s=>s.status===key)?.count||0}));
-  let invoices=dashboard.monthly.map(x=>({year:Number(x.month.slice(0,4)),month:Number(x.month.slice(5,7)),total:Number(x.total),status:'paid'}));
-  document.querySelector('[data-stat-customers]').textContent=numbers.format(dashboard.customers);
-  document.querySelector('[data-stat-today]').textContent=numbers.format(dashboard.todayCount);
-  document.querySelector('[data-stat-revenue]').textContent=currency(dashboard.monthly.filter(x=>x.month===dashboard.today.slice(0,7)).reduce((sum,x)=>sum+Number(x.total),0));
-  document.querySelector('[data-stat-services]').textContent=numbers.format(dashboard.activeServices);
+  let invoices=[];
   const renderRevenue = async () => {
+    const version=++yearVersion;
     const year = Number(document.querySelector("#admin-revenue-year").value);
-    try { const d=await window.spaLive.api(`/api/dashboard/?start=${year}-01-01&end=${year}-12-31`);invoices=d.monthly.map(x=>({year,month:Number(x.month.slice(5,7)),total:Number(x.total),status:'paid'})); }
-    catch(error){document.querySelector('[data-revenue-caption]').textContent=error.message;return;}
+    try { const d=await window.spaLive.api(`/api/dashboard/?start=${year}-01-01&end=${year}-12-31`);if(version!==yearVersion)return;invoices=d.monthly.map(x=>({year,month:Number(x.month.slice(5,7)),total:Number(x.total),status:'paid'})); }
+    catch(error){if(version===yearVersion)document.querySelector('[data-revenue-caption]').textContent=error.message;return;}
     const values = Array.from({ length: 12 }, (_, month) =>
       invoices.filter((item) => item.year === year && item.month === month + 1 && item.status === "paid").reduce((sum, item) => sum + item.total, 0));
     const rawMaximum=Math.max(1,...values);
@@ -170,16 +179,27 @@
       ${points.length ? `<path class="admin-chart-area" d="${path} L${points.at(-1).x},${top + height} L${points[0].x},${top + height} Z"/><path class="admin-chart-line" d="${path}"/>` : ""}
       ${points.map((point) => `<circle class="admin-chart-point" cx="${point.x}" cy="${point.y}" r="3.8"/><circle class="admin-chart-hit" cx="${point.x}" cy="${point.y}" r="10" tabindex="0" role="img" aria-label="Tháng ${point.month}: ${currency(point.value)}" data-chart-tip="Tháng ${point.month}/${year}&#10;${currency(point.value)}"/>`).join("")}
       ${values.map((_, index) => `<text class="admin-chart-axis" x="${x(index)}" y="${top + height + 25}" text-anchor="middle">T${index + 1}</text>`).join("")}</svg>`;
-    document.querySelector("[data-revenue-caption]").textContent = `Hóa đơn đã thanh toán · năm ${year}`;
-    document.querySelector("[data-revenue-period]").textContent = `Cả năm ${year}`;
+    document.querySelector("[data-revenue-caption]").textContent = `Theo ngày thanh toán Việt Nam · năm ${year}`;
+    document.querySelector("[data-revenue-period]").textContent = `Cả năm ${year} · ${currency(values.reduce((sum,value)=>sum+value,0))}`;
   };
   document.querySelector("#admin-revenue-year").addEventListener("change", renderRevenue);
   renderRevenue();
 
+  function renderPeriod() {
+  const period=`${dateLabel(dashboard.start)} – ${dateLabel(dashboard.end)}`;
+  document.querySelector('[data-stat-customers]').textContent=numbers.format(dashboard.periodCustomers);
+  document.querySelector('[data-stat-today]').textContent=numbers.format(dashboard.appointments);
+  document.querySelector('[data-stat-revenue]').textContent=currency(dashboard.revenue);
+  document.querySelector('[data-stat-services]').textContent=numbers.format(dashboard.activeServices);
+  document.querySelector('[data-period-count]').textContent=period+' · tất cả trạng thái';
+  document.querySelector('[data-period-revenue]').textContent=period+' · theo ngày thanh toán';
+  document.querySelector('[data-period-status]').textContent=period+' · theo ngày hẹn';
+  document.querySelector('[data-period-popular]').textContent='Lượt đặt không hủy · '+period;
+  const statuses=Object.entries({pending:'Chờ xác nhận',confirmed:'Đã xác nhận',completed:'Đã hoàn thành',cancelled:'Đã hủy'}).map(([key,label])=>({key,label,count:dashboard.statuses.find(s=>s.status===key)?.count||0}));
   const totalAppointments = statuses.reduce((sum, item) => sum + item.count, 0);
   const circumference = 2 * Math.PI * 64;
   let offset = 0;
-  document.querySelector("#admin-status-chart").innerHTML = `<svg viewBox="0 0 180 180" role="img" aria-label="${totalAppointments} lịch hẹn trong năm đã chọn theo bốn trạng thái">
+  document.querySelector("#admin-status-chart").innerHTML = `<svg viewBox="0 0 180 180" role="img" aria-label="${totalAppointments} lịch hẹn trong kỳ đã chọn theo bốn trạng thái">
     <circle cx="90" cy="90" r="64" fill="none" stroke="#c6a07e15" stroke-width="17"/>
     ${statuses.map((item) => {
       const segment = item.count / (totalAppointments || 1) * circumference;
@@ -196,22 +216,37 @@
     `<li tabindex="0" data-chart-tip="${escape(service.name)}&#10;${count} lượt đặt"><div class="admin-bar-label"><span>${escape(service.name)}</span><strong>${count}</strong></div><div class="admin-bar-track"><span class="admin-bar-fill" data-bar-count="${count}"></span></div></li>`).join("");
   document.querySelectorAll("[data-bar-count]").forEach((node) => { node.style.width = `${Number(node.dataset.barCount) / Math.max(1,...topServices.map(x=>x.count)) * 100}%`; });
 
-  const recent=dashboard.recent;
-  const code = (id) => /^demo-review-completed-\d+$/.test(id) ? `LH-DEMO${id.split("-").at(-1)}` : `LH-${String(id).replace(/[^a-z0-9]/gi, "").slice(0, 8).toUpperCase()}`;
+  if(!topServices.length)document.querySelector("#admin-services-chart").innerHTML='<li class="admin-data-note">Chưa có lượt đặt dịch vụ trong kỳ.</li>';
+  const recent=dashboard.recent.slice(0,5);
+  const code = id => `LH-${String(id).padStart(6,"0")}`;
   document.querySelector("#admin-recent-appointments").innerHTML = recent.map((item) => {
-    const customer = item.customer || item.customerName || (item.owner === "user" ? "Lan Anh" : "Khách phiên mẫu");
+    const customer = item.customer || item.customerName || "Khách hàng chưa cập nhật";
     const initials = String(customer).trim().split(/\s+/).slice(-2).map((part) => part[0]).join("").toUpperCase();
     const status = statuses.find((entry) => entry.key === (item.status || "pending"));
     const service = item.service || catalog.services.find((entry) => entry.id === item.serviceId)?.name || "Dịch vụ chưa cập nhật";
     const employee = item.employee || catalog.staff.find((entry) => entry.id === item.employeeId)?.name || "Chờ phân công";
     return `<tr><td><span class="admin-appointment-code" title="${escape(item.id)}">${escape(code(item.id))}</span></td>
       <td><span class="admin-customer"><span class="admin-customer-initials" aria-hidden="true">${escape(initials)}</span>${escape(customer)}</span></td>
-      <td>${escape(service)}</td><td>${escape(employee)}</td><td>${escape(item.time || "Chưa có giờ")}<span class="admin-table-time">${escape(String(item.date || "").split("-").reverse().join("."))}</span></td>
+      <td>${escape(service)}</td><td>${escape(employee)}</td><td>${escape(item.time || "Chưa có giờ")}<span class="admin-table-time">${escape(String(item.date || "").split("-").reverse().join("/"))}</span></td>
       <td><span class="admin-status-badge admin-status-${status?.key || "pending"}">${escape(status?.label || "Chờ kiểm tra")}</span></td></tr>`;
   }).join("");
   document.querySelector(".admin-table-scroll").hidden = !recent.length;
   document.querySelector("#admin-appointments-empty").hidden = Boolean(recent.length);
-  document.querySelector("[data-recent-caption]").textContent = `${recent.length} lịch hẹn gần nhất trong năm ${currentYear}`;
+  document.querySelector("[data-recent-caption]").textContent = `${recent.length} lịch hẹn gần nhất · ${period}`;
+  }
+  async function loadPeriod(){
+    if(!filters.reportValidity())return;
+    const start=from.value,end=to.value;
+    if(end<start||(Date.parse(end)-Date.parse(start))/86400000>3660){periodError.textContent='Khoảng ngày không hợp lệ (tối đa 10 năm).';periodError.hidden=false;return;}
+    const version=++periodVersion;periodError.textContent='Đang tải dữ liệu…';periodError.hidden=false;
+    try{const data=await window.spaLive.api('/api/dashboard/?'+new URLSearchParams({start,end}));if(version!==periodVersion)return;
+      if(!Number.isInteger(data.periodCustomers))throw Error('API chưa cung cấp số khách có lịch trong kỳ. Vui lòng khởi động lại Django.');
+      dashboard=data;renderPeriod();periodError.hidden=true;
+    }catch(error){if(version===periodVersion){periodError.textContent=error.message+' Dữ liệu đang hiển thị vẫn thuộc kỳ áp dụng trước đó.';periodError.hidden=false;}}
+  }
+  filters.addEventListener('submit',event=>{event.preventDefault();loadPeriod();});
+  document.querySelector('#dashboard-reset').onclick=()=>{currentMonth();loadPeriod();};
+  loadPeriod();
 
   const tooltip = document.querySelector("#admin-chart-tooltip");
   let tooltipTarget;
