@@ -18,7 +18,7 @@
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
-<script src="{% static 'js/phase4-api.js' %}?v=payos-qr-1" defer></script><script src="{% static 'js/live-invoice.js' %}?v=payos-qr-1" defer></script><link rel="stylesheet" href="{% static 'css/phase4.css' %}?v=payos-qr-1"></head>
+<script src="{% static 'js/phase4-api.js' %}?v=payos-qr-1" defer></script><script src="{% static 'js/live-invoice.js' %}?v=invoice-cards-3" defer></script><link rel="stylesheet" href="{% static 'css/phase4.css' %}?v=payos-qr-1"><link rel="stylesheet" href="{% static 'css/user-invoice.css' %}?v=invoice-cards-3"></head>
   <body>
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
     <header class="site-header">
@@ -72,25 +72,32 @@
         Hóa đơn của bạn
       </h1>
       <p>Mọi thông tin cho cuộc hẹn được lưu lại, nhẹ nhàng và rõ ràng.</p>
-      <div class="invoice-tools">
-        <form id="invoice-filter">
-          <label for="invoice-search">Tìm hóa đơn<input id="invoice-search" type="search" placeholder="Mã hóa đơn, dịch vụ…"></label>
-          <label for="invoice-status-filter">Trạng thái<select id="invoice-status-filter"><option value="">Tất cả</option><option value="unpaid">Chưa thanh toán</option><option value="paid">Đã thanh toán</option><option value="cancelled">Đã hủy</option></select></label>
-          <button class="button" type="submit">Lọc</button>
-        </form>
-        <div class="invoice-navigation">
-          <label class="journey-filter" data-invoice-picker hidden>Chọn hóa đơn<select data-invoice-select></select></label>
-          <nav class="invoice-pagination" aria-label="Phân trang hóa đơn"><button class="button small" id="invoice-prev" type="button">Trước</button><span id="invoice-page" aria-live="polite"></span><button class="button small" id="invoice-next" type="button">Sau</button></nav>
+      <section class="user-invoice-list" aria-labelledby="invoice-list-title">
+        <h2 id="invoice-list-title">Danh sách hóa đơn</h2>
+        <div class="invoice-tools">
+          <form id="invoice-filter">
+            <label for="invoice-search">Tìm hóa đơn<input id="invoice-search" type="search" placeholder="Mã hóa đơn, lịch hẹn, dịch vụ…"></label>
+            <label for="invoice-status-filter">Trạng thái<select id="invoice-status-filter"><option value="">Tất cả</option><option value="unpaid">Chưa thanh toán</option><option value="paid">Đã thanh toán</option><option value="cancelled">Đã hủy</option></select></label>
+            <button class="button" type="submit">Lọc</button>
+          </form>
         </div>
-      </div>
-      <p data-invoice-empty>Chưa có hóa đơn phù hợp. Hóa đơn được tạo khi Spa xác nhận lịch hẹn.</p>
-      <div class="invoice-layout" data-invoice-content hidden>
+        <p data-invoice-count role="status" aria-live="polite">Đang tải danh sách hóa đơn…</p>
+        <div data-invoice-list aria-busy="true"></div>
+        <p data-invoice-empty role="status" tabindex="-1" hidden></p>
+        <div class="invoice-navigation">
+          <button class="button small" id="invoice-reset" type="button">Xem tất cả</button>
+          <nav class="invoice-pagination" aria-label="Phân trang hóa đơn"><button class="button small" id="invoice-prev" type="button" disabled>Trước</button><span id="invoice-page" aria-live="polite"></span><button class="button small" id="invoice-next" type="button" disabled>Sau</button></nav>
+        </div>
+        <button class="button small" id="invoice-retry" type="button" hidden>Thử tải lại</button>
+      </section>
+      <div id="invoice-detail" class="invoice-layout" data-invoice-content hidden>
         <article class="journey-card invoice-card" aria-labelledby="invoice-title">
           <span class="eyebrow">AN NHIÊN / HÓA ĐƠN DỊCH VỤ</span>
-          <h2 id="invoice-title" data-invoice-service></h2>
+          <h2 id="invoice-title" tabindex="-1" data-invoice-service></h2>
           <p data-invoice-code></p>
           <span class="journey-status" data-invoice-status></span>
           <dl class="journey-facts">
+            <div><dt>Ngày lập hóa đơn</dt><dd data-invoice-issued></dd></div>
             <div><dt>Cuộc hẹn</dt><dd data-invoice-appointment></dd></div>
             <div><dt>Chuyên viên</dt><dd data-invoice-employee></dd></div>
             <div><dt>Giá dịch vụ khi lập hóa đơn</dt><dd data-invoice-price></dd></div>
@@ -122,7 +129,7 @@
           <p data-payment-message role="status" aria-live="polite" tabindex="-1"></p>
           <div class="journey-actions" data-payment-options>
             <button class="button filled" type="button" data-payment-online>Thanh toán online bằng payOS</button>
-            <button class="button" type="button" data-payment-spa>Thanh toán trực tiếp tại Spa</button>
+            <button class="button" type="button" data-payment-spa>Chọn thanh toán tại Spa</button>
           </div>
           <div class="journey-card qr-panel" data-payment-qr hidden>
             <span class="eyebrow">PAYOS</span><h3>Đang chờ thanh toán</h3><p class="qr-amount" data-payment-amount></p>
@@ -134,7 +141,7 @@
             <button class="button small" type="button" data-payment-refresh>Kiểm tra trạng thái phiên</button>
             <p>Tạo phiên hoặc quét QR chưa đồng nghĩa với đã thanh toán.</p>
           </div>
-          <p class="form-note">Nếu cần hoàn tiền, vui lòng liên hệ Spa để được xử lý thủ công.</p>
+          <p class="form-note" data-payment-refund hidden>Nếu cần hoàn tiền, vui lòng liên hệ Spa để được xử lý thủ công.</p>
         </section>
       </div>
       <a class="button" href="{% url 'core:appointments' as page_url %}{{ page_url|slice:'1:' }}">

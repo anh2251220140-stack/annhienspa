@@ -13,17 +13,18 @@
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
     <script src="{% static 'js/admin.js' %}" defer></script>
-    <script src="{% static 'js/phase4-api.js' %}" defer></script><script src="{% static 'js/admin-finance.js' %}" defer></script>
+    <script src="{% static 'js/phase4-api.js' %}" defer></script><script src="{% static 'js/admin-finance.js' %}?v=finance-luxury-1" defer></script>
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
-<link rel="stylesheet" href="{% static 'css/phase4.css' %}"></head>
+<link rel="stylesheet" href="{% static 'css/phase4.css' %}">
+<link rel="stylesheet" href="{% static 'css/admin-finance-luxury.css' %}?v=1"></head>
   <body class="admin-page">
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
     <a class="admin-skip-link" href="#admin-main">Đến nội dung chính</a>
     <aside class="admin-sidebar" id="admin-sidebar" aria-label="Thanh điều hướng quản trị">
       <div class="admin-sidebar-brand">
-        <a class="admin-logo" href="{% url 'core:admin-dashboard' as page_url %}{{ page_url|slice:'1:' }}" aria-label="An Nhiên Spa — Dashboard">
+        <a class="admin-logo" href="{% url 'core:admin-dashboard' as page_url %}{{ page_url|slice:'1:' }}" aria-label="An Nhiên Spa — Tổng quan">
           <img src="{% static 'images/an-nhien-logo.png' %}" alt="" width="54" height="54">
           <span><strong>An Nhiên</strong><small>Quản trị hệ thống</small></span>
         </a>
@@ -32,15 +33,15 @@
       <nav class="admin-nav" aria-label="Menu Admin">
         <div class="admin-nav-group">
           <p class="admin-nav-label">Tổng quan</p>
-          <a class="admin-nav-item is-active" href="{% url 'core:admin-dashboard' as page_url %}{{ page_url|slice:'1:' }}" aria-current="page" title="Dashboard"><span data-admin-icon="grid"></span><span>Dashboard</span><i aria-hidden="true"></i></a>
+          <a class="admin-nav-item is-active" href="{% url 'core:admin-dashboard' as page_url %}{{ page_url|slice:'1:' }}" aria-current="page" title="Tổng quan"><span data-admin-icon="grid"></span><span>Tổng quan</span><i aria-hidden="true"></i></a>
         </div>
         <div class="admin-nav-group">
-          <p class="admin-nav-label">Admin Core</p>
+          <p class="admin-nav-label">Tài khoản và khách hàng</p>
           <button class="admin-nav-item" type="button" data-admin-pending="Tài khoản" title="Tài khoản — chưa triển khai"><span data-admin-icon="account"></span><span>Tài khoản</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Khách hàng" title="Khách hàng — chưa triển khai"><span data-admin-icon="users"></span><span>Khách hàng</span></button>
         </div>
         <div class="admin-nav-group">
-          <p class="admin-nav-label">Admin Operations</p>
+          <p class="admin-nav-label">Quản lý hoạt động</p>
           <button class="admin-nav-item" type="button" data-admin-pending="Dịch vụ" title="Dịch vụ — chưa triển khai"><span data-admin-icon="leaf"></span><span>Dịch vụ</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Sản phẩm" title="Sản phẩm — chưa triển khai"><span data-admin-icon="product"></span><span>Sản phẩm</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Nhân viên" title="Nhân viên — chưa triển khai"><span data-admin-icon="staff"></span><span>Nhân viên</span></button>
@@ -48,7 +49,7 @@
           <button class="admin-nav-item" type="button" data-admin-pending="Khuyến mãi" title="Khuyến mãi — chưa triển khai"><span data-admin-icon="tag"></span><span>Khuyến mãi</span></button>
         </div>
         <div class="admin-nav-group">
-          <p class="admin-nav-label">Finance &amp; Quality</p>
+          <p class="admin-nav-label">Tài chính và chất lượng</p>
           <button class="admin-nav-item" type="button" data-admin-pending="Hóa đơn" title="Hóa đơn — chưa triển khai"><span data-admin-icon="note"></span><span>Hóa đơn</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Thanh toán" title="Thanh toán — chưa triển khai"><span data-admin-icon="wallet"></span><span>Thanh toán</span></button>
           <button class="admin-nav-item" type="button" data-admin-pending="Đánh giá" title="Đánh giá — chưa triển khai"><span data-admin-icon="star"></span><span>Đánh giá</span></button>
@@ -83,15 +84,16 @@
       <main class="admin-content admin-operations-page admin-finance-page" id="admin-main" tabindex="-1" data-admin-finance="invoices">
         <div class="admin-page-heading"><div><span class="admin-eyebrow">AN NHIÊN SPA / TÀI CHÍNH</span><h1>Quản lý hóa đơn</h1><p>Minh bạch từng khoản, trọn vẹn mỗi trải nghiệm chăm sóc.</p></div><span class="admin-service-heading-mark" data-admin-icon="note" aria-hidden="true"></span></div>
         <section class="admin-finance-stats" id="finance-stats" aria-label="Thống kê hóa đơn "></section>
-        <div class="admin-finance-intro"><span data-admin-icon="note"></span><p>Dữ liệu hóa đơn và giao dịch tại Spa. Thanh toán online chỉ xác nhận qua webhook hợp lệ.</p></div>
+        <p class="finance-kpi-scope">Toàn bộ dữ liệu · Bộ lọc áp dụng cho danh sách bên dưới.</p>
         <section class="admin-table-card admin-service-panel" aria-labelledby="finance-list-title">
           <div class="admin-card-heading"><div><h2 id="finance-list-title">Danh sách hóa đơn</h2></div></div>
-          <div class="admin-toolbar"><label class="admin-search">Tìm kiếm<input id="finance-search" type="search" placeholder="Mã hóa đơn, lịch hẹn, khách hàng, dịch vụ…"></label><label>Ngày lập<input id="finance-date" type="date"></label><label>Trạng thái<select id="finance-status"><option value="">Tất cả trạng thái</option><option value="paid">Đã thanh toán</option><option value="unpaid">Chưa thanh toán</option><option value="cancelled">Đã hủy</option></select></label><button class="admin-button" id="finance-reset" type="button">Đặt lại</button></div>
+          <div class="admin-toolbar"><label class="admin-search">Tìm kiếm<input id="finance-search" type="search" placeholder="Mã hóa đơn, lịch hẹn, khách hàng, dịch vụ…"></label><label for="finance-date">Ngày lập<input id="finance-date" type="date"></label><label>Trạng thái<select id="finance-status"><option value="">Tất cả trạng thái</option><option value="paid">Đã thanh toán</option><option value="unpaid">Chưa thanh toán</option><option value="cancelled">Đã hủy</option></select></label><button class="admin-button" id="finance-reset" type="button">Đặt lại</button></div>
+          <p class="admin-service-error" id="finance-date-error" role="alert" hidden></p>
           <div class="admin-table-scroll" role="region" tabindex="0" aria-label="Bảng hóa đơn, có thể cuộn ngang"><table class="admin-data-table"><caption class="admin-sr-only">Quản lý hóa đơn trong sổ  An Nhiên Spa</caption><thead><tr><th scope="col">Hóa đơn / Lịch hẹn</th><th scope="col">Khách hàng / Dịch vụ</th><th scope="col">Trước giảm</th><th scope="col">Giảm giá</th><th scope="col">Tổng thanh toán</th><th scope="col">Ngày lập</th><th scope="col">Trạng thái</th><th scope="col">Thao tác</th></tr></thead><tbody id="finance-rows"></tbody></table></div>
           <div class="admin-empty-state" id="finance-empty" hidden><span data-admin-icon="note"></span><h3>Không tìm thấy hóa đơn</h3><p>Thử từ khóa, ngày hoặc trạng thái khác.</p></div>
           <div class="admin-pagination" id="finance-pagination" aria-live="polite"></div>
         </section>
-        <p class="admin-data-note" id="finance-data-note" role="alert"></p>
+        <div class="finance-load-error" id="finance-error" role="alert" hidden><p id="finance-data-note"></p><button type="button" class="admin-button" id="finance-retry">Thử tải lại</button></div>
         <noscript><p class="admin-data-note">Bật JavaScript để xem dữ liệu và sử dụng bộ lọc tài chính.</p></noscript>
       </main>
     </div>
