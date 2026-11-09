@@ -1,0 +1,66 @@
+/* Scoped to Promotions; shared Admin pages retain their established styles. */
+[data-admin-operations="promotions"] { min-width:0; }
+[data-admin-operations="promotions"] .admin-core-stats article { display:flex; flex-direction:row; align-items:center; justify-content:space-between; min-width:0; gap:20px; }
+[data-admin-operations="promotions"] .admin-core-stats article>div { display:grid; gap:14px; }
+[data-admin-operations="promotions"] .admin-core-stats strong { font-size:44px; }
+.promotion-stat-icon { display:grid; place-items:center; width:50px; height:50px; border:1px solid #b9905766; border-radius:14px; color:#B99057; }
+[data-admin-operations="promotions"] .admin-core-stats article:first-child .promotion-stat-icon { color:#EBC88F; background:#b9905715; }
+[data-admin-operations="promotions"] .admin-table-scroll { max-width:100%; overflow-x:auto; }
+[data-admin-operations="promotions"] .admin-data-table { width:100%; min-width:1170px; table-layout:auto; }
+[data-admin-operations="promotions"] .admin-data-table :is(th,td) { padding:22px 18px; word-break:normal; }
+[data-admin-operations="promotions"] .admin-data-table :is(th,td):first-child { min-width:125px; }
+[data-admin-operations="promotions"] .admin-data-table :is(th,td):nth-child(2) { min-width:230px; max-width:330px; }
+[data-admin-operations="promotions"] .admin-data-table :is(th,td):nth-child(4) { min-width:155px; }
+[data-admin-operations="promotions"] .admin-data-table :is(th,td):nth-child(5) { min-width:160px; }
+[data-admin-operations="promotions"] .admin-data-table :is(th,td):last-child { min-width:300px; width:300px; }
+[data-admin-operations="promotions"] .promotion-code { font-weight:700; color:#96703F; overflow-wrap:anywhere; }
+.promotion-program p { color:#897768; font-size:14px; line-height:1.7; margin:8px 0 0; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.promotion-discount { display:inline-block; padding:8px 10px; border:1px solid #596b5645; border-radius:8px; background:#596b560c; color:#4C604A; font-weight:500; white-space:nowrap; }
+.promotion-dates { white-space:nowrap; }
+.promotion-dates span { display:block; font-size:14px; color:#897768; margin-top:8px; }
+[data-admin-operations="promotions"] .admin-row-actions { display:flex; flex-wrap:nowrap; gap:8px; width:max-content; }
+[data-admin-operations="promotions"] .admin-row-actions .admin-button { display:inline-flex; align-items:center; gap:7px; flex:0 0 auto; padding:10px 12px; background:#F1E8DC; color:#3A2419; border-color:#C6A07E; white-space:nowrap; }
+[data-admin-operations="promotions"] .admin-row-actions svg { width:18px; height:18px; color:#B99057; flex-shrink:0; }
+[data-admin-operations="promotions"] .admin-row-actions .admin-button:hover { background:#E5D7C5; border-color:#B99057; }
+[data-admin-operations="promotions"] .admin-status-badge { white-space:nowrap; }
+[data-admin-operations="promotions"] .admin-pagination>div { display:flex; align-items:center; gap:12px; }
+body:has([data-admin-operations="promotions"]) #ops-dialog[open] { display:flex; flex-direction:column; width:min(960px,calc(100% - 32px)); max-height:calc(100dvh - 32px); padding:0; overflow:hidden; }
+body:has([data-admin-operations="promotions"]) #ops-dialog form { display:flex; flex-direction:column; min-height:0; margin:0; overflow:hidden; }
+body:has([data-admin-operations="promotions"]) #ops-dialog :is(.admin-service-modal-heading,.admin-dialog-actions) { flex-shrink:0; }
+body:has([data-admin-operations="promotions"]) #ops-dialog .admin-service-modal-scroll { overflow-y:auto; min-height:0; overflow-wrap:anywhere; }
+body:has([data-admin-operations="promotions"]) #ops-dialog [hidden] { display:none !important; }
+body:has([data-admin-operations="promotions"]) #ops-dialog .admin-dialog-actions { gap:12px; flex-wrap:wrap; }
+body:has([data-admin-operations="promotions"]) #ops-dialog .admin-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+body:has([data-admin-operations="promotions"]) #ops-dialog :is(button svg,dt svg) { width:18px; height:18px; flex-shrink:0; color:#B99057; }
+body:has([data-admin-operations="promotions"]) #ops-dialog :is(input,select,textarea) { min-width:0; max-width:100%; }
+.promotion-summary { display:flex; align-items:center; gap:18px; border-bottom:1px solid #E8DCCD; margin-bottom:22px; padding-bottom:26px; }
+.promotion-summary-icon { display:grid; place-items:center; width:54px; height:54px; border:1px solid #C6A07E; border-radius:13px; color:#B99057; flex-shrink:0; }
+.promotion-summary h3 { flex:1; font-size:28px; font-weight:400; margin:0; }
+body:has([data-admin-operations="promotions"]) #ops-dialog dt { display:flex; align-items:center; gap:8px; }
+body:has([data-admin-operations="promotions"]) #ops-dialog dd { margin:10px 0 0; }
+body:has([data-admin-operations="promotions"]) #ops-dialog .admin-ops-choice-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; max-height:290px; overflow-y:auto; }
+body:has([data-admin-operations="promotions"]) #ops-dialog .admin-ops-choice-grid label { display:flex; align-items:center; gap:12px; padding:16px; border:1px solid #D9C7B2; border-radius:12px; }
+body:has([data-admin-operations="promotions"]) #ops-dialog .admin-ops-choice-grid input[type="checkbox"] { width:20px; height:20px; min-height:20px; flex:0 0 20px; margin:0; }
+body:has([data-admin-operations="promotions"]) #ops-dialog .promotion-service-controls { min-width:0; margin-bottom:16px; }
+body:has([data-admin-operations="promotions"]) #ops-dialog .promotion-service-controls label { display:block; padding:0; margin:0; }
+body:has([data-admin-operations="promotions"]) #ops-dialog input[type="search"] { display:block; width:100%; min-height:48px; height:auto; margin:8px 0 12px; padding:12px 16px; border:1px solid #C6A07E; border-radius:9px; background:white; font:inherit; }
+body:has([data-admin-operations="promotions"]) #ops-dialog [aria-invalid="true"] { border-color:#9A6857; outline:1px solid #9A6857; }
+body:has([data-admin-operations="promotions"]) #ops-dialog .promotion-date-control { position:relative; display:flex; align-items:stretch; min-width:0; }
+body:has([data-admin-operations="promotions"]) #ops-dialog .promotion-date-control>input[type="text"] { width:100%; min-width:0; border-radius:9px 0 0 9px; }
+body:has([data-admin-operations="promotions"]) #ops-dialog .promotion-date-control>button { width:48px; height:auto; flex:0 0 48px; border:1px solid #C6A07E; border-left:0; border-radius:0 9px 9px 0; background:#F7F2EA; color:#3A2419; }
+body:has([data-admin-operations="promotions"]) #ops-dialog .promotion-native-date { position:absolute; left:0; bottom:0; width:1px; height:1px; min-height:0; margin:0; padding:0; opacity:0; pointer-events:none; }
+[data-admin-operations="promotions"] .admin-button:focus-visible,body:has([data-admin-operations="promotions"]) #ops-dialog :is(button,input,select,textarea):focus-visible { outline:2px solid #B99057; outline-offset:3px; }
+@media(max-width:800px) {
+ [data-admin-operations="promotions"] :is(.admin-card-heading,.admin-pagination,.admin-toolbar) { flex-wrap:wrap; gap:16px; }
+ [data-admin-operations="promotions"] .admin-toolbar>label { min-width:0; max-width:100%; }
+ [data-admin-operations="promotions"] .admin-toolbar :is(input,select) { min-width:0; max-width:100%; }
+}
+@media(max-width:600px) {
+ [data-admin-operations="promotions"] .admin-core-stats { grid-template-columns:1fr; }
+ body:has([data-admin-operations="promotions"]) #ops-dialog .admin-service-modal-heading { padding:20px; }
+ body:has([data-admin-operations="promotions"]) #ops-dialog h2 { font-size:26px; }
+ body:has([data-admin-operations="promotions"]) #ops-dialog :is(.admin-service-form-grid,.admin-ops-choice-grid,.admin-profile-facts) { grid-template-columns:minmax(0,1fr) !important; }
+ .promotion-summary { flex-wrap:wrap; gap:12px; }
+ .promotion-summary h3 { font-size:23px; min-width:130px; }
+ .promotion-summary .admin-status-badge { margin-left:66px; }
+}
