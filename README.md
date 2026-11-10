@@ -1,185 +1,212 @@
-# An Nhiên Spa — giao diện tĩnh
+# An Nhiên Spa — Website quản lý và đặt lịch Spa
 
-Giao diện tiếng Việt sử dụng HTML semantic, CSS và JavaScript thuần. Không React,
-TypeScript, Vite, Tailwind, framework frontend, API hoặc database.
+Đồ án tốt nghiệp xây dựng hệ thống giới thiệu dịch vụ, đặt lịch và quản lý hoạt động Spa. Phiên bản **Bước 3** sử dụng **Django + MySQL**, kế thừa giao diện HTML/CSS/JavaScript của **Bước 2** và phong cách Luxury A với tông kem, nâu và champagne.
 
-## Cấu trúc
+Hệ thống hiện có xác thực, phân quyền, quản lý danh mục, lịch làm việc, đặt lịch, hóa đơn, thanh toán tại Spa/payOS, đánh giá, phản hồi và báo cáo.
 
-- `index.html`: Home công khai, Header dành cho khách chưa đăng nhập.
-- `home.html`: Home User sau đăng nhập, giữ các section và bố cục đã chốt.
-- `login.html`, `register.html`: đăng nhập/đăng ký giao diện mẫu.
-- `services.html`, `service-detail.html?id=0`: danh sách và chi tiết dịch vụ.
-- `products.html`, `product-detail.html?id=0`: sản phẩm giới thiệu, không mua hàng.
-- `booking.html`, `appointments.html`, `invoice.html`, `profile.html`: giao diện khách hàng.
-- `promotions.html`, `reviews.html`, `admin-dashboard.html`: ưu đãi, đánh giá và quản trị mẫu.
-- `promotion-detail.html?code=WELCOME10`: chi tiết chương trình và dịch vụ áp dụng.
-- `css/style.css`: typography, palette, bố cục, responsive và hiệu ứng.
-- `js/app.js`: menu mobile và tương tác mẫu; `js/catalog.js`: dữ liệu giới thiệu.
-- `js/auth.js`, `css/auth.css`: trạng thái phiên và giao diện đăng nhập.
-- `js/ui.js`: icon line-art, password toggle và modal xác nhận đăng xuất dùng chung.
-- `images/`: logo và ảnh của giao diện hiện tại.
+## Công nghệ
 
-Các trang chứa header/footer HTML đầy đủ và nhất quán, không cần JavaScript để
-hiển thị giao diện Home hoặc điều hướng. Chi tiết dịch vụ/sản phẩm dùng chỉ số
-`id=0` đến `id=6` cho dịch vụ và `id=0` đến `id=13` cho sản phẩm.
-Các ID từ Home được giữ nguyên. Hai font Google Fonts của giao diện ban đầu
-(Be Vietnam Pro và Playfair Display) được phục vụ cục bộ qua `css/fonts.css`
-và `css/fonts/`, gồm mặt chữ thường/italic và các weight hiện có.
-Không cần kết nối Google Fonts khi mở trang. Giấy phép OFL đi kèm tài nguyên font.
+| Thành phần | Công nghệ hiện tại |
+| --- | --- |
+| Giao diện | Django Templates, HTML, CSS, JavaScript thuần |
+| Backend | Python, Django 5.2 |
+| Cơ sở dữ liệu | MySQL, truy cập qua Django ORM và `mysqlclient` |
+| Xác thực | Django Authentication + Session; custom User `accounts.User` |
+| Thanh toán | SDK payOS, QR nhúng trên hóa đơn, ghi nhận thanh toán tại Spa |
+| Tài nguyên | WhiteNoise cho static; ảnh upload lưu trong `media/` |
+| Email | Django email backend, cấu hình SMTP qua biến môi trường |
+| Kiểm thử | Django TestCase/TransactionTestCase, runner MySQL cô lập; một số công cụ kiểm tra SQLite/Chrome riêng |
 
-## Danh sách và chi tiết
+Không sử dụng React, Vue, TypeScript hoặc bước biên dịch frontend. Các dependency Python được khai báo trong `requirements.txt`; không cần npm để chạy website Django.
 
-`services.html`, `service-detail.html`, `products.html`, `product-detail.html`
-nạp thêm `css/catalog.css` và `js/catalog-pages.js`; Home không nạp các file này.
-Design system và các card của Home được giữ nguyên. Header chuyển trực tiếp
-đến các trang; section sản phẩm có thêm nút “Xem tất cả sản phẩm”.
+## Bước 2 và Bước 3
 
-- Dịch vụ: tìm theo tên (hỗ trợ không dấu), lọc danh mục, sắp xếp theo giá
-  hoặc thời lượng tăng dần.
-- Sản phẩm: tìm theo tên, lọc theo loại và loại da/đối tượng, chỉ giới thiệu.
-- Cả hai danh sách có nút “Xóa bộ lọc” cạnh toolbar và trong trạng thái không
-  có kết quả; reset trả về toàn bộ dữ liệu hoạt động.
-- `js/catalog.js`: 7 dịch vụ, 14 sản phẩm, hồ sơ nhân viên demo và danh sách
-  quan hệ nhiều–nhiều `relations`. Chỉ nội dung có `active: true` được hiển thị.
-- Nhân viên chỉ xuất hiện khi `serviceIds` chứa ID của dịch vụ đang xem.
-- Danh sách quan hệ dùng chung cho cả hai chiều tham khảo. Người dùng không
-  có thao tác thêm, sửa hoặc xóa quan hệ.
-- `relations` gồm các cặp `{ serviceId, productId }` duy nhất, tương ứng
-  bảng nối của quan hệ Django `Service`–`CareProduct`. `careGroup` mô tả nhóm
-  công dụng: face, hair, body hoặc relax. Serum/kem dưỡng mặt chỉ liên kết
-  chăm sóc da mặt; sản phẩm tóc chỉ liên kết liệu trình tóc/da đầu; sản phẩm
-  body và dầu massage chỉ liên kết liệu trình cơ thể hoặc massage phù hợp.
-- Hai section liên quan được render từ `relations`, không hard-code card
-  liên quan trong HTML và không cắt bớt một chiều theo giới hạn số card.
-- Nội dung mặc định của bốn trang nằm trong HTML. JavaScript cập nhật chi tiết
-  theo query `id`, lọc dữ liệu và chuyển ID dịch vụ sang giao diện đặt lịch mẫu.
-- Thông tin sản phẩm và chuyên viên là minh họa, không phải tư vấn y tế,
-  công thức sản phẩm được xác minh hoặc hồ sơ nhân viên thật.
-- Hai trang chi tiết dùng info card, khối lợi ích, timeline và card hướng dẫn.
-  Các nội dung vẫn lấy từ `catalog.js`; timeline sản phẩm tách hướng dẫn thực tế
-  theo từng sản phẩm, không áp dụng quy trình thoa da cho tinh dầu khuếch tán.
-- Typography Home public/User dùng chung hai font hiện có; các `</br>` không
-  hợp lệ đã được bỏ, Hero giữ hai dòng chủ đích và wrap tự nhiên trên mobile.
+- **Bước 2 — giao diện tham chiếu:** các file HTML tại thư mục gốc cùng `css/`, `js/`, `images/` được giữ lại để bảo toàn thiết kế ban đầu. Các tương tác mẫu và dữ liệu trình duyệt ở bản này phục vụ minh họa giao diện.
+- **Bước 3 — hệ thống hoạt động:** Django render `templates/pages/`, phục vụ tài nguyên từ `static/`, sử dụng API và dữ liệu MySQL. Đăng nhập, phân quyền và dữ liệu nghiệp vụ được kiểm tra tại backend.
+- Cả 27 trang vẫn có URL `.html`: 15 trang phía khách hàng và 12 trang Admin. Mở HTML gốc bằng máy chủ tĩnh không tương đương chạy hệ thống Django; tài khoản hoặc dữ liệu demo không thay thế tài khoản và dữ liệu trong MySQL.
 
-Ảnh bổ sung từ Unsplash: chăm sóc tóc — Lindsay Cash; chân dung minh họa —
-Štefan Štefančík và Daniil Lobachev. Hình ảnh được lưu trong `images/`.
+Các ID hiển thị trên giao diện được định dạng từ ID thật. Không dùng chỉ số của danh sách demo làm khóa dữ liệu Django.
 
-## Trạng thái khách và User
+## Chức năng đã triển khai
 
-- `index.html` sử dụng chính nội dung Home hiện có; không thêm lại các section
-  đã được loại bỏ trước đó. Header public chỉ có logo, Dịch vụ, Khuyến mãi,
-  Đặt lịch và Đăng nhập. Các CTA cần tài khoản dẫn đến `login.html`.
-- `home.html` giữ nguyên nội dung Home User. Sau đăng nhập, Header đầy đủ và
-  logo dẫn về Home User; các trang dùng chung đổi Header theo phiên.
-- Khách được xem dịch vụ, chi tiết dịch vụ và khuyến mãi. Home User, sản phẩm/
-  chi tiết sản phẩm, đặt lịch, lịch hẹn, hóa đơn, tài khoản, đánh giá và quản trị
-  mẫu cần phiên giao diện. Truy cập trực tiếp khi chưa đăng nhập chuyển đến login.
-- Đăng nhập chỉ chấp nhận hai tài khoản demo bên dưới bằng email hoặc username.
-  Sai định danh/mật khẩu hiển thị “Thông tin đăng nhập không chính xác.”
-  Không gửi request đăng nhập, không lưu mật khẩu vào sessionStorage/localStorage.
-- Phiên `spa-auth` lưu trạng thái, username, email và vai trò; phiên mẫu cũ
-  không có vai trò hợp lệ phải đăng nhập lại. User vào dashboard Admin được
-  chuyển về `home.html`; Admin được vào dashboard.
-- Đăng ký chỉ minh họa validation và chuyển sang login; không tạo tài khoản thật.
-- Đăng xuất chỉ xóa các key `spa-auth`, `spa-profile`, `spa-appointments`,
-  `spa-reviews` trong tab hiện tại sau khi xác nhận “Có, đăng xuất”, rồi trở về
-  Home public. “Không”, Escape hoặc bấm ngoài modal không thay đổi phiên.
-- Mọi password field hiện có trong login/register có nút mắt bằng JavaScript,
-  hỗ trợ bàn phím, aria-label, giữ focus/caret và không thay đổi chiều cao input.
-- Form đăng nhập/đăng ký vô hiệu hóa khi JavaScript chưa chạy để tránh gửi
-  thông tin qua cơ chế submit mặc định của HTML.
+### Khách hàng
 
-## Khuyến mãi — dữ liệu demo
+- Xem danh mục, chi tiết dịch vụ, chuyên viên, sản phẩm giới thiệu và chương trình khuyến mãi từ dữ liệu hệ thống. Sản phẩm không có giỏ hàng, bán hàng hoặc quản lý tồn kho.
+- Đăng ký, đăng nhập bằng tên đăng nhập/email, đăng xuất và quên mật khẩu bằng liên kết có thời hạn gửi qua email.
+- Xem và cập nhật hồ sơ cá nhân.
+- Chọn dịch vụ, chuyên viên, ngày và giờ trống để đặt lịch; backend xét chuyên môn, ca làm, khoảng nghỉ và xung đột lịch.
+- Xem lịch hẹn của mình; xem danh sách, tìm/lọc và mở chi tiết hóa đơn thuộc tài khoản.
+- Áp dụng hoặc bỏ khuyến mãi theo điều kiện backend, bao gồm giới hạn theo khách hàng và cơ chế giữ lượt trên hóa đơn chưa thanh toán.
+- Chọn thanh toán tại Spa hoặc thanh toán online bằng payOS khi hóa đơn đủ điều kiện. QR có thời hạn, trạng thái phiên được duy trì khi tải lại trang.
+- Đánh giá lịch hẹn đã hoàn thành: 1–5 sao, nhận xét tùy chọn; gửi phản hồi phẳng cùng Admin theo quyền hiện có.
 
-- Hai Home giữ nguyên ba card ưu đãi và thêm nút “Xem tất cả khuyến mãi”.
-- Danh sách/chi tiết công khai; đặt lịch vẫn qua kiểm tra phiên mẫu.
-- `js/promotions-data.js` là nguồn dùng chung: mã, mô tả, điều kiện, khoảng
-  hiệu lực, trạng thái hoạt động và `serviceIds`.
-- Ngày tham chiếu demo cố định **11.10.2026** chỉ dùng trong JavaScript,
-  không hiển thị thông tin kỹ thuật này trên giao diện công khai.
-  “Sắp hết hạn” là chương trình còn tối đa 7 ngày, tính theo ngày UTC.
-- Danh sách mặc định gồm 6 chương trình hoạt động/còn hiệu lực. Hết hạn,
-  chưa bắt đầu, tạm ngưng hoặc khoảng ngày không hợp lệ đều bị loại.
-- Filter “Tất cả” gồm hai trạng thái còn hiệu lực; filter từng trạng thái
-  chọn “Đang hiệu lực” hoặc “Sắp hết hạn”. Reset trả về danh sách hợp lệ.
-- Card danh sách chỉ có mô tả ngắn tối đa hai dòng, trạng thái nhẹ cạnh thời gian
-  và liên kết chi tiết; toàn bộ điều kiện/mức giảm tối đa/ghi chú nằm ở trang chi tiết.
-- Mã `ANNHIEN20` trên Home được giữ nguyên; `ANHIEN20` là bí danh cho tìm
-  kiếm/chi tiết. Các URL cũ `promotions.html#CODE` chuyển đến chi tiết tương ứng.
-- Giá dịch vụ áp dụng luôn là giá gốc; frontend không tính giá sau giảm hay
-  tự áp dụng ưu đãi. Điều kiện thật được kiểm tra tại spa/Django ở bước sau.
-- `ANNHIEN20` có mốc 600.000 đ nhưng catalog hiện tại không có dịch vụ đạt
-  mốc này. UI hiển thị “Hiện chưa có dịch vụ phù hợp với điều kiện của chương trình.”
-  và ẩn CTA đặt lịch khi không có dịch vụ hoạt động phù hợp; không gắn sai dịch vụ.
-- Khi tích hợp Django, thay cả fixtures lẫn ngày tham chiếu bằng dữ liệu và
-  thời gian phía server; ánh xạ phạm vi dịch vụ và kiểm tra điều kiện ở backend.
+### Quản trị
 
-**Giới hạn bảo mật:** đây chỉ là trạng thái UI trong `sessionStorage`.
-Người dùng vẫn có thể đọc file HTML hoặc tự thay đổi dữ liệu phiên; không dùng
-guard này để bảo vệ thông tin thật. Django phải kiểm tra xác thực và quyền trên
-mọi request, bao gồm quyền quản trị; không dựa vào trạng thái JavaScript.
+| Trang | Phạm vi đã kết nối Django/MySQL |
+| --- | --- |
+| Dashboard | KPI theo phạm vi thống kê, biểu đồ doanh thu, trạng thái lịch hẹn, dịch vụ được đặt nhiều và lịch hẹn gần đây |
+| Tài khoản | Xem, tìm kiếm, lọc, phân trang, khóa/mở khóa; bảo vệ tài khoản quản trị và tài khoản đang đăng nhập |
+| Khách hàng | Danh sách và hồ sơ chỉ đọc từ User Profile; loại trừ tài khoản quản trị khỏi danh sách khách hàng |
+| Dịch vụ | Quản lý danh mục và dịch vụ, giá, thời lượng, ảnh và trạng thái hiển thị |
+| Sản phẩm | Quản lý thông tin, ảnh, nhóm chăm sóc, trạng thái và liên kết nhiều dịch vụ |
+| Nhân viên | Hồ sơ, ảnh, nhiều dịch vụ phụ trách, lịch tuần, đổi ca, khoảng nghỉ và nghỉ phép |
+| Lịch hẹn | Xác nhận, hoàn thành, hủy có lý do, ghi nhận khách không đến đúng điều kiện; phân công lại ngoại lệ với sự đồng ý của khách và lịch sử truy vết FR-14 |
+| Khuyến mãi | Quản lý chương trình, phạm vi nhiều dịch vụ, thời hạn, điều kiện và trạng thái |
+| Hóa đơn | Chi tiết giá lịch sử, khuyến mãi, tổng tiền, giao dịch và ghi nhận tiền thực thu tại Spa |
+| Thanh toán | Tra cứu giao dịch, lọc ngày tạo/ngày thanh toán, xem chi tiết và trạng thái cần đối soát |
+| Đánh giá | Giao diện Luxury A, KPI từ số sao thật, tìm/lọc, chi tiết đánh giá và phản hồi User/Admin FR-18/FR-19 |
+| Báo cáo | Giao diện Luxury A, lọc kỳ/trạng thái lịch, doanh thu theo ngày, cơ cấu lịch hẹn, dịch vụ, phân bố sao và bảng tổng hợp |
 
-### Tài khoản demo — Bước 2
+Các trang Admin được bảo vệ bằng xác thực và quyền phía Django; không dựa vào guard JavaScript.
 
-| Vai trò | Email | Username | Mật khẩu mẫu | Sau đăng nhập |
-| --- | --- | --- | --- | --- |
-| User | user@annhienspa.vn | user | User@123 | home.html |
-| Admin | admin@annhienspa.vn | admin | Admin@123 | admin-dashboard.html |
+### Hóa đơn, thanh toán và thống kê
 
-Đây là thông tin hư cấu công khai để kiểm thử, được hard-code trong `js/auth.js`.
-Không dùng tài khoản/mật khẩu thật. Đăng ký mẫu không thêm tài khoản vào danh sách này.
-Ở Bước 3 phải bỏ toàn bộ bảng tài khoản và kiểm tra phiên/vai trò phía frontend,
-thay bằng Django Authentication + Session và kiểm tra quyền tại backend.
+- Xác nhận lịch hẹn tạo hóa đơn theo nghiệp vụ, chống tạo trùng. Giá và tên dịch vụ được lưu snapshot cho hóa đơn lịch sử.
+- **Khách chọn thanh toán tại Spa không đồng nghĩa Admin đã nhận tiền.** Admin phải ghi nhận số tiền thực thu qua thao tác riêng và các kiểm tra backend.
+- Tạo QR không đánh dấu hóa đơn đã thanh toán. Backend xử lý xác minh chữ ký webhook, số tiền, tham chiếu giao dịch, thông báo lặp/muộn và các trường hợp cần đối soát.
+- Trạng thái lịch hẹn tách biệt trạng thái thanh toán; thanh toán thành công không tự hoàn thành lịch hẹn.
+- Báo cáo cộng các khoản thanh toán thành công hợp lệ trên hóa đơn đã thanh toán, loại khoản cần đối soát; ngày thanh toán tính theo giờ Việt Nam. Lịch hẹn tính theo ngày hẹn; đánh giá tính theo ngày gửi. Bộ lọc trạng thái lịch không tự lọc lại doanh thu.
 
-## Xem giao diện
+## Cấu trúc repository
 
-Mở trực tiếp `index.html` hoặc bất kỳ trang `.html` nào bằng trình duyệt.
-Các trang có HTML đầy đủ, CSS/JavaScript qua đường dẫn tương đối, không cần
-Node.js, npm, pnpm, cài package hoặc biên dịch. Liên kết hoạt động cả khi
-mở file trực tiếp và khi phục vụ bằng máy chủ tĩnh.
-
-Nếu cần máy chủ tĩnh ngoài Figma Make, có thể dùng Python:
-
-```sh
-python3 -m http.server 8443
+```text
+config/             Cấu hình Django, URL gốc, WSGI/ASGI và media local
+accounts/           Custom User, hồ sơ, xác thực, quyền và đặt lại mật khẩu
+services/           Danh mục và dịch vụ
+products/           Sản phẩm giới thiệu và quan hệ sản phẩm–dịch vụ
+employees/          Nhân viên, phân công dịch vụ và lịch làm việc
+appointments/       Đặt lịch, chuyển trạng thái và lịch sử phân công lại
+promotions/         Chương trình, điều kiện và giới hạn sử dụng
+billing/            Hóa đơn, thanh toán, QR và adapter payOS
+reviews/            Đánh giá và phản hồi
+dashboard/          API tổng hợp Dashboard và Reports
+ai_features/        Model chuẩn bị cho chức năng AI
+core/               Routing trang, dữ liệu catalog, form và API quản trị dùng chung
+templates/          Django Templates; 27 trang chính trong pages/
+static/             CSS, JavaScript, font và ảnh dùng bởi Django
+staticfiles/        Đầu ra collectstatic, không phải nơi chỉnh sửa nguồn
+media/              Ảnh upload, không lưu vào Git
+tools/              Công cụ kiểm tra, thiết lập và runner kiểm thử
+docs/               Tài liệu tiến độ và bằng chứng kiểm thử theo giai đoạn
+*.html, css/, js/    Giao diện gốc Bước 2 được bảo toàn
+manage.py           Điểm chạy lệnh Django
+requirements.txt    Dependency Python đang sử dụng
+.env.example        Tên biến môi trường và giá trị mẫu an toàn
 ```
 
-Trong Figma Make, máy chủ tĩnh được môi trường tự quản lý; không chạy thêm.
-Tải lại preview để xem thay đổi (không có HMR).
+Một số tài liệu giai đoạn trước mô tả trạng thái tại thời điểm đó; không dùng mô tả demo trong tài liệu cũ để suy ra rằng các API hiện tại chưa được triển khai.
 
-## Công cụ môi trường
+## Chạy dự án Django trên máy local
 
-Không có `package.json`, lockfile, `node_modules/`, cấu hình framework,
-toolchain Node hoặc thư mục React `src/`.
+Các lệnh dưới đây dùng PowerShell tại thư mục chứa `manage.py`. Chuẩn bị Python (môi trường phát triển hiện dùng Python 3.12), MySQL và công cụ cần thiết để cài `mysqlclient` nếu máy chưa có wheel phù hợp.
 
-Các script trong `.figma/make/` chỉ phục vụ môi trường Figma Make:
+### 1. Môi trường Python
 
-- `install`: không cài dependency; chỉ kiểm tra Python phục vụ preview.
-- `dev`: máy chủ tĩnh Python trên `$PORT`.
-- `build`: sao chép các trang HTML và `css/`, `js/`, `images/` vào `dist/`,
-  không biên dịch hay thay đổi nội dung.
-- `deploy`, `deploy-preview`: đóng gói bằng script trên rồi chuyển gói tĩnh
-  cho Figma Make. Không dùng npm hay framework.
+Nếu chưa có virtual environment:
 
-`dist/` là bản đóng gói được sinh tự động, không phải nguồn chỉnh sửa.
-Không cần `.figma/` hay `dist/` khi đưa giao diện vào Django.
+```powershell
+python -m venv .venv
+```
 
-## Giới hạn tương tác mẫu
+Cài dependency trong virtual environment:
 
-Đặt lịch, hủy lịch, lưu tên và đánh giá chỉ dùng `sessionStorage` trong tab hiện
-tại. Không gửi đến spa; thông tin họ tên/số điện thoại trong form đặt lịch không
-được lưu. Trang hóa đơn không tạo hóa đơn thật; trang quản trị chỉ có kiểm tra
-vai trò mock phía frontend, không phải phân quyền bảo mật thật.
-Không dùng các trang mẫu này làm cơ chế bảo mật.
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
 
-## Tích hợp Django sau này
+### 2. Cấu hình riêng tại máy
 
-1. Tách header, navigation và footer thành `base.html` cùng các template include.
-2. Đưa `css/`, `js/`, `images/` vào static và dùng `{% static %}`.
-3. Thay liên kết `.html` bằng `{% url %}`.
-4. Render catalog và chi tiết bằng Django context; bỏ dữ liệu JS mẫu tương ứng.
-5. Thay form mẫu bằng Django forms, CSRF và xử lý backend ở giai đoạn sau.
-6. Thay `spa-auth` và guard frontend bằng Django Authentication + Session,
-   kiểm tra quyền ở views; tách Header guest/User bằng context.
+Nếu chưa có `.env`, sao chép file mẫu bằng lệnh không ghi đè file hiện có:
 
-Không thay đổi palette, font, lớp CSS hoặc cấu trúc Home khi tách template.
+```powershell
+if (-not (Test-Path -LiteralPath .env)) { Copy-Item -LiteralPath .env.example -Destination .env }
+```
+
+Điền cấu hình trực tiếp vào `.env` tại máy; không gửi giá trị bí mật qua chat hoặc đưa vào Git.
+
+| Nhóm | Biến được source sử dụng |
+| --- | --- |
+| Django | `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS` |
+| MySQL | `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_HOST`, `MYSQL_PORT` |
+| Media local | `DJANGO_LOCAL_MEDIA_ENABLED` |
+| Email | `EMAIL_BACKEND`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `EMAIL_USE_SSL`, `DEFAULT_FROM_EMAIL`, `PASSWORD_RESET_TIMEOUT` |
+| payOS | `PAYOS_CLIENT_ID`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`, `PAYOS_RETURN_URL`, `PAYOS_CANCEL_URL` |
+
+Cấu hình mẫu dùng database `annhien_spa` tại `127.0.0.1:3306`. Dùng tài khoản MySQL riêng có quyền phù hợp, không dùng root làm tài khoản chạy website. Với bản cài đã có dữ liệu, giữ nguyên cấu hình kết nối và SECRET_KEY hiện có; không chạy lại công cụ thiết lập để tạo lại database.
+
+Với bản cài mới, đặt SECRET_KEY ngẫu nhiên và giữ riêng tại máy. `DJANGO_DEBUG=true` trong file mẫu chỉ dành cho phát triển. Khi `DEBUG=False`, source yêu cầu SECRET_KEY và bật cookie Secure; môi trường triển khai cần HTTPS phù hợp. Không nới cấu hình bảo mật chỉ để xử lý lỗi đăng nhập.
+
+SMTP phải được cấu hình để luồng quên mật khẩu gửi email thực tế. Không bật đồng thời `EMAIL_USE_TLS` và `EMAIL_USE_SSL`. Ba khóa payOS phải thuộc cùng kênh; cấu hình khóa không tự tạo giao dịch. Webhook hiện có tại `/api/billing/webhook/payos/`; dùng URL HTTPS được cấu hình riêng khi triển khai, không tự mở tunnel chỉ để chạy website.
+
+### 3. Kiểm tra database và migrations
+
+```powershell
+.\.venv\Scripts\python.exe tools\check_mysql.py
+.\.venv\Scripts\python.exe manage.py check
+.\.venv\Scripts\python.exe manage.py showmigrations
+.\.venv\Scripts\python.exe manage.py migrate --plan
+```
+
+Các lệnh trên kiểm tra kết nối/cấu hình và trạng thái migration, không áp dụng migration. Nếu database đã có dữ liệu, sao lưu và rà soát kế hoạch trước khi thay đổi schema.
+
+**Chỉ với database mới hoặc sau khi đã phê duyệt kế hoạch migration:**
+
+```powershell
+.\.venv\Scripts\python.exe manage.py migrate
+```
+
+Nếu chưa có Admin, tạo bằng lệnh dưới đây và nhập thông tin trực tiếp tại terminal:
+
+```powershell
+.\.venv\Scripts\python.exe manage.py createsuperuser
+```
+
+Manager của `accounts.User` gán role Admin cho superuser. Không có tài khoản/mật khẩu Admin mặc định và không cần tạo lại tài khoản đang có.
+
+### 4. Static, media và khởi động
+
+Khi đặt `DJANGO_DEBUG=false` trong `.env` (`DEBUG=False`), chạy `collectstatic` để sao chép tài nguyên từ `static/` sang `staticfiles/`, nơi WhiteNoise phục vụ tài nguyên. Chạy lại lệnh này sau khi cập nhật CSS/JS và khởi động lại Django để nạp bản mới:
+
+```powershell
+.\.venv\Scripts\python.exe manage.py collectstatic --noinput
+.\.venv\Scripts\python.exe manage.py runserver 127.0.0.1:8000
+```
+
+Truy cập [Home](http://127.0.0.1:8000/), [Đăng nhập](http://127.0.0.1:8000/login.html), hoặc [Admin Dashboard](http://127.0.0.1:8000/admin-dashboard.html) sau khi đăng nhập đúng quyền. Website Django cần MySQL hoạt động; mở HTML gốc không kiểm chứng được backend.
+
+WhiteNoise phục vụ `/static/`, không phục vụ ảnh upload. Khi cần xem ảnh upload trên máy local với `DEBUG=False`, có thể chủ động đặt `DJANGO_LOCAL_MEDIA_ENABLED=true` trong `.env` rồi khởi động lại Django. Route này chỉ cho kết nối loopback trực tiếp, chặn proxy/tunnel và chỉ phục vụ ảnh hợp lệ trong `services/`, `products/`, `employees/` dưới `MEDIA_ROOT`; không bao phủ mọi thư mục upload. Giữ biến này `false` khi triển khai, phục vụ media qua giải pháp riêng phù hợp.
+
+## Kiểm thử và xác minh
+
+Runner hồi quy hiện khai báo **205 tests**: `accounts` 17, `core` 101, `billing` 70, `appointments.test_fr14` 17. Kết quả hồi quy MySQL gần nhất được nghiệm thu là **205/205 PASS**; đây là mốc đã chạy, không có nghĩa mọi thay đổi sau đó tự động được kiểm thử lại hoặc mọi trường hợp đều được bao phủ.
+
+Discovery không kết nối database:
+
+```powershell
+.\.venv\Scripts\python.exe -B tools\fr14_tests.py discover
+```
+
+Xác minh môi trường MySQL kiểm thử riêng, nhập mật khẩu ẩn tại terminal:
+
+```powershell
+.\.venv\Scripts\python.exe -B tools\fr14_tests.py verify
+```
+
+Runner cố định database `annhien_spa_fr14_tests` và tài khoản `annhien_fr14_tests`, kiểm tra danh tính/quyền trước khi chạy, chặn kết nối ngoài phạm vi và chặn các lệnh gọi payOS bên ngoài chưa được mock. Database và tài khoản kiểm thử phải được chuẩn bị riêng; `verify` không chạy tests hoặc dọn dữ liệu.
+
+**Chỉ khi đã xác minh database kiểm thử có thể bỏ dữ liệu và đồng ý làm sạch**, chạy:
+
+```powershell
+.\.venv\Scripts\python.exe -B tools\fr14_tests.py run
+```
+
+`run` và `regression` cùng chạy bộ kiểm thử hồi quy đầy đủ; hướng dẫn này dùng `run`, phù hợp với lần kiểm thử 205/205 PASS đã được nghiệm thu. Lệnh này yêu cầu xác nhận `CLEAN` theo đúng lời nhắc và sẽ chạy migration/flush trong database kiểm thử. Không dùng database nghiệp vụ, bản phục hồi cần bảo vệ hoặc chạy `manage.py test` tùy tiện với cấu hình mặc định.
+
+Reviews và Reports có công cụ kiểm tra riêng như `tools/check_reviews_contract.py`, `tools/check_reports_contract.py` và các công cụ UI trực tiếp liên quan. Kết quả của các kiểm tra cô lập này tách biệt với bộ hồi quy 205 tests; công cụ chụp UI phụ thuộc Chrome và đường dẫn môi trường local, cần đọc trước khi dùng trên máy khác.
+
+## Bảo quản dữ liệu và tài nguyên
+
+- Giữ `.env`, thông tin MySQL/SMTP/payOS, bản dump, backup và media cá nhân ngoài kho Git công khai. Không dùng dữ liệu khách hàng hoặc giao dịch thật làm fixture công khai.
+- Sao lưu đồng thời source, migrations, media và database trước khi nâng cấp schema; không reset database hoặc sửa migration cũ để đồng bộ giao diện.
+- `docs/` và `tools/` có thể chứa tài liệu/công cụ phục vụ từng thời điểm. Kiểm tra và ẩn danh bằng chứng trước khi công khai; không mặc định toàn bộ file local đều an toàn để commit.
+- Font Be Vietnam Pro và Playfair Display được phục vụ cục bộ, kèm giấy phép OFL trong tài nguyên font. Giao diện gốc có ảnh bổ sung từ Unsplash của Lindsay Cash, Štefan Štefančík và Daniil Lobachev; giữ thông tin nguồn và giấy phép khi sử dụng lại.
