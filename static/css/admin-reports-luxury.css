@@ -1,0 +1,58 @@
+/* Scoped Luxury A surfaces: no changes to Dashboard or other Admin pages. */
+[data-live-reports] .admin-report-filters { display:grid; grid-template-columns:minmax(160px,1fr) minmax(160px,1fr) minmax(180px,1fr) auto auto; align-items:end; gap:14px; max-width:none; }
+[data-live-reports] .admin-report-filters > label { display:grid; gap:9px; min-width:0; }
+[data-live-reports] .admin-report-filters :is(input,select,button) { min-width:0; height:48px; }
+[data-live-reports] .admin-report-filters > button { margin:0; white-space:normal; }
+[data-live-reports] .report-date-control { position:relative; display:block; min-width:0; }
+[data-live-reports] .report-date-control input[type=text] { width:100%; padding-right:44px; }
+[data-live-reports] .report-date-control > span { position:absolute; right:12px; top:13px; color:var(--admin-gold); pointer-events:none; }
+[data-live-reports] .report-date-control input[type=date] { opacity:0; position:absolute; right:0; top:0; width:44px; cursor:pointer; }
+[data-live-reports] .report-date-control:focus-within { outline:2px solid var(--admin-gold); outline-offset:3px; border-radius:10px; }
+[data-live-reports] .admin-finance-stat p { display:block; }
+[data-live-reports] .admin-report-period { color:var(--admin-ink); font-size:15px; }
+[data-live-reports] .admin-quality-source { border-left-width:2px; background:transparent; margin-bottom:22px; }
+[data-live-reports] .report-load-status,[data-live-reports] .report-api-error { padding:18px 22px; border:1px solid var(--admin-control-border); border-radius:12px; margin:20px 0; background:var(--admin-surface); }
+[data-live-reports] .report-api-error { border-color:var(--admin-terracotta); }
+[data-live-reports] .report-api-error p { margin:0 0 12px; }
+[data-live-reports] .admin-report-empty { padding:22px; margin:0 0 22px; border:1px solid var(--admin-line); border-radius:12px; background:var(--admin-surface-muted); }
+[data-live-reports] .admin-report-empty > span .line-icon { width:28px; height:28px; color:var(--admin-gold); }
+[data-live-reports] .admin-report-empty h3 { font-size:22px; margin:8px 0; }
+[data-live-reports] .report-chart-empty { min-height:128px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:20px 12px; color:var(--admin-muted); }
+[data-live-reports] .report-chart-empty .line-icon { width:30px; height:30px; color:var(--admin-gold); }
+[data-live-reports] .report-chart-empty p { margin:0; text-align:center; font-size:13px; }
+[data-live-reports] #report-revenue { max-height:400px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--admin-gold) var(--admin-canvas); }
+/* Empty-state icons must not inherit the shared chart SVG minimum width. */
+[data-live-reports] #report-content #report-revenue .report-chart-empty { min-height:128px; flex-direction:column; width:100%; box-sizing:border-box; }
+[data-live-reports] #report-content #report-revenue .report-chart-empty .line-icon { width:30px; min-width:0; max-width:100%; height:30px; flex-shrink:0; }
+[data-live-reports] #report-content #report-revenue .report-chart-empty p { max-width:100%; overflow-wrap:anywhere; }
+[data-live-reports] .admin-analytics-chart { min-width:0; }
+[data-live-reports] .admin-analytics-bar > div:first-child > span { min-width:0; overflow-wrap:anywhere; }
+[data-live-reports] .admin-analytics-bar > div:first-child strong { flex-shrink:0; font-variant-numeric:tabular-nums; }
+[data-live-reports] #report-status .is-completed .admin-analytics-track > span { background:var(--admin-espresso); }
+[data-live-reports] .admin-service-panel { min-width:0; }
+[data-live-reports] .admin-data-table { min-width:1080px; }
+[data-live-reports] .admin-data-table :is(th,td) { text-align:right; }
+[data-live-reports] .admin-data-table :is(th,td):first-child { min-width:235px; text-align:left; font-weight:500; }
+[data-live-reports] .admin-data-table :is(th,td):nth-child(5) { min-width:180px; }
+[data-live-reports] .admin-data-table tfoot :is(th,td) { font-weight:600; background:var(--admin-canvas); }
+[data-live-reports] .admin-data-table .report-table-empty { text-align:center; padding:26px; color:var(--admin-muted); }
+[data-live-reports] #report-insights > article { padding:16px; border:1px solid var(--admin-line); border-radius:12px; background:var(--admin-surface); }
+[data-live-reports] #report-insights > article > .line-icon { width:36px; height:36px; padding:7px; border:1px solid var(--admin-control-border); border-radius:10px; color:var(--admin-gold); }
+[data-live-reports] #report-insights > article > div { min-width:0; }
+[data-live-reports] #report-insights strong { font-weight:600; font-size:15px; overflow-wrap:anywhere; }
+[data-live-reports] #report-insights p { margin:8px 0 0; font-size:13px; }
+[data-live-reports] .report-insights-empty { grid-column:1/-1; color:var(--admin-muted); }
+@media(max-width:1250px) {
+  [data-live-reports] .admin-report-filters { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  [data-live-reports] .admin-report-filters label:last-of-type { grid-column:1/-1; }
+}
+@media(max-width:600px) {
+  [data-live-reports] .admin-report-filters { grid-template-columns:minmax(0,1fr); }
+  [data-live-reports] .admin-report-filters label:last-of-type { grid-column:auto; }
+  [data-live-reports] .admin-report-filters > button { width:100%; }
+  [data-live-reports] .admin-report-period { font-size:13px; }
+}
+
+[data-live-reports] #report-content.is-empty .report-chart-empty { min-height:78px; padding:12px; flex-direction:row; }
+[data-live-reports] #report-content.is-empty .report-chart-empty .line-icon { width:24px; height:24px; flex-shrink:0; }
+[data-live-reports] #report-rows .report-table-empty { position:static; text-align:center; }
