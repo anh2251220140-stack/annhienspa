@@ -10,6 +10,7 @@
     </title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}?v=booking-date-1">
     <script src="{% static 'js/ui.js' %}"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
@@ -18,7 +19,7 @@
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
-<script src="{% static 'js/live-booking.js' %}?v=phase4-20261023" defer></script>
+<script src="{% static 'js/live-booking.js' %}?v=booking-date-1" defer></script>
 </head>
   <body>
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
@@ -86,17 +87,25 @@
         </label>
         <label>
           <span><span data-booking-step>01 /</span> Chọn dịch vụ</span>
-          <select name="service" required><option value="">Chọn dịch vụ</option></select>
+          <select name="service" required><option value="">Chọn liệu trình của bạn</option></select>
         </label>
         <label>
           <span><span data-booking-step>02 /</span> Chọn chuyên viên</span>
           <select name="employee" required disabled><option value="">Chọn dịch vụ trước</option></select>
         </label>
         <div class="form-grid">
-          <label>
-            <span><span data-booking-step>03 /</span> Ngày hẹn</span>
-            <input type="date" name="date" required>
-          </label>
+          <div class="booking-day-field">
+            <label for="booking-date">
+              <span><span data-booking-step>03 /</span> Ngày hẹn</span>
+            </label>
+            <div class="booking-day-control">
+              <input type="date" id="booking-date" name="date" required>
+              <input type="text" id="booking-date-display" placeholder="dd/mm/yyyy" autocomplete="off" maxlength="10" aria-describedby="booking-slot-status" hidden>
+              <button type="button" class="booking-day-picker" aria-label="Mở lịch chọn ngày" hidden>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 11h18"/></svg>
+              </button>
+            </div>
+          </div>
           <label>
             <span><span data-booking-step>04 /</span> Khung giờ còn trống</span>
             <select name="time" required disabled>
@@ -104,7 +113,7 @@
             </select>
           </label>
         </div>
-        <p class="form-note" data-slot-status role="status" aria-live="polite">Chọn dịch vụ, chuyên viên và ngày để xem khung giờ phù hợp.</p>
+        <p id="booking-slot-status" class="form-note" data-slot-status role="status" aria-live="polite">Chọn dịch vụ, chuyên viên và ngày để xem khung giờ phù hợp.</p>
         <label><span><span data-booking-step>05 /</span> Ghi chú (không bắt buộc)</span><textarea name="note" rows="3" maxlength="500" placeholder="Điều bạn muốn chuyên viên lưu ý…"></textarea></label>
         <p class="form-note">Khung giờ được tính theo lịch làm việc và thời lượng dịch vụ. Họ tên, điện thoại lấy từ hồ sơ của bạn.</p>
         <button class="button filled" type="submit" disabled>

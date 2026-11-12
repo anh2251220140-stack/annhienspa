@@ -53,7 +53,9 @@
   font-size: 10px;
 }
 .auth-form .auth-status[hidden] { display: block !important; visibility: hidden; }
-.auth-register .auth-form fieldset { gap: 16px; }
+.auth-register .auth-form fieldset { gap: 22px; }
+.auth-register .auth-form .field-error { min-height: 0; overflow-wrap: anywhere; }
+.auth-register .auth-form .field-error:empty { display: none; }
 .auth-status { border: 1px solid #c6a07e60; border-radius: 8px; padding: 12px; margin-top: 20px; font-size: 11px; }
 @media (max-width: 900px) {
   .auth-panel { padding: 35px 28px; }
@@ -70,6 +72,8 @@
   .auth-image p { margin-top: 13px; font-size: 10px; }
   .auth-panel { padding: 30px 25px; }
   .auth-register .auth-panel { padding: 30px 25px; }
+  .auth-register .auth-form fieldset { gap: 18px; }
+  .auth-register .auth-form button[type="submit"] { margin-top: 8px; }
   .auth-panel h1 { font-size: 33px; }
 }
 
@@ -118,7 +122,6 @@
 .account-identity > div { min-width: 0; }
 .account-identity strong { display: block; overflow-wrap: anywhere; font-size: 12px; font-weight: 500; }
 .account-identity .account-avatar { width: 42px; height: 42px; color: #876044; }
-.membership-badge { display: inline-block; margin-top: 7px; padding: 4px 10px; border: 1px solid #c6a07e55; border-radius: 30px; font-size: 10px; line-height: 1.6; color: inherit; }
 .account-dropdown > a { display: block; padding: 10px 8px; border-radius: 8px; font-size: 12px; }
 .account-dropdown > a:hover { color: #3a2419; background: #c6a07e18; }
 .profile-page .page-panel { max-width: 1000px; margin-inline: auto; }
@@ -136,7 +139,6 @@
 .profile-portrait .text-link { justify-content: center; font-size: 11px; cursor: pointer; color: #876044; }
 .profile-identity { flex: 1; min-width: 0; max-width: 380px; overflow-wrap: anywhere; }
 .profile-page .profile-identity h2 { font-size: 34px; margin: 0 0 10px; }
-.profile-page .profile-identity .membership-badge { margin: 0 0 12px; color: #876044; background: #c6a07e0d; }
 .profile-page .profile-identity p { margin: 4px 0; font-size: 12px; color: #7b6251; }
 .profile-page .profile-summary > .button { flex-shrink: 0; margin-top: 0; border-color: #c6a07e90; color: #3a2419; }
 .profile-page .profile-summary > .button:hover { border-color: var(--accent); background: #c6a07e20; }
@@ -148,20 +150,6 @@
 .profile-page .form-grid { gap: 16px 20px; }
 .profile-page .profile-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .profile-page .auth-form .button { width: auto; }
-.profile-page .form-note { margin-top: 20px; color: #bda38f; }
-.membership-overview { max-width: 880px; padding: 24px 20px; background: #c6a07e08; border-radius: 16px; }
-.membership-overview p { font-size: 12px; }
-.membership-overview strong { font-weight: 400; color: var(--cream); }
-.membership-overview progress { display: block; width: 100%; height: 5px; margin-block: 20px; border: 0; border-radius: 10px; overflow: hidden; background: #c6a07e25; accent-color: var(--accent); }
-.membership-overview progress::-webkit-progress-bar { background: #c6a07e25; }
-.membership-overview progress::-webkit-progress-value { background: var(--accent); }
-.membership-tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; margin-top: 28px; }
-.membership-tiers article { padding-left: 18px; border-left: 1px solid #c6a07e55; }
-.membership-tiers article:first-child { border-color: #d8c8bc80; }
-.membership-tiers article:last-child { border-color: #fff8f180; }
-.profile-page .membership-tiers h3 { font-size: 25px; margin-block: 12px; }
-.profile-page .membership-tiers p { font-size: 11px; }
-.profile-page [data-password-open] { margin-top: 20px; }
 .profile-page #profile-password { max-width: 480px; }
 .profile-page [data-password-status] { margin-top: 16px; color: var(--accent); }
 /* Personal-care editing shares the existing Profile form and session save. */
@@ -244,7 +232,7 @@
   .profile-portrait .account-avatar { width: 80px; height: 80px; font-size: 26px; }
   .profile-page .profile-identity h2 { font-size: 28px; }
   .profile-page .profile-summary > .button { width: 100%; }
-  .profile-facts, .profile-page .form-grid, .membership-tiers { grid-template-columns: 1fr; }
+  .profile-facts, .profile-page .form-grid { grid-template-columns: 1fr; }
   .profile-page .profile-actions .button { flex: 1; }
 }
 @media (max-width: 600px) {

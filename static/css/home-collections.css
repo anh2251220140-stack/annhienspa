@@ -11,6 +11,9 @@ html[data-page="home.html"] .home-collection-grid > .journey-empty {
 html[data-page="home.html"] .home-collection-grid :is(h3, .eyebrow, p) {
   overflow-wrap: anywhere;
 }
+html[data-page="home.html"] .closing-book-button {
+  min-inline-size: 165px;
+}
 @media (max-width: 900px) {
   html[data-page="home.html"] .home-collection-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -19,4 +22,5 @@ html[data-page="home.html"] .home-collection-grid :is(h3, .eyebrow, p) {
 }
 @media (max-width: 600px) {
   html[data-page="home.html"] .home-collection-grid { gap: 13px; }
+  html[data-page="home.html"] .closing-book-button { min-inline-size: 157.5px; }
 }

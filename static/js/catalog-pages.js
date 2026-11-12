@@ -92,10 +92,18 @@
   const item = active(isService ? catalog.services : catalog.products)
     .find((entry) => entry.id === id);
   if (!item) {
+    const ownReview = isService && params.has("appointment") && window.spaAuth?.getSession()?.role === "User"
+      ? main.querySelector("[data-service-reviews]") : null;
     document.title = "Không tìm thấy nội dung | An Nhiên Spa";
     main.innerHTML = `<section class="container catalog-empty"><span class="eyebrow">AN NHIÊN SPA</span>
       <h1>Nội dung chưa khả dụng</h1><p>${isService ? "Liệu trình" : "Sản phẩm"} này không tồn tại hoặc hiện không hoạt động.</p>
       <a class="button" href="${isService ? "services" : "products"}.html">Trở về danh sách</a></section>`;
+    if (ownReview) {
+      ownReview.hidden = true;
+      ownReview.dataset.serviceUnavailable = "";
+      ownReview.classList.add("container");
+      main.append(ownReview);
+    }
     return;
   }
   document.title = `${item.name} | An Nhiên Spa`;

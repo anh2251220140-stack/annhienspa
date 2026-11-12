@@ -10,7 +10,7 @@
     </title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
-    <link rel="stylesheet" href="{% static 'css/home-collections.css' %}?v=home-left-1">
+    <link rel="stylesheet" href="{% static 'css/home-collections.css' %}?v=home-left-2">
     <script src="{% static 'js/ui.js' %}"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
@@ -259,12 +259,7 @@ mà cả những cảm xúc bên trong bạn.
 <p>
   Chọn liệu trình phù hợp và đặt lịch tại An Nhiên Spa.
 </p>
-<a class="button filled" href="{% url 'core:booking' as page_url %}{{ page_url|slice:'1:' }}">
-  Đặt lịch ngay
-  <span>
-    ↗
-  </span>
-</a>
+<a class="button filled closing-book-button" href="{% url 'core:booking' as page_url %}{{ page_url|slice:'1:' }}">Đặt lịch ngay</a>
 </div>
 </section>
 </main>

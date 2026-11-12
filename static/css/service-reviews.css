@@ -1,0 +1,88 @@
+[data-service-reviews] .review-thread {
+  min-width: 0;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #c6a07e66;
+}
+[data-service-reviews] .review-thread h3 {
+  margin: 0 0 12px;
+  font-family: var(--font-heading);
+  font-size: 20px;
+}
+[data-service-reviews] .review-thread-list {
+  display: grid;
+  gap: 12px;
+  max-height: 360px;
+  overflow-y: auto;
+  border-radius: 12px;
+  scrollbar-color: #c6a07e transparent;
+}
+[data-service-reviews] .review-thread-list:focus-visible {
+  outline: 2px solid #876044;
+  outline-offset: 2px;
+}
+[data-service-reviews] .review-thread-list .review-reply {
+  min-width: 0;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid #c6a07e66;
+  border-radius: 12px;
+  background: #fff8f1;
+  overflow-wrap: anywhere;
+}
+[data-service-reviews] .review-reply time {
+  display: block;
+  margin-top: 4px;
+  color: #856d5b;
+  font-size: 11px;
+}
+[data-service-reviews] .review-reply p {
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+[data-service-reviews] .review-reply-role {
+  display: block;
+  color: #795439;
+  font-size: 12px;
+}
+[data-service-reviews] .service-reply-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+[data-service-reviews] .service-reply-form label { display: grid; gap: 8px; }
+[data-service-reviews] .service-reply-form textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #c6a07e;
+  resize: vertical;
+}
+[data-service-reviews] .service-reply-form button {
+  justify-self: start;
+  min-height: 44px;
+  padding-inline: 18px;
+  font-size: 13px;
+}
+[data-service-reviews] .service-reply-form button:disabled { opacity: .65; cursor: wait; }
+[data-service-reviews] .service-reply-form [data-reply-status] { margin: 0; }
+[data-service-reviews] .service-reply-form [data-reply-status]:empty { display: none; }
+
+[data-service-reviews] #review-form {
+  min-width: 0;
+  padding-bottom: 4px;
+}
+[data-service-reviews] #review-form > [data-review-appointment-summary] {
+  font-size: 11px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+[data-service-reviews] #review-form textarea {
+  display: block;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  [data-service-reviews] .review-thread-list .review-reply { padding: 10px; }
+  [data-service-reviews] .service-reply-form button { width: 100%; }
+}

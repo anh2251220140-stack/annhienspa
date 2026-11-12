@@ -1,0 +1,84 @@
+/* Match the reference card height while allowing longer service names to wrap. */
+html[data-page="index.html"] .service-card {
+  display: grid;
+  align-items: end;
+  height: auto;
+  min-height: 350px;
+  padding: 50px 18px 24px 22px;
+}
+
+html[data-page="index.html"] .service-card > img {
+  position: absolute;
+  inset: 0;
+}
+
+html[data-page="index.html"] .service-info {
+  position: relative;
+  inset: auto;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+html[data-page="index.html"] .service-info .service-meta {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(4px, 3.5cqi, 9px);
+  font-size: clamp(10px, 8.5cqi, 14px);
+  white-space: nowrap;
+}
+
+html[data-page="index.html"] .service-meta .dot {
+  padding-inline: 0;
+}
+
+html[data-page="index.html"] :is(.service-info, .product-info, .offer-card) {
+  overflow-wrap: anywhere;
+}
+
+html[data-page="index.html"] .offer-topline {
+  flex-wrap: wrap;
+}
+
+html[data-page="index.html"] .offer-badge {
+  white-space: normal;
+}
+
+html[data-page="index.html"] :is(.collection, .products-section, .offers) .journey-empty {
+  grid-column: 1 / -1;
+  color: var(--muted);
+}
+
+html[data-page="index.html"] .closing-book-button {
+  min-inline-size: 165px;
+}
+
+@media (max-width: 900px) {
+  html[data-page="index.html"] .service-card {
+    min-height: 380px;
+  }
+}
+
+@media (max-width: 600px) {
+  html[data-page="index.html"] .service-card {
+    min-height: 300px;
+    padding: 48px 10px 18px 13px;
+  }
+
+  html[data-page="index.html"] .service-info .service-meta {
+    font-size: clamp(10px, 8.5cqi, 12px);
+  }
+
+  html[data-page="index.html"] .closing-book-button {
+    min-inline-size: 157.5px;
+  }
+}
+
+@media (max-width: 350px) {
+  html[data-page="index.html"] .service-card {
+    padding-inline: 6px;
+  }
+
+  html[data-page="index.html"] .service-info .service-meta {
+    gap: 3px;
+  }
+}

@@ -9,12 +9,12 @@
       Dịch vụ tại An Nhiên | An Nhiên Spa
     </title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+    <link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=service-recommendation-1">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
     <script src="{% static 'js/ui.js' %}"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
-    <script src="{% static 'js/app.js' %}" defer>
+    <script src="{% static 'js/app.js' %}?v=service-recommendation-1" defer>
     </script>
     <script src="{% static 'js/catalog-pages.js' %}" defer>
     </script>
@@ -96,9 +96,27 @@
             <p>Trả lời vài câu hỏi để An Nhiên gợi ý liệu trình và sản phẩm chăm sóc phù hợp với bạn.</p>
             <form data-recommendation-form>
               <div class="form-grid">
-                <label>Loại da<select name="skin"><option value="">Chưa xác định</option></select></label>
+                <label>Loại da
+                  <select name="skin">
+                    <option value="">Chưa xác định</option>
+                    <option value="Da thường">Da thường</option>
+                    <option value="Da khô">Da khô</option>
+                    <option value="Da dầu">Da dầu</option>
+                    <option value="Da hỗn hợp">Da hỗn hợp</option>
+                    <option value="Da nhạy cảm">Da nhạy cảm</option>
+                  </select>
+                </label>
                 <label>Nhu cầu chăm sóc<select name="needs"><option value="">Khám phá các liệu trình</option><option value="face">Chăm sóc da mặt</option><option value="relax">Thư giãn</option><option value="body">Chăm sóc cơ thể</option><option value="hair">Chăm sóc tóc</option></select></label>
-                <label>Ngân sách mỗi liệu trình (VND)<input name="budget" type="number" min="0" step="1" placeholder="Ví dụ: 600000"></label>
+                <div class="recommendation-budget">
+                  <label for="recommendation-budget">Ngân sách mỗi liệu trình (VND)</label>
+                  <div class="recommendation-budget-field">
+                    <input id="recommendation-budget" name="budget" type="number" min="0" step="1" placeholder="Ví dụ: 600000">
+                    <div class="recommendation-budget-controls" data-budget-stepper hidden>
+                      <button type="button" data-budget-step="up" aria-label="Tăng ngân sách" aria-controls="recommendation-budget"></button>
+                      <button type="button" data-budget-step="down" aria-label="Giảm ngân sách" aria-controls="recommendation-budget"></button>
+                    </div>
+                  </div>
+                </div>
                 <label>Sở thích / thông tin chăm sóc<input name="interests" maxlength="160" placeholder="Hương thơm, thư giãn, chăm sóc dịu nhẹ…"></label>
                 <label>Thời lượng mong muốn<select name="duration"><option value="">Không quan trọng</option><option value="short">Dưới 60 phút</option><option value="medium">60–90 phút</option><option value="long">Trên 90 phút</option></select></label>
               </div>

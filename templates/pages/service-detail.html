@@ -11,19 +11,20 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/catalog.css' %}">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
-    <script src="{% static 'js/ui.js' %}">
+    <link rel="stylesheet" href="{% static 'css/service-reviews.css' %}?v=review-layout-1">
+    <script src="{% static 'js/ui.js' %}?v=appointment-code-1">
     </script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}">
     </script>
     <script src="{% static 'js/app.js' %}" defer>
     </script>
-    <script src="{% static 'js/catalog-pages.js' %}" defer>
+    <script src="{% static 'js/catalog-pages.js' %}?v=review-editor-1" defer>
     </script>
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
-<script src="{% static 'js/phase4-api.js' %}" defer></script><script src="{% static 'js/live-service-reviews.js' %}" defer></script></head>
+<script src="{% static 'js/phase4-api.js' %}" defer></script><script src="{% static 'js/live-service-reviews.js' %}?v=review-layout-1" defer></script></head>
   <body>
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
     <header class="site-header">
@@ -343,9 +344,6 @@
           </p>
           <div class="specialist-grid" data-staff>
           </div>
-          <p class="demo-note">
-            Chuyên viên được phân công theo dịch vụ. Ảnh minh họa được dùng khi chưa có ảnh hồ sơ.
-          </p>
         </section>
         <section class="catalog-related detail-related">
           <div class="related-heading">
@@ -382,7 +380,8 @@
           </div>
           <div class="review-surface">
             <div class="review-overview"><strong data-review-average>— / 5</strong><span data-review-count>0 đánh giá</span></div>
-            <div id="review-list" aria-label="Đánh giá về dịch vụ"></div><div class="review-actions" id="service-review-pages"></div>
+            <div id="review-list" aria-label="Đánh giá về dịch vụ"></div>
+            <nav class="review-actions" id="service-review-pages" aria-label="Phân trang đánh giá" hidden></nav>
             <p class="review-note" data-review-eligibility>Chỉ khách có cuộc hẹn đã hoàn thành mới có thể chia sẻ đánh giá.</p>
             <form id="review-form" hidden>
               <label data-review-appointment>Cuộc hẹn của bạn<select name="appointment" required></select></label>
@@ -394,10 +393,14 @@
                 <label><input type="radio" name="rating" value="4" aria-label="4 sao"><span data-rating-icon></span></label>
                 <label><input type="radio" name="rating" value="5" aria-label="5 sao"><span data-rating-icon></span></label>
               </fieldset>
-              <label for="review-message">Chia sẻ của bạn<textarea id="review-message" name="message" rows="4" maxlength="2000"></textarea></label>
-
-              <p class="review-note">Nhận xét không bắt buộc, tối đa 2.000 ký tự. Đánh giá được lưu tại Spa.</p>
-              <div class="review-actions"><button class="button filled" type="submit">Gửi đánh giá</button><button class="button" type="button" data-review-cancel>Đóng</button></div>
+              <label for="review-message">Chia sẻ của bạn (không bắt buộc)
+                <textarea id="review-message" name="message" rows="4" maxlength="2000" aria-describedby="review-comment-hint"></textarea>
+              </label>
+              <p class="review-note" id="review-comment-hint">Tối đa 2.000 ký tự.</p>
+              <div class="review-actions">
+                <button class="button filled" type="submit">Gửi đánh giá</button>
+                <button class="button" type="button" data-review-cancel>Đóng</button>
+              </div>
             </form>
             <p class="review-note" data-review-status role="status" aria-live="polite"></p>
           </div>

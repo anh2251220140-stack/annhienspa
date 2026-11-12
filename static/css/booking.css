@@ -1,0 +1,47 @@
+#booking-form .booking-day-field {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-width: 0;
+}
+
+#booking-form .booking-day-control {
+  position: relative;
+  min-width: 0;
+}
+
+#booking-form .booking-day-control.is-localized {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+}
+
+#booking-form .is-localized #booking-date {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#booking-form #booking-date-display {
+  min-width: 0;
+  border-radius: 10px 0 0 10px;
+}
+
+#booking-form .booking-day-picker:not([hidden]) {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #c6a07e65;
+  border-left: 0;
+  border-radius: 0 10px 10px 0;
+  background: #fff8f1;
+  color: #3a2419;
+}
+
+#booking-form .booking-day-picker:hover { background: #f5e8dc; }
+#booking-form .booking-day-picker:focus-visible { outline: 2px solid #876044; outline-offset: 2px; }

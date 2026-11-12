@@ -4,9 +4,10 @@ from django.core.exceptions import PermissionDenied,ValidationError
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.views.decorators.http import require_GET,require_POST
 from django.views.decorators.cache import never_cache
-from django.db.models import Avg
+from django.db.models import Avg, Prefetch
 from django.core.paginator import Paginator
 from billing.views import api
 from appointments.models import Appointment
@@ -36,10 +37,24 @@ def listing(request):
 def service_reviews(request,pk):
     from services.models import Service
     get_object_or_404(Service,pk=pk,is_active=True,category__is_active=True)
-    qs=Review.objects.filter(service_id=pk).select_related('customer').prefetch_related('replies__user').order_by('-pk')
+    replies=ReviewReply.objects.select_related('user').order_by('pk')
+    qs=Review.objects.filter(service_id=pk).select_related('customer').prefetch_related(
+        Prefetch('replies',queryset=replies)
+    ).order_by('-pk')
     page=Paginator(qs,10).get_page(request.GET.get('page'))
-    items=[dict(rating=r.rating,comment=r.comment or '',name=r.customer.full_name,
-        createdAt=timezone.localtime(r.created_at).isoformat(),replies=[dict(name='An Nhiên Spa' if x.user.role=='Admin' else r.customer.full_name,content=x.content,createdAt=timezone.localtime(x.created_at).isoformat()) for x in r.replies.all()]) for r in page]
+    user=request.user
+    active_account=user.is_authenticated and user.is_active
+    items=[]
+    for review in page:
+        item=dict(rating=review.rating,comment=review.comment or '',name=review.customer.full_name,
+            createdAt=timezone.localtime(review.created_at).isoformat(),replies=[
+                dict(name='An Nhiên Spa' if reply.user.role=='Admin' else review.customer.full_name,
+                     role=reply.user.role,content=reply.content,createdAt=timezone.localtime(reply.created_at).isoformat())
+                for reply in review.replies.all()
+            ])
+        if active_account and (user.role=='Admin' or (user.role=='User' and review.customer.user_id==user.pk)):
+            item['replyUrl']=reverse('review-reply',kwargs={'pk':review.pk})
+        items.append(item)
     return JsonResponse(dict(items=items,total=page.paginator.count,page=page.number,pages=page.paginator.num_pages,average=qs.aggregate(n=Avg('rating'))['n'] or 0))
 
 @api

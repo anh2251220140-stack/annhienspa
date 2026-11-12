@@ -51,7 +51,24 @@
   function getProfile() {
     return serverSession?.profile || {name:serverSession?.name||"",username:serverSession?.username||"",email:serverSession?.email||"",phone:serverSession?.phone||"",skin:"",needs:[],interests:[],budget:null,avatar:""};
   }
-  window.spaAuth = { getSession, isAuthenticated, urlFor, logout, allowed, getProfile };
+
+  function renderAvatar(node, name, source, alt = "") {
+    node.textContent = (name || "Lan Anh").trim().split(/\s+/).slice(-2).map(part => part[0]).join("").toUpperCase();
+    if (!source) return;
+    if (!/^data:image\/(?:png|jpeg|webp);base64,/.test(source)) {
+      try {
+        const url = new URL(source, location.origin);
+        if (url.protocol !== "https:" && !(url.protocol === "http:" && url.origin === location.origin)) return;
+        source = url.href;
+      } catch { return; }
+    }
+    const image = document.createElement("img");
+    image.src = source;
+    image.alt = alt;
+    node.replaceChildren(image);
+  }
+
+  window.spaAuth = { getSession, isAuthenticated, urlFor, logout, allowed, getProfile, renderAvatar };
   if (!allowed) {
     document.documentElement.classList.add("auth-redirecting");
     location.replace(redirect);
@@ -112,7 +129,7 @@
           <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button>
           <div class="account-dropdown" id="account-dropdown" hidden>
             <div class="account-identity"><span class="account-avatar" data-account-avatar aria-hidden="true"></span>
-              <div><strong data-account-name></strong><span class="membership-badge">Hạng: chờ xác định</span></div></div>
+              <div><strong data-account-name></strong></div></div>
             <a href="profile.html">Xem hồ sơ</a><a href="reviews.html">Đánh giá của tôi</a>
           </div>`;
         link.replaceWith(account);
@@ -122,15 +139,7 @@
         const update = () => {
           const profile = getProfile();
           account.querySelectorAll("[data-account-name]").forEach((node) => { node.textContent = profile.name; });
-          account.querySelectorAll("[data-account-avatar]").forEach((node) => {
-            node.textContent = String(profile.name || "Lan Anh").trim().split(/\s+/).slice(-2).map((part) => part[0]).join("").toUpperCase();
-            if (/^data:image\/(?:png|jpeg|webp);base64,/.test(profile.avatar)) {
-              const image = document.createElement("img");
-              image.src = profile.avatar;
-              image.alt = "";
-              node.replaceChildren(image);
-            }
-          });
+          account.querySelectorAll("[data-account-avatar]").forEach(node => renderAvatar(node, profile.name, profile.avatar));
         };
         update();
         document.addEventListener("spa-profile-updated", update);

@@ -9,6 +9,18 @@ from django.views.decorators.http import require_safe
 from PIL import Image
 
 
+IMAGE_DIRECTORIES = {"services", "products", "employees", "avatars"}
+
+
+def can_view_avatar(user, name):
+    if not user.is_authenticated or not user.is_active:
+        return False
+    if user.role == "Admin":
+        return True
+    customer = getattr(user, "customer", None)
+    return user.role == "User" and customer is not None and customer.avatar.name == name
+
+
 @require_safe
 def local_image(request, path):
     # A local tunnel/proxy also has a loopback peer: reject its host and headers.
@@ -23,7 +35,7 @@ def local_image(request, path):
             or host not in {"localhost", "127.0.0.1", "::1"}):
         raise Http404
     parts = path.split("/")
-    if (len(parts) < 2 or parts[0] not in {"services", "products", "employees"}
+    if (len(parts) < 2 or parts[0] not in IMAGE_DIRECTORIES
             or any(not part or part.startswith(".") for part in parts)
             or any(char in path for char in ("\\", ":", "%", "\x00"))):
         raise Http404
@@ -33,7 +45,11 @@ def local_image(request, path):
         root = Path(settings.MEDIA_ROOT).resolve(strict=True)
         target = (root / path).resolve(strict=True)
         relative = target.relative_to(root)
-        if relative.parts[0] not in {"services", "products", "employees"} or not target.is_file():
+        if relative.parts[0] not in IMAGE_DIRECTORIES or not target.is_file():
+            raise Http404
+        if "avatars" in {parts[0], relative.parts[0]} and (
+            parts[0] != relative.parts[0] or not can_view_avatar(request.user, relative.as_posix())
+        ):
             raise Http404
         expected = formats.get(target.suffix.lower())
         if not expected:

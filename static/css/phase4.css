@@ -19,6 +19,9 @@
 .journey-page .appointment-card .journey-actions > .button.filled { background:#3a2419; border-color:#3a2419; color:#fff8f1; }
 .journey-page .appointment-card .journey-actions > .button.filled:hover { background:#513325; }
 .journey-page .appointment-card [data-cancel] { color:#946b56; border-color:#c6a07e55; }
+@media(max-width:800px) {
+  [data-page="appointments.html"] body:has(.concierge) #appointment-list .journey-actions { padding-inline-end:36px; }
+}
 @media(max-width:600px) {
   [data-live-invoice] #invoice-filter { grid-template-columns:minmax(0,1fr) auto; }
   [data-live-invoice] #invoice-filter label:first-child { grid-column:1 / -1; }
@@ -33,3 +36,18 @@
 .payos-qr-image[hidden] { display:none; }
 .payos-countdown { font-variant-numeric:tabular-nums; }
 [data-payment-qr] [data-payment-refresh] { margin-top:12px; }
+.reviews-page .my-review-list { display: grid; gap: 18px; min-width: 0; }
+.reviews-page #review-list { margin-top: 24px; }
+.reviews-page .my-review-list > .review-surface { margin: 0; min-width: 0; }
+.reviews-page .my-review-list > .review-item { padding-block: 28px; }
+.reviews-page .my-review-list > .review-item:first-child { border-top: 2px solid var(--accent); }
+.reviews-page .review-item h2 { margin: 0 0 18px; overflow-wrap: anywhere; }
+.reviews-page .review-byline .account-avatar { flex: 0 0 38px; overflow: hidden; }
+.reviews-page .review-byline time { white-space: nowrap; }
+.reviews-page .my-review-replies time { font-size: .82em; color: #7b6251; }
+.reviews-page .my-review-pending { margin-top: 28px; }
+.reviews-page .my-review-pending h2 { font-size: clamp(26px, 3vw, 34px); margin-bottom: 14px; }
+.reviews-page .my-review-pending h3 { margin: 0; overflow-wrap: anywhere; }
+.reviews-page .my-review-pending details { margin-top: 14px; }
+.reviews-page .my-review-pending summary { width: fit-content; color: #876044; cursor: pointer; }
+.reviews-page .my-review-pending form { margin-top: 12px; }

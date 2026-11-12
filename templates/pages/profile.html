@@ -9,12 +9,12 @@
       Tài khoản | An Nhiên Spa
     </title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=profile-spacing-1">
     <link rel="stylesheet" href="{% static 'css/password-reset.css' %}">
     <script src="{% static 'js/ui.js' %}"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
-    <script src="{% static 'js/auth.js' %}"></script>
-    <script src="{% static 'js/app.js' %}" defer>
+    <script src="{% static 'js/auth.js' %}?v=profile-functional-1"></script>
+    <script src="{% static 'js/app.js' %}?v=profile-phone-1" defer>
     </script>
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
@@ -83,7 +83,6 @@
         </div>
         <div class="profile-identity">
           <h2 id="profile-name" data-profile-value="name">{{ auth_ui.name }}</h2>
-          <span class="membership-badge">Hạng thành viên sẽ được cập nhật khi có đủ dữ liệu</span>
           <p>@<span data-profile-value="username">{{ auth_ui.username }}</span></p>
           <p data-profile-value="email">{{ auth_ui.email }}</p>
           <p>Điện thoại: <span data-profile-value="phone">Chưa cập nhật</span></p>
@@ -91,7 +90,6 @@
         </div>
         <button class="button" type="button" data-profile-edit aria-controls="profile-personal-editor" aria-expanded="false">Chỉnh sửa thông tin</button>
       </section>
-      <p class="form-note">Thông tin hồ sơ được lưu vào tài khoản của bạn. Ảnh PNG, JPG hoặc WebP, tối đa 1 MB; xem trước rồi lưu.</p>
       <section class="profile-section" aria-labelledby="personal-title">
         <span class="eyebrow">HIỂU THÊM VỀ BẠN</span>
         <h2 id="personal-title">Thông tin cá nhân</h2>
@@ -107,7 +105,11 @@
             <label>Họ và tên<input name="name" required autocomplete="name" maxlength="80"></label>
             <label>Username<input name="username" required autocomplete="username" maxlength="80"></label>
             <label>Email<input name="email" type="email" required autocomplete="email" maxlength="120"></label>
-            <label>Số điện thoại<input name="phone" type="tel" autocomplete="tel" maxlength="20"></label>
+            <label>Số điện thoại
+              <input name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="20" aria-describedby="profile-phone-hint profile-phone-error">
+              <span id="profile-phone-hint">Số mới không được để trống. Tối đa 20 ký tự, ví dụ +84 (90) 123-4567.</span>
+              <span id="profile-phone-error" class="field-error" aria-live="polite" hidden></span>
+            </label>
           </div>
           <section class="profile-care-card" aria-labelledby="profile-care-title">
             <div class="profile-care-heading"><span class="profile-care-symbol" data-profile-icon="leaf" aria-hidden="true"></span><div><span class="eyebrow">CHĂM SÓC THEO CÁCH CỦA BẠN</span><h2 id="profile-care-title">Hồ sơ chăm sóc của bạn</h2><p>Thông tin bạn chia sẻ giúp spa hiểu nhu cầu chăm sóc của bạn hơn.</p></div></div>
@@ -156,33 +158,16 @@
           <p class="profile-care-demo">Thông tin do bạn cung cấp được lưu trong hồ sơ chăm sóc.</p>
           </section>
         </form>
-      <section class="profile-section" aria-labelledby="membership-title">
-        <span class="eyebrow">ĐỒNG HÀNH CÙNG AN NHIÊN</span>
-        <h2 id="membership-title">Hạng thành viên</h2>
-        <div class="membership-overview">
-          <p>Hạng hiện tại: <strong>Sẽ được cập nhật khi có đủ dữ liệu</strong></p>
-          <p>Tổng chi tiêu hợp lệ: <strong>Chưa ghi nhận chi tiêu hợp lệ</strong></p>
-          <progress max="100" value="0" aria-label="Tiến độ lên hạng sẽ hiển thị khi hệ thống có dữ liệu đầy đủ"></progress>
-          <p>Tiến độ và số tiền cần thêm để lên hạng sẽ hiển thị khi hệ thống có dữ liệu đầy đủ.</p>
-        </div>
-        <div class="membership-tiers">
-          <article><span class="eyebrow">01 / BẠC</span><h3>Bạc</h3><p>Quyền lợi chăm sóc dành cho hạng Bạc sẽ được cập nhật.</p></article>
-          <article><span class="eyebrow">02 / VÀNG</span><h3>Vàng</h3><p>Quyền lợi chăm sóc dành cho hạng Vàng sẽ được cập nhật.</p></article>
-          <article><span class="eyebrow">03 / KIM CƯƠNG</span><h3>Kim cương</h3><p>Quyền lợi chăm sóc dành cho hạng Kim cương sẽ được cập nhật.</p></article>
-        </div>
-        <p class="form-note">Hạng thành viên và quyền lợi hiện chỉ mang tính giới thiệu. Khi được áp dụng, chi tiêu hợp lệ chỉ ghi nhận dịch vụ có lịch hẹn đã hoàn thành và hóa đơn đã thanh toán; không bao gồm lịch hủy, hóa đơn chưa thanh toán hoặc sản phẩm chăm sóc.</p>
-      </section>
       <section class="profile-section" aria-labelledby="security-title">
         <span class="eyebrow">SECURITY</span>
         <h2 id="security-title">Bảo mật tài khoản</h2>
-        <p>Giữ những thông tin riêng tư luôn được nâng niu.</p>
         <button class="button" type="button" data-password-open aria-controls="profile-password" aria-expanded="false">Đổi mật khẩu</button>
-        <form id="profile-password" class="auth-form" hidden>
-          <label>Mật khẩu hiện tại<input id="current-password" name="currentPassword" type="password" required autocomplete="current-password"></label>
-          <label>Mật khẩu mới<input id="new-password" name="newPassword" type="password" required minlength="6" autocomplete="new-password"></label>
-          <label>Xác nhận mật khẩu mới<input id="confirm-new-password" name="confirmPassword" type="password" required minlength="6" autocomplete="new-password"></label>
-          <p class="form-note">Chỉ kiểm tra form mẫu, không xác minh mật khẩu hiện tại và không thay mật khẩu đăng nhập. Không lưu hoặc gửi mật khẩu.</p>
-          <div class="profile-actions"><button class="button filled" type="submit">Kiểm tra form mẫu</button><button class="button" type="button" data-password-cancel>Đóng</button></div>
+        <form id="profile-password" class="auth-form" method="post" action="{% url 'accounts:password_change' %}" hidden>
+          {% csrf_token %}
+          <label>Mật khẩu hiện tại<input id="current-password" name="old_password" type="password" required autocomplete="current-password"></label>
+          <label>Mật khẩu mới<input id="new-password" name="new_password1" type="password" required maxlength="128" autocomplete="new-password"></label>
+          <label>Xác nhận mật khẩu mới<input id="confirm-new-password" name="new_password2" type="password" required maxlength="128" autocomplete="new-password"></label>
+          <div class="profile-actions"><button class="button filled" type="submit">Lưu mật khẩu mới</button><button class="button" type="button" data-password-cancel>Đóng</button></div>
         </form>
         <p data-password-status role="status" aria-live="polite"></p>
       </section>

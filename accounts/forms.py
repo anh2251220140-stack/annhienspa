@@ -1,8 +1,35 @@
+import re
+
 from django import forms
 from django.contrib.auth import authenticate, password_validation
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.validators import MaxLengthValidator
 from django.db import transaction
 from .models import User, Customer
+
+
+class ProfilePasswordChangeForm(PasswordChangeForm):
+    error_messages = {
+        **PasswordChangeForm.error_messages,
+        "password_incorrect": "Mật khẩu hiện tại không chính xác.",
+        "password_mismatch": "Xác nhận mật khẩu mới không khớp.",
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.error_messages["required"] = "Vui lòng nhập đầy đủ các trường mật khẩu."
+        for name in ("new_password1", "new_password2"):
+            self.fields[name].validators.append(MaxLengthValidator(128, "Mật khẩu mới không được vượt quá 128 ký tự."))
+
+    def validate_password_for_user(self, user, password_field_name="password2"):
+        super().validate_password_for_user(user, password_field_name)
+        # Django's Vietnamese catalog can fall back to English for this plural message.
+        for error in self.errors.as_data().get(password_field_name, []):
+            if error.code == "password_too_short":
+                error.message = "Mật khẩu mới phải có ít nhất %(min_length)d ký tự."
+
 
 class LoginForm(forms.Form):
     identifier = forms.CharField(max_length=254)
@@ -19,13 +46,36 @@ class LoginForm(forms.Form):
                 raise forms.ValidationError("Thông tin đăng nhập không chính xác hoặc tài khoản đã bị khóa.")
         return data
 
+class CustomerPhoneField(forms.CharField):
+    def __init__(self):
+        super().__init__(max_length=20, error_messages={
+            "required": "Vui lòng nhập số điện thoại.",
+            "max_length": "Số điện thoại không được vượt quá %(limit_value)d ký tự.",
+        })
+
+    def clean(self, value):
+        value = super().clean(value)
+        digit_or_group = r"(?:\d|\(\d+\))"
+        if not re.fullmatch(rf"\+?{digit_or_group}(?: *(?:- *)?{digit_or_group})*", value):
+            raise forms.ValidationError(
+                "Số điện thoại không hợp lệ. Ví dụ: +84 (90) 123-4567.", code="invalid_phone",
+            )
+        return value
+
+
 class RegistrationForm(forms.Form):
     fullName = forms.CharField(max_length=150)
     email = forms.EmailField(max_length=254)
     username = forms.CharField(max_length=150, validators=[UnicodeUsernameValidator()])
-    phone = forms.CharField(max_length=20)
-    password = forms.CharField(strip=False, widget=forms.PasswordInput)
-    confirmPassword = forms.CharField(strip=False, widget=forms.PasswordInput)
+    phone = CustomerPhoneField()
+    password = forms.CharField(
+        max_length=128, strip=False, widget=forms.PasswordInput,
+        error_messages={"max_length": "Mật khẩu không được vượt quá %(limit_value)d ký tự."},
+    )
+    confirmPassword = forms.CharField(
+        max_length=128, strip=False, widget=forms.PasswordInput,
+        error_messages={"max_length": "Xác nhận mật khẩu không được vượt quá %(limit_value)d ký tự."},
+    )
 
     def clean_email(self):
         email = self.cleaned_data["email"].lower()

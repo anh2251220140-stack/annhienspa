@@ -531,6 +531,8 @@
     const portrait = document.querySelector("[data-profile-avatar]")
     const personalEditor = document.querySelector("#profile-personal-editor")
     const profileStatus = document.querySelector("[data-profile-status]")
+    const phoneInput = profile.elements.phone
+    const phoneError = document.querySelector("#profile-phone-error")
     const fields = ["name", "username", "email", "phone"]
     const careKeys = ["skin", "needs", "interests"]
     const changedCare = new Set()
@@ -542,6 +544,12 @@
       profileStatus.dataset.state = state
       profileStatus.hidden = !text
     }
+    const showPhoneError = (text) => {
+      phoneError.textContent = text
+      phoneError.hidden = !text
+      if (text) phoneInput.setAttribute("aria-invalid", "true")
+      else phoneInput.removeAttribute("aria-invalid")
+    }
     const budgetValue = () => {
       const value = profile.elements.budget.value.trim()
       if (!value) return null
@@ -552,13 +560,7 @@
     const formatBudget = (value) => new Intl.NumberFormat("vi-VN", { maximumFractionDigits: 0 }).format(value)
     document.querySelectorAll("[data-profile-icon]").forEach((node) => { node.innerHTML = window.spaIcon(node.dataset.profileIcon) })
     const renderAvatar = () => {
-      portrait.textContent = String(saved.name || "Lan Anh").trim().split(/\s+/).slice(-2).map((part) => part[0]).join("").toUpperCase()
-      if (/^data:image\/(?:png|jpeg|webp);base64,/.test(avatar) || String(avatar).startsWith("/media/")) {
-        const image = document.createElement("img")
-        image.src = avatar
-        image.alt = "Ảnh đại diện xem trước"
-        portrait.replaceChildren(image)
-      }
+      window.spaAuth.renderAvatar(portrait, saved.name, avatar, "Ảnh đại diện")
     }
     const renderProfile = () => {
       fields.forEach((key) => {
@@ -584,6 +586,7 @@
       profile.elements.budget.setCustomValidity("")
       profile.elements.budget.removeAttribute("aria-invalid")
       changedCare.clear()
+      showPhoneError("")
       renderAvatar()
     }
     const setEditing = (open) => {
@@ -608,6 +611,7 @@
       showProfileStatus("")
     })
     profile.addEventListener("input", (event) => { if (event.target.name !== "budget") showProfileStatus("") })
+    phoneInput.addEventListener("input", () => showPhoneError(""))
     profile.elements.budget.addEventListener("input", () => {
       const invalid = Number.isNaN(budgetValue())
       profile.elements.budget.setCustomValidity(invalid ? "Nhập số tiền VND nguyên không âm, ví dụ 500.000; hoặc để trống." : "")
@@ -671,12 +675,14 @@
         profile.reportValidity()
         return
       }
+      if (next.phone === (saved.phone ?? "").trim()) delete next.phone
       careKeys.forEach((key) => {
         // Preserve unmatched legacy free text until this group is explicitly changed.
         next[key] = !changedCare.has(key) && saved[key] && !document.querySelector(`[data-care-legacy="${key}"]`).hidden
           ? saved[key] : key === "skin" ? profile.elements.skin.value || "Chưa xác định" : careInputs(key).filter((input) => input.checked).map((input) => input.value)
       })
       next.budget = budget
+      showProfileStatus("")
       const submit = profile.querySelector('[type="submit"]'); submit.disabled = true;
       try {
         const body = new FormData();
@@ -687,7 +693,16 @@
         if (picker.files[0]) body.set("avatar",picker.files[0]);
         const response=await fetch("/api/profile/",{method:"POST",body,headers:{"X-CSRFToken":document.querySelector('[name="csrfmiddlewaretoken"]').value}});
         const result=await response.json();
-        if(!response.ok)throw Error(result.error||Object.values(result.errors||{}).flat().join(" ")||"Không thể lưu hồ sơ.");
+        if (!response.ok) {
+          const {phone: phoneErrors, ...otherErrors} = result.errors || {}
+          if (phoneErrors?.length) {
+            setEditing(true)
+            showPhoneError(phoneErrors.join(" "))
+            phoneInput.focus()
+            if (!result.error && !Object.keys(otherErrors).length) return
+          }
+          throw Error(result.error || Object.values(otherErrors).flat().join(" ") || "Không thể lưu hồ sơ.")
+        }
         Object.assign(window.spaAuth.getProfile(),result.item);
         saved=result.item;avatar=saved.avatar;picker.value="";
         renderProfile();setEditing(false);document.dispatchEvent(new Event("spa-profile-updated"));
@@ -698,6 +713,7 @@
     const password = document.querySelector("#profile-password")
     const passwordOpen = document.querySelector("[data-password-open]")
     const passwordStatus = document.querySelector("[data-password-status]")
+    const passwordSubmit = password.querySelector('[type="submit"]')
     const closePassword = () => {
       password.reset()
       password.hidden = true
@@ -705,22 +721,36 @@
       passwordOpen.focus()
     }
     passwordOpen.addEventListener("click", () => {
+      if (passwordSubmit.disabled) return
       if (!password.hidden) { closePassword(); return }
       passwordStatus.textContent = ""
       password.hidden = false
       passwordOpen.setAttribute("aria-expanded", "true")
-      password.elements.currentPassword.focus()
+      password.elements.old_password.focus()
     })
-    document.querySelector("[data-password-cancel]").addEventListener("click", closePassword)
-    password.addEventListener("input", () => password.elements.confirmPassword.setCustomValidity(""))
-    password.addEventListener("reset", () => password.elements.confirmPassword.setCustomValidity(""))
-    password.addEventListener("submit", (event) => {
+    document.querySelector("[data-password-cancel]").addEventListener("click", () => {
+      if (!passwordSubmit.disabled) closePassword()
+    })
+    password.addEventListener("submit", async (event) => {
       event.preventDefault()
-      const confirmation = password.elements.confirmPassword
-      confirmation.setCustomValidity(confirmation.value !== password.elements.newPassword.value ? "Xác nhận mật khẩu không khớp." : "")
-      if (!password.reportValidity()) return
-      closePassword()
-      passwordStatus.textContent = "Form mẫu hợp lệ. Mật khẩu chưa được thay đổi; thông tin đăng nhập demo giữ nguyên."
+      if (passwordSubmit.disabled || !password.reportValidity()) return
+      passwordSubmit.disabled = true
+      passwordStatus.textContent = "Đang đổi mật khẩu…"
+      try {
+        const response = await fetch(password.action, {method: "POST", body: new FormData(password)})
+        const result = await response.json().catch(() => ({}))
+        if (!response.ok || !result.message) {
+          passwordStatus.textContent = Object.values(result.errors || {}).flat().join(" ") || result.error ||
+            (response.status === 403 ? "Phiên xác thực không hợp lệ. Vui lòng tải lại trang và thử lại." : "Chưa đổi được mật khẩu. Vui lòng thử lại.")
+          return
+        }
+        closePassword()
+        passwordStatus.textContent = result.message
+      } catch {
+        passwordStatus.textContent = "Không nhận được phản hồi. Vui lòng kiểm tra kết nối và thử lại."
+      } finally {
+        passwordSubmit.disabled = false
+      }
     })
   }
   const reviewSection = document.querySelector("[data-service-reviews]")
@@ -938,19 +968,49 @@
       "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
     })[char])
     const products = catalog.products.filter((item) => item.active === true)
-    const skins = [...new Set(products.flatMap((item) => item.skins).filter((skin) => skin !== "Không áp dụng"))]
-    form.elements.skin.replaceChildren(new Option("Chưa xác định", ""), ...skins.map((skin) => new Option(skin, skin)))
-    const savedSkin = skins.find((skin) => normalize(skin) === normalize(profile.skin_type || profile.skin))
-    if (savedSkin) form.elements.skin.value = savedSkin
+    // Some catalog rows contain multiple skin labels on one line.
+    const matchesSkin = (item, skin) => item.audiences.includes(skin) ||
+      item.skins.some((line) => line.split(";").some((label) => label.trim() === skin))
+    const skinSelect = form.elements.skin
+    const savedSkin = normalize(profile.skin_type || profile.skin)
+    const savedOption = Array.from(skinSelect.options).find((option) => normalize(option.value) === savedSkin)
+    if (savedOption) skinSelect.value = savedOption.value
+    const budgetInput = form.elements.budget
     const savedBudget = profile.budget === null || profile.budget === "" ? NaN : Number(profile.budget)
-    form.elements.budget.value = Number.isFinite(savedBudget) && savedBudget >= 0 ? savedBudget : ""
+    budgetInput.value = Number.isFinite(savedBudget) && savedBudget >= 0 ? savedBudget : ""
+    const budgetStepper = form.querySelector("[data-budget-stepper]")
+    if (budgetStepper && typeof budgetInput.stepUp === "function" && typeof budgetInput.stepDown === "function") {
+      budgetStepper.querySelectorAll("[data-budget-step]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const previousValue = budgetInput.value
+          if (button.dataset.budgetStep === "up") budgetInput.stepUp()
+          else budgetInput.stepDown()
+          if (budgetInput.value !== previousValue) {
+            budgetInput.dispatchEvent(new Event("input", { bubbles: true }))
+            budgetInput.dispatchEvent(new Event("change", { bubbles: true }))
+          }
+        })
+      })
+      budgetStepper.hidden = false
+    }
     const preferences = profile.preferences ?? profile.interests
     form.elements.interests.value = Array.isArray(preferences) ? preferences.join(", ") : preferences || ""
     const needsLabels = { face: "Chăm sóc da mặt", relax: "Thư giãn", body: "Chăm sóc cơ thể", hair: "Chăm sóc tóc" }
-    const savedNeed = normalize(profile.care_needs || profile.needs)
-    const needPatterns = { face: /face|da mat/, relax: /relax|thu gian|massage/, body: /body|co the/, hair: /hair|toc|da dau/ }
-    const savedGroup = Object.keys(needsLabels).find((group) => savedNeed && needPatterns[group].test(savedNeed))
-    if (savedGroup) form.elements.needs.value = savedGroup
+    // Match complete Profile choices in saved order, not keywords in free text.
+    const normalizeNeed = (value) => normalize(value).trim().replace(/\s+/g, " ").replace(/\s*,\s*/g, ", ")
+    const needGroups = new Map([
+      ["Dưỡng ẩm, cải thiện da khô", "face"],
+      ["Kiểm soát dầu, chăm sóc da mụn", "face"],
+      ["Làm sáng da, cải thiện da xỉn màu", "face"],
+      ["Thư giãn, giảm căng thẳng", "relax"],
+      ["Chăm sóc tóc và da đầu", "hair"],
+      ["Chăm sóc cơ thể, giảm mệt mỏi", "body"],
+    ].map(([label, group]) => [normalizeNeed(label), group]))
+    const sourceNeeds = profile.care_needs ?? profile.needs
+    const savedNeeds = Array.isArray(sourceNeeds) ? sourceNeeds : [sourceNeeds]
+    const savedGroup = savedNeeds.filter((value) => typeof value === "string")
+      .map((value) => needGroups.get(normalizeNeed(value))).find(Boolean)
+    form.elements.needs.value = savedGroup || ""
     form.addEventListener("submit", (event) => {
       event.preventDefault()
       if (!form.reportValidity() || !window.spaAuth.isAuthenticated() || read("spa-auth", {}).role !== "User") return
@@ -967,7 +1027,7 @@
         .filter((term) => normalize(interests).includes(normalize(term)))
       // Negative/medical preferences need a specialist; do not claim language understanding.
       const needsAdvice = /khong|tranh|di ung/.test(normalize(interests))
-      const skinProducts = new Set(products.filter((item) => [...item.skins, ...item.audiences].includes(skin)).map((item) => item.id))
+      const skinProducts = new Set(products.filter((item) => matchesSkin(item, skin)).map((item) => item.id))
       const skinServices = new Set(catalog.relations.filter((relation) => skinProducts.has(relation.productId)).map((relation) => relation.serviceId))
       const preferenceHits = (item) => needsAdvice ? [] : preferenceTerms.filter((term) => normalize(`${item.name} ${item.category} ${item.description}`).includes(normalize(term)))
       const relevant = catalog.services.filter((item) => item.active === true && needMatch(item) > 0)
@@ -984,8 +1044,8 @@
       const services = ranked.slice(0, 3), best = services[0]?.item
       const relatedProducts = new Set(catalog.relations.filter((relation) => relation.serviceId === best?.id).map((relation) => relation.productId))
       const care = products.filter((item) => relatedProducts.has(item.id) &&
-        (!skin || item.skins.includes("Không áp dụng") || [...item.skins, ...item.audiences].includes(skin)))
-        .sort((a, b) => Number([...b.skins, ...b.audiences].includes(skin)) - Number([...a.skins, ...a.audiences].includes(skin)) ||
+        (!skin || item.skins.includes("Không áp dụng") || matchesSkin(item, skin)))
+        .sort((a, b) => Number(matchesSkin(b, skin)) - Number(matchesSkin(a, skin)) ||
           preferenceHits(b).length - preferenceHits(a).length || a.id - b.id).slice(0, 3)
       const chips = [skin || "Chưa xác định loại da", needsLabels[needs] || "Khám phá liệu trình",
         Number.isFinite(budget) ? `≤ ${money(budget)}` : "Ngân sách linh hoạt", durationLabels[duration] || "Thời lượng không quan trọng"]
@@ -1009,7 +1069,8 @@
           [needs ? 35 * (needMatch(best) - needMatch(runner.item)) : 0, "nhu cầu chăm sóc khớp hơn"],
           [skin ? 25 * (Number(skinServices.has(best.id)) - Number(skinServices.has(runner.item.id))) : 0, `dữ liệu chăm sóc liên quan cho ${skin}`],
           [preferenceTerms.length && !needsAdvice ? 10 * (services[0].hits.length - runner.hits.length) / preferenceTerms.length : 0, "từ khóa sở thích đối chiếu được"],
-          [duration ? 10 * (Number(durationMatch(best)) - Number(durationMatch(runner.item))) : 0, `thời lượng ${durationLabels[duration].toLocaleLowerCase("vi")}`],
+          ...(duration ? [[10 * (Number(durationMatch(best)) - Number(durationMatch(runner.item))),
+            `thời lượng ${durationLabels[duration].toLocaleLowerCase("vi")}`]] : []),
         ].filter(([difference]) => difference > 0).sort((a, b) => b[0] - a[0])
         priority = services[0].score === runner.score
           ? best.priceValue < runner.item.priceValue ? "mức giá thấp hơn khi các lựa chọn có điểm tương đương" : "thứ tự catalog ổn định khi điểm và giá tương đương, không khẳng định một lựa chọn vượt trội"
@@ -1049,7 +1110,7 @@
           : "<p>Hiện chưa có phương án khác cùng nhu cầu và ngân sách trong catalog.</p>"}</section>
         <section><h2>Chăm sóc sau liệu trình</h2><div class="catalog-grid">${care.map((item) => `<article class="review-surface" data-recommended-product="${item.id}"><span class="eyebrow">${escape(item.category)}</span><h3>${escape(item.name)}</h3>
           <p>${escape(item.description)}</p><p class="review-note">${escape((item.skins.includes("Không áp dụng") ? item.audiences : item.skins).join(" · "))}</p>
-          <p class="review-note">Vai trò trong chăm sóc tại nhà: ${escape(Array.isArray(item.benefits) ? item.benefits.join(" ") : item.benefits || item.usage || item.description)} Được liên kết với liệu trình ${escape(best?.name)}${skin && [...item.skins, ...item.audiences].includes(skin) ? ` và có đối tượng chăm sóc ${escape(skin.toLocaleLowerCase("vi"))}` : ""}${preferenceHits(item).length ? `; mô tả khớp sở thích ${escape(preferenceHits(item).join(", "))}` : ""}.</p>
+          <p class="review-note">Vai trò trong chăm sóc tại nhà: ${escape(Array.isArray(item.benefits) ? item.benefits.join(" ") : item.benefits || item.usage || item.description)} Được liên kết với liệu trình ${escape(best?.name)}${skin && matchesSkin(item, skin) ? ` và có đối tượng chăm sóc ${escape(skin.toLocaleLowerCase("vi"))}` : ""}${preferenceHits(item).length ? `; mô tả khớp sở thích ${escape(preferenceHits(item).join(", "))}` : ""}.</p>
           <div class="review-actions"><a class="button small" href="product-detail.html?id=${item.id}">Xem chi tiết</a></div></article>`).join("")}</div>
         ${care.length ? "" : `<p>${best ? "Chưa có sản phẩm liên kết phù hợp với loại da đã chọn." : "Chọn được liệu trình trước để xem chăm sóc liên quan; không gợi ý sản phẩm ngẫu nhiên."}</p>`}</section>
         <section data-recommendation-basis><h2>Cơ sở đề xuất</h2><p>Gợi ý được tạo từ loại da, nhu cầu chăm sóc, ngân sách, sở thích, thời lượng mong muốn và dữ liệu dịch vụ/sản phẩm của An Nhiên.</p>

@@ -10,7 +10,7 @@
     </title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
-    <script src="{% static 'js/ui.js' %}"></script>
+    <script src="{% static 'js/ui.js' %}?v=appointment-code-1"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
     <script src="{% static 'js/app.js' %}" defer>
@@ -18,7 +18,10 @@
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
-<link rel="stylesheet" href="{% static 'css/phase4.css' %}"><script src="{% static 'js/phase4-api.js' %}" defer></script><script src="{% static 'js/live-reviews.js' %}" defer></script></head>
+    <link rel="stylesheet" href="{% static 'css/phase4.css' %}?v=my-reviews-1">
+    <script src="{% static 'js/phase4-api.js' %}" defer></script>
+    <script src="{% static 'js/live-reviews.js' %}?v=my-reviews-1" defer></script>
+  </head>
   <body>
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
     <header class="site-header">
@@ -74,10 +77,12 @@
       <p>
         Những cảm nhận của bạn, để mỗi lần chăm sóc tại An Nhiên thêm trọn vẹn.
       </p>
-      <div class="review-surface">
-        <div id="review-list"></div>
-        <p class="review-note">Đánh giá được lưu tại Spa. Bạn có thể cập nhật đánh giá sau khi hoàn thành lịch hẹn.</p>
-      </div>
+      <p id="my-review-status" role="status" aria-live="polite">Đang tải đánh giá…</p>
+      <div id="review-list" class="my-review-list" data-service-path="{% url 'core:service-detail' %}" aria-label="Đánh giá đã gửi"></div>
+      <section id="review-pending-section" class="my-review-pending" aria-labelledby="review-pending-title" hidden>
+        <h2 id="review-pending-title">Lịch hẹn chưa đánh giá</h2>
+        <div id="review-pending" class="my-review-list"></div>
+      </section>
     </section>
   </main>
   <footer>

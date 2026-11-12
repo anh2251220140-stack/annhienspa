@@ -1,11 +1,14 @@
-from django.contrib.auth import login, logout
-from django.db import IntegrityError
+from django.contrib.auth import login, logout, update_session_auth_hash
+from django.db import IntegrityError, transaction
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.debug import sensitive_post_parameters, sensitive_variables
 from django.views.decorators.http import require_http_methods, require_POST
-from django.views.decorators.debug import sensitive_post_parameters
-from .forms import LoginForm, RegistrationForm
+from core.permissions import api_role
+from .forms import LoginForm, ProfilePasswordChangeForm, RegistrationForm
+from .models import User
 
 
 def landing(user):
@@ -47,3 +50,23 @@ def register_view(request):
 def logout_view(request):
     logout(request)
     return redirect("core:index")
+
+
+@sensitive_variables("form")
+@sensitive_post_parameters("old_password", "new_password1", "new_password2")
+@never_cache
+@csrf_protect
+@require_POST
+@api_role(User.Role.USER)
+def change_password(request):
+    with transaction.atomic():
+        user = User.objects.select_for_update().get(pk=request.user.pk)
+        if not user.is_active or user.role != User.Role.USER or user.is_superuser:
+            return JsonResponse({"error": "Bạn không có quyền thực hiện thao tác này."}, status=403)
+        form = ProfilePasswordChangeForm(user, request.POST)
+        if not form.is_valid():
+            return JsonResponse({"errors": form.errors}, status=400)
+        form.save()
+
+    update_session_auth_hash(request, user)
+    return JsonResponse({"message": "Đã đổi mật khẩu thành công."})

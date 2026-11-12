@@ -10,6 +10,7 @@
     </title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link rel="stylesheet" href="{% static 'css/home-public.css' %}?v=3">
     <script src="{% static 'js/ui.js' %}"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
@@ -100,7 +101,27 @@ mà cả những cảm xúc bên trong bạn.
       Xem tất cả dịch vụ
     </a>
   </div>
-  <div id="danh-sach-dich-vu" class="card-grid">{% for item in live_catalog.services|slice:":4" %}<article class="service-card"><img src="{{ item.image }}" alt="{{ item.name }}" loading="lazy"><div class="card-shade"></div><span class="card-number">{{ forloop.counter|stringformat:"02d" }}</span><div class="service-info"><span class="eyebrow">{{ item.category }}</span><h3>{{ item.name }}</h3><p class="service-meta">{{ item.price }} · {{ item.duration }}</p><a class="service-detail-link" href="{% url 'core:service-detail' %}?id={{ item.id }}">Xem chi tiết</a></div></article>{% empty %}<p class="journey-empty">Các liệu trình đang được cập nhật.</p>{% endfor %}</div>
+  <div id="danh-sach-dich-vu" class="card-grid">
+    {% for item in live_catalog.services|slice:":4" %}
+      <article class="service-card">
+        <img src="{{ item.image }}" alt="{{ item.name }}" loading="lazy">
+        <div class="card-shade"></div>
+        <span class="card-number">{{ forloop.counter|stringformat:"02d" }}</span>
+        <div class="service-info">
+          <span class="eyebrow">{{ item.category }}</span>
+          <h3>{{ item.name }}</h3>
+          <p class="service-meta">
+            <span>{{ item.price }}</span>
+            <span class="dot" aria-hidden="true">·</span>
+            <span>{{ item.duration }}</span>
+          </p>
+          <a class="button small service-detail-link" href="{% url 'core:service-detail' %}?id={{ item.id }}">Xem chi tiết</a>
+        </div>
+      </article>
+    {% empty %}
+      <p class="journey-empty">Các liệu trình đang được cập nhật.</p>
+    {% endfor %}
+  </div>
 <p class="collection-note">
   Mỗi liệu trình là một hành trình trở về với chính mình.
 </p>
@@ -123,12 +144,11 @@ mà cả những cảm xúc bên trong bạn.
         Xem tất cả sản phẩm
       </a>
     </div>
-    <div class="card-grid">{% for item in live_catalog.products|slice:":4" %}<article class="product-card"><div class="product-image"><img src="{{ item.image }}" alt="{{ item.name }}" loading="lazy"></div><div class="product-info"><span class="eyebrow">{{ item.category }}</span><h3>{{ item.name }}</h3><p>{{ item.description }}</p><a class="text-link" href="{% url 'core:product-detail' %}?id={{ item.id }}">Xem chi tiết</a></div></article>{% empty %}<p class="journey-empty">Sản phẩm chăm sóc đang được cập nhật.</p>{% endfor %}</div>
+    <div class="card-grid">{% for item in live_catalog.products|slice:":4" %}<article class="product-card"><div class="product-image"><img src="{{ item.image }}" alt="{{ item.name }}" fetchpriority="low"></div><div class="product-info"><span class="eyebrow">{{ item.category }}</span><h3>{{ item.name }}</h3><p>{{ item.description }}</p><a class="text-link" href="{% url 'core:product-detail' %}?id={{ item.id }}">Xem chi tiết</a></div></article>{% empty %}<p class="journey-empty">Sản phẩm chăm sóc đang được cập nhật.</p>{% endfor %}</div>
 </div>
 </section>
 <section class="experience image-section">
-  <img class="section-image" src="{% static 'images/candles.jpg' %}" alt="Nến thơm và khăn mềm trong không gian spa" loading="lazy"/>
-</img>
+  <img class="section-image" src="{% static 'images/candles.jpg' %}" alt="Nến thơm và khăn mềm trong không gian spa" fetchpriority="low">
 <div class="image-shade">
 </div>
 <div class="container experience-content">
@@ -207,7 +227,25 @@ mà cả những cảm xúc bên trong bạn.
     <div class="service-actions">
       <a class="button all-services" href="{% url 'core:promotions' as page_url %}{{ page_url|slice:'1:' }}">Xem tất cả khuyến mãi</a>
     </div>
-    <div class="offer-grid">{% for item in live_promotions.items|slice:":3" %}<article class="offer-card"><div class="offer-topline"><span class="eyebrow">{{ item.code }}</span><span class="offer-badge">{{ item.badge }}</span></div><div class="offer-ornament" aria-hidden="true">✧</div><h3>{{ item.name }}</h3><div class="discount">{{ item.discount }}</div><p>{{ item.description }}</p><div class="offer-bottom"><span>{{ item.startDate|slice:"8:10" }}/{{ item.startDate|slice:"5:7" }}/{{ item.startDate|slice:":4" }} — {{ item.endDate|slice:"8:10" }}/{{ item.endDate|slice:"5:7" }}/{{ item.endDate|slice:":4" }}</span><a class="button small" href="{% url 'core:promotion-detail' %}?code={{ item.code|urlencode }}">Xem chi tiết</a></div></article>{% empty %}<p class="journey-empty">Hiện chưa có chương trình khuyến mãi đang hiệu lực.</p>{% endfor %}</div>
+    <div class="offer-grid">
+      {% for item in live_promotions.items|slice:":3" %}
+        <article class="offer-card">
+          <div class="offer-topline"><span class="eyebrow">{{ item.code }}</span><span class="offer-badge">{{ item.badge }}</span></div>
+          <div class="offer-ornament" aria-hidden="true">
+            <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+              <path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9"></path>
+              <path d="m8 16 1-6m3 2 5 0"></path>
+            </svg>
+          </div>
+          <h3>{{ item.name }}</h3>
+          <div class="discount">{{ item.discount }}</div>
+          <p>{{ item.description }}</p>
+          <div class="offer-bottom"><span>{{ item.startDate|slice:"8:10" }}/{{ item.startDate|slice:"5:7" }}/{{ item.startDate|slice:":4" }} — {{ item.endDate|slice:"8:10" }}/{{ item.endDate|slice:"5:7" }}/{{ item.endDate|slice:":4" }}</span><a class="button small" href="{% url 'core:promotion-detail' %}?code={{ item.code|urlencode }}">Xem chi tiết</a></div>
+        </article>
+      {% empty %}
+        <p class="journey-empty">Hiện chưa có chương trình khuyến mãi đang hiệu lực.</p>
+      {% endfor %}
+    </div>
   </div>
 </section>
 <section class="closing image-section">
@@ -233,12 +271,7 @@ mà cả những cảm xúc bên trong bạn.
 <p>
   Chọn liệu trình phù hợp và đặt lịch tại An Nhiên Spa.
 </p>
-<a class="button filled" href="{% url 'core:login' as page_url %}{{ page_url|slice:'1:' }}">
-  Đặt lịch ngay
-  <span>
-    ↗
-  </span>
-</a>
+<a class="button filled closing-book-button" href="{% url 'core:login' as page_url %}{{ page_url|slice:'1:' }}">Đặt lịch ngay</a>
 </div>
 </section>
 </main>
