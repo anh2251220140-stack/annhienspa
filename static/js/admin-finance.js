@@ -86,7 +86,7 @@
     if(paymentsFor(i).some(p=>p.status==='success'))return 'Đã có giao dịch thành công. Cần kiểm tra trạng thái hóa đơn trước khi thu thêm.';
     if(['PAID','PROCESSING','UNDERPAID'].includes(i.currentOnline?.providerStatus) || paymentsFor(i).some(p=>p.status==='pending' && ['PAID','PROCESSING','UNDERPAID'].includes(p.providerStatus)))return 'payOS đã nhận tiền hoặc đang xử lý. Cần xác minh trước khi thu thêm.';
     if(i.paymentAllowed!==true)return 'Hóa đơn hiện chưa đủ điều kiện thu tiền. Vui lòng kiểm tra trạng thái và đối soát.';
-    return '';
+    return i.cashTimingIssue || '';
   }
   function cashSection(i) {
     const issue=cashIssue(i);

@@ -8,8 +8,8 @@ from contextlib import ExitStack
 from html.parser import HTMLParser
 from unittest.mock import patch
 
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.exceptions import ValidationError
+from config.fr14_test_guard import require_isolated_database
 from django.test import Client, TestCase
 from django.utils import timezone
 
@@ -39,13 +39,7 @@ class ServiceCheckboxes(HTMLParser):
 class AdminPromotionServicesTests(Fixtures, TestCase):
     @classmethod
     def setUpClass(cls):
-        db = settings.DATABASES['default']
-        expected = dict(NAME='annhien_spa_fr14_tests', USER='annhien_fr14_tests',
-                        HOST='127.0.0.1', PORT='3306')
-        if (db.get('ENGINE') != 'django.db.backends.mysql' or
-                any(str(db.get(key)) != value for key, value in expected.items()) or
-                db.get('TEST', {}).get('NAME') != expected['NAME']):
-            raise ImproperlyConfigured('Promotion tests require the guarded isolated FR-14 runner.')
+        require_isolated_database()
         super().setUpClass()
 
     def setUp(self):

@@ -6,6 +6,7 @@ from services.models import Service, ServiceCategory
 from products.models import CareProduct
 from employees.models import Employee, EmployeeSchedule
 from promotions.models import Promotion
+from promotions.services import policy
 
 class NamedChoices(forms.ModelMultipleChoiceField):
     def label_from_instance(self,obj):return obj.name + (" (Tạm ngừng)" if not obj.is_active else "")
@@ -79,7 +80,7 @@ class EmployeeForm(BaseForm):
 class PromotionForm(BaseForm):
     services=NamedChoices(queryset=Service.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)
     class Meta:
-        model=Promotion;fields=['name','code','discount_type','discount_value','start_date','end_date','description','detail','conditions','note','badge','accent','aliases','min_amount','max_discount','per_customer_limit','scope_note','services']
+        model=Promotion;fields=['name','code','discount_type','discount_value','start_date','end_date','description','detail','conditions','note','note_is_informational','badge','accent','aliases','min_amount','max_discount','per_customer_limit','scope_note','services']
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].label = 'Tên chương trình'
@@ -87,9 +88,20 @@ class PromotionForm(BaseForm):
         self.fields['accent'].required = False
         self.fields['per_customer_limit'].label = 'Giới hạn lượt mỗi khách (tùy chọn)'
         self.fields['per_customer_limit'].min_value = 1
+        self.fields['note_is_informational'].label = 'Lưu ý chỉ dùng để hướng dẫn khách hàng'
+        self.fields['note_is_informational'].widget.attrs['aria-describedby'] = 'promotion-note-policy-help'
+        if self.instance._state.adding:
+            self.initial.setdefault('note_is_informational', True)
     def clean(self):
         data=super().clean()
         import re
+        if (self.instance.pk and not self.instance.note_is_informational
+                and data.get('note_is_informational') and 'per_customer_limit' in data):
+            previous_limit, _ = policy(self.instance)
+            next_limit, _ = policy(Promotion(conditions=data.get('conditions', ''),
+                                             per_customer_limit=data['per_customer_limit']))
+            if previous_limit is not None and (next_limit is None or next_limit > previous_limit):
+                self.add_error('per_customer_limit', 'Khi chuyển Lưu ý sang hướng dẫn, hãy giữ giới hạn lượt hiện hành trong ô này.')
         code=data.get('code','').upper();aliases=[v.strip().upper() for v in data.get('aliases','').splitlines() if v.strip()]
         codes=[code]+aliases
         if any(not re.fullmatch(r'[A-Z0-9_-]{2,50}',v) for v in codes):raise ValidationError('Mã chính/thay thế gồm 2–50 ký tự chữ, số, gạch ngang hoặc gạch dưới.')

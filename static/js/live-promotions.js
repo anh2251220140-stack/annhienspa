@@ -90,8 +90,7 @@
       label.insertAdjacentHTML('afterbegin', icon(symbol));
     });
   }
-  function prepareForm(isEdit) {
-    const form = dialog.querySelector('form');
+  function prepareForm(form, isEdit) {
     const submit = form.querySelector('[type="submit"]');
     submit.innerHTML = icon('check') + (isEdit ? 'Lưu thay đổi' : 'Lưu');
     // The shared form includes image guidance; Promotions has no image upload.
@@ -122,7 +121,7 @@
       });
       picker.onclick = () => { try { nativeDate.showPicker(); } catch (_) { text.focus(); } };
     });
-    const group = form.querySelector('.admin-ops-checks');
+    const group = form.querySelector('fieldset.admin-ops-checks');
     if (group) {
       const checks = [...group.querySelectorAll('input[type="checkbox"][name="services"]')];
       const controls = document.createElement('div');
@@ -139,7 +138,6 @@
       controls.addEventListener('input', update);
       checks.forEach(check => check.addEventListener('change', update)); update();
     }
-    return form;
   }
   function bind(form, path) {
     form.addEventListener('submit', async event => {
@@ -179,7 +177,20 @@
       } else {
         const data = await api(endpoint(id) + (action === 'view' ? '?view=1' : ''));
         open(`${action === 'view' ? 'Thông tin' : action === 'edit' ? 'Sửa' : 'Thêm'} khuyến mãi`, data.html);
-        if (action === 'view') prepareDetail(row); else bind(prepareForm(Boolean(id)), endpoint(id));
+        if (action === 'view') prepareDetail(row);
+        else {
+          const form = dialog.querySelector('form');
+          bind(form, endpoint(id));
+          try { prepareForm(form, Boolean(id)); }
+          catch (error) {
+            form.querySelector('[type="submit"]').disabled = true;
+            const feedback = form.querySelector('[data-error]');
+            feedback.textContent = 'Không thể mở đầy đủ biểu mẫu. Hãy đóng và thử lại.';
+            feedback.hidden = false;
+            feedback.focus();
+            console.error(error);
+          }
+        }
       }
     } catch (err) { notice(err.message); }
     finally { loading = false; button.disabled = false; }

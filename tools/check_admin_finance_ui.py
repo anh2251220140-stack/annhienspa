@@ -95,6 +95,11 @@ await openInvoice(2);check($('#finance-dialog [data-cash-form]')&&$('#finance-di
 if(module==='invoices'){
 await openInvoice(6);check(!$('#finance-dialog [data-cash-form]')&&$('#finance-dialog').textContent.includes('chưa được xác nhận'),'pending appointment no cash');close();
 await openInvoice(1);fits();check($('#finance-dialog').textContent.includes('LH-000002'),'HD-1 actual FK not invoice ID');
+const timingFixture=fixtures.find(i=>i.id===1);
+timingFixture.cashTimingIssue='Chưa đến giờ hẹn. Chỉ được ghi nhận thanh toán tại Spa từ 09:00 ngày 16/11/2026 (giờ Việt Nam).';
+close();await openInvoice(1);
+check(!$('#finance-dialog [data-cash-form]')&&$('#finance-dialog').textContent.includes(timingFixture.cashTimingIssue)&&posts===0,'server cutoff hides cash form and explains timing');
+timingFixture.cashTimingIssue='';close();await openInvoice(1);
 const form=$('[data-cash-form]');form.scrollIntoView({block:'center'});await wait();const amount=form.querySelector('[name="amount"]');amount.focus();
 check(amount.getBoundingClientRect().width>200&&document.activeElement===amount,'cash amount usable');
 check(form.querySelector('button').textContent.includes('Xác nhận đã thu tiền tại Spa'),'cash CTA');

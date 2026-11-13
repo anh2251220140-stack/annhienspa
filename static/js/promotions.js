@@ -86,8 +86,8 @@
   main.querySelectorAll("[data-promotion-name]").forEach((node) => { node.textContent = formatMoneyInText(item.name); });
   main.querySelector("[data-promotion-code]").textContent = item.code;
   const discount = main.querySelector("[data-promotion-discount]");
-  discount.textContent = formatMoneyInText(item.discount);
-  discount.classList.toggle("is-amount", discount.textContent.includes(" VND"));
+  discount.textContent = item.discount;
+  discount.classList.toggle("is-amount", item.discountType === "amount");
   main.querySelector("[data-promotion-description]").textContent = formatMoneyInText(item.description);
   main.querySelector("[data-promotion-detail]").textContent = formatMoneyInText(item.detail);
   main.querySelector("[data-promotion-period]").textContent = `${dateLabel(item.startDate)} — ${dateLabel(item.endDate)}`;

@@ -18,6 +18,8 @@ class Promotion(ValidatedModel):
     detail = models.TextField(blank=True, default="")
     conditions = models.TextField(blank=True, default="")
     note = models.TextField(blank=True, default="")
+    # Existing records and clients that omit this flag retain the legacy policy.
+    note_is_informational = models.BooleanField(default=False)
     badge = models.CharField(max_length=80, blank=True, default="")
     accent = models.CharField(max_length=20, default="champagne", choices=[("champagne","Champagne"),("terracotta","Terracotta"),("caramel","Caramel")])
     aliases = models.TextField(blank=True, default="")

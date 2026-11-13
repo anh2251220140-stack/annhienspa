@@ -53,7 +53,7 @@ def apply_plan(employee_id,data):
     affected=[]
     for a in Appointment.objects.filter(employee=employee,appointment_date__in=days).exclude(status='cancelled').select_related('customer'):
         if not any(s<=a.start_time<a.end_time<=e and state=='working' for s,e,state in segments):
-            affected.append(f"LH-{a.pk}: {a.appointment_date:%d/%m/%Y} {a.start_time:%H:%M}–{a.end_time:%H:%M}, {a.customer.full_name}")
+            affected.append(f"LH-{a.pk:06d}: {a.appointment_date:%d/%m/%Y} {a.start_time:%H:%M}–{a.end_time:%H:%M}, {a.customer.full_name}")
     if affected:raise ValidationError(["Chưa áp dụng. Ca/ngày nghỉ ảnh hưởng các lịch sau; cần xử lý với khách trước:"]+affected)
     note=str(data.get('note','')).strip()
     if len(note)>1000:raise ValidationError("Ghi chú tối đa 1000 ký tự.")

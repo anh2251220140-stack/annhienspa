@@ -6,11 +6,13 @@ from django import forms
 from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.db.models import Count
 from django.utils import timezone
 
 from accounts.models import User
 from appointments.models import Appointment
 from billing.models import Invoice, InvoiceDetail
+from billing.services import require_invoice_detail
 
 
 class HistoricalInvoiceForm(forms.Form):
@@ -42,6 +44,10 @@ class Command(BaseCommand):
             if options['apply']:raise CommandError('--apply requires a reviewed --plan.')
             missing = Appointment.objects.filter(status__in=['confirmed', 'completed'], invoice__isnull=True)
             self.stdout.write(json.dumps(list(missing.values('id', 'status', 'appointment_date', 'service_id')), default=str))
+            invalid = Invoice.objects.annotate(detail_count=Count("details")).exclude(detail_count=1).order_by("pk")
+            if invalid.exists():
+                self.stdout.write(json.dumps(list(invalid.values("id", "appointment_id", "detail_count"))))
+                raise CommandError("Phát hiện hóa đơn thiếu hoặc có nhiều dòng chi tiết. Cần đối soát dữ liệu.")
             self.stdout.write('READ ONLY: historical prices must be supplied with evidence; current catalog prices are never used.')
             return
         try:
@@ -68,6 +74,10 @@ class Command(BaseCommand):
                     raise CommandError(f"LH-{r['appointment_id']}: must be confirmed/completed.")
                 existing = Invoice.objects.filter(appointment=a).first()
                 if existing:
+                    try:
+                        require_invoice_detail(existing)
+                    except ValidationError as error:
+                        raise CommandError(" ".join(error.messages)) from error
                     self.stdout.write(f'LH-{a.pk}: existing invoice {existing.pk}; unchanged.')
                     continue
                 total = r['subtotal'] - r['discount']

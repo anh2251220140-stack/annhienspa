@@ -9,16 +9,16 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
     <link rel="stylesheet" href="{% static 'css/admin.css' %}">
-    <script src="{% static 'js/ui.js' %}"></script>
+    <script src="{% static 'js/ui.js' %}?v=appointment-code-1"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
     <script src="{% static 'js/admin.js' %}" defer></script>
-    <script src="{% static 'js/live-admin.js' %}?v=fr14-luxury-3" defer></script>
+    <script src="{% static 'js/live-admin.js' %}?v=appointment-modal-2" defer></script>
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/live-admin.css' %}">
-<link rel="stylesheet" href="{% static 'css/admin-appointments.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'css/admin-appointments.css' %}?v=4">
 </head>
   <body class="admin-page appointments-luxury">
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>

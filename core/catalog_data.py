@@ -10,6 +10,17 @@ def image(field,fallback,preset=""):return field.url if field else static("image
 def money(value):return f"{value:,.0f}".replace(",",".")+" VND"
 def lines(value):return [s.strip() for s in (value or "").splitlines() if s.strip()]
 
+def _promotion_discount_label(discount_type, value):
+    percent = discount_type == Promotion.DiscountType.PERCENT
+    whole, _, fraction = format(value, "f" if percent else ",f").partition(".")
+    whole = whole.replace(",", ".")
+    fraction = fraction.rstrip("0")
+    separator = "." if percent else ","
+    number = f"{whole}{separator}{fraction}" if fraction else whole
+    suffix = "%" if percent else " VND"
+    return f"Giảm {number}{suffix}"
+
+
 def catalog():
     services=[]
     for x in Service.objects.filter(is_active=True,category__is_active=True).select_related("category"):
@@ -29,7 +40,7 @@ def catalog():
     relations=[{"serviceId":r.service_id,"productId":r.product_id} for r in ServiceProduct.objects.filter(service_id__in=ids,product_id__in=products_ids)]
     return {"services":services,"products":products,"staff":staff,"relations":relations}
 
-def promotions():
+def promotions(*, promotion_page=False):
     today=timezone.localdate();items=[]
     for x in Promotion.objects.filter(is_active=True,start_date__lte=today,end_date__gte=today).prefetch_related("services"):
         conditions=lines(x.conditions)
@@ -38,9 +49,16 @@ def promotions():
         if limit is not None:conditions.append(f'Mỗi khách hàng được sử dụng tối đa {limit} lần; hóa đơn chưa thanh toán giữ lượt cho đến khi xóa mã hoặc hủy hợp lệ.')
         if x.min_amount is not None:conditions.append("Giá trị tối thiểu: "+money(x.min_amount))
         if x.max_discount is not None:conditions.append("Giảm tối đa: "+money(x.max_discount))
-        items.append({"id":x.pk,"code":x.code,"aliases":lines(x.aliases),"active":True,"name":x.name,
-            "discount":"Giảm "+(f"{x.discount_value:g}%" if x.discount_type=="percent" else money(x.discount_value)),
+        if promotion_page:
+            discount = _promotion_discount_label(x.discount_type, x.discount_value)
+        else:
+            discount = "Giảm "+(f"{x.discount_value:g}%" if x.discount_type=="percent" else money(x.discount_value))
+        item={"id":x.pk,"code":x.code,"aliases":lines(x.aliases),"active":True,"name":x.name,
+            "discount":discount,
             "description":x.description or "","detail":x.detail or x.description or "","conditions":conditions,
             "startDate":x.start_date.isoformat(),"endDate":x.end_date.isoformat(),"badge":x.badge or "Ưu đãi", "accent":x.accent,
-            "serviceIds":list(x.services.filter(is_active=True,category__is_active=True).values_list("pk",flat=True)),"note":x.note,"scopeNote":x.scope_note})
+            "serviceIds":list(x.services.filter(is_active=True,category__is_active=True).values_list("pk",flat=True)),"note":x.note,"scopeNote":x.scope_note}
+        if promotion_page:
+            item["discountType"] = x.discount_type
+        items.append(item)
     return {"referenceDate":today.isoformat(),"expiringWithinDays":7,"items":items}

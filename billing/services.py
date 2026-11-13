@@ -1,6 +1,7 @@
 from decimal import Decimal
 from datetime import timedelta, datetime
 import secrets
+from zoneinfo import ZoneInfo
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.db import transaction
 from django.db.models import Q
@@ -16,6 +17,13 @@ def allowed(user, invoice, admin=False):
     elif user.role!="Admin" and (user.role!="User" or invoice.appointment.customer.user_id!=user.pk):raise PermissionDenied
 
 
+def require_invoice_owner(user, invoice):
+    if not user.is_authenticated or not user.is_active or user.role != "User":
+        raise PermissionDenied
+    if invoice.appointment.customer.user_id != user.pk:
+        raise PermissionDenied
+
+
 def online_eligible(invoice):
     from appointments.services import start_datetime
     a=invoice.appointment
@@ -25,6 +33,17 @@ def online_eligible(invoice):
 def payable(invoice):
     return (invoice.payment_status == "unpaid" and invoice.appointment.status in ("confirmed", "completed")
             and not invoice.payments.filter(Q(requires_review=True) | Q(status="success")).exists())
+
+
+def cash_timing_issue(invoice):
+    appointment = invoice.appointment
+    starts_at = timezone.make_aware(
+        datetime.combine(appointment.appointment_date, appointment.start_time),
+        ZoneInfo("Asia/Ho_Chi_Minh"),
+    )
+    if timezone.now() < starts_at:
+        return f"Chưa đến giờ hẹn. Chỉ được ghi nhận thanh toán tại Spa từ {starts_at:%H:%M ngày %d/%m/%Y} (giờ Việt Nam)."
+    return ""
 
 
 def promotion_editable(invoice):
@@ -64,10 +83,24 @@ def promotion_choices(invoice):
     return dict(items=options,unavailable=unavailable,message="")
 
 
+def require_invoice_detail(invoice):
+    details = list(invoice.details.all()[:2])
+    if len(details) != 1:
+        issue = "thiếu dòng chi tiết" if not details else "có nhiều dòng chi tiết"
+        raise ValidationError(
+            f"Hóa đơn HD-{invoice.pk} {issue}. Cần đối soát dữ liệu trước khi tiếp tục.",
+            code="invalid_invoice_details",
+        )
+    return details[0]
+
+
+@transaction.atomic
 def ensure_invoice(appointment):
     # Caller holds appointment lock; OneToOne also enforces uniqueness in MySQL.
     invoice=Invoice.objects.filter(appointment=appointment).first()
-    if invoice:return invoice
+    if invoice:
+        require_invoice_detail(invoice)
+        return invoice
     if appointment.status!="confirmed":raise ValidationError("Chỉ lập hóa đơn sau khi xác nhận lịch.")
     price=appointment.service.price
     invoice=Invoice.objects.create(appointment=appointment,subtotal=price,total_amount=price)
@@ -87,7 +120,9 @@ def lock_invoice(pk):
 @transaction.atomic
 def apply_promotion(user,pk,code):
     from promotions.services import evaluate_code
-    invoice=lock_invoice(pk);allowed(user,invoice)
+    invoice = lock_invoice(pk)
+    require_invoice_owner(user, invoice)
+    require_invoice_detail(invoice)
     if not promotion_editable(invoice):raise ValidationError("Chọn Đổi khuyến mãi và đóng phiên thanh toán cũ an toàn trước khi sửa ưu đãi. Hóa đơn đã trả/hủy hoặc cần đối soát không được thay đổi.")
     if not code.strip():
         invoice.promotion=None;invoice.promotion_code_snapshot=""
@@ -130,7 +165,9 @@ def validate_provider(payment, result):
 
 @transaction.atomic
 def begin_promotion_edit(user,pk):
-    invoice=lock_invoice(pk);allowed(user,invoice)
+    invoice = lock_invoice(pk)
+    require_invoice_owner(user, invoice)
+    require_invoice_detail(invoice)
     if not payable(invoice):raise ValidationError("Hóa đơn không còn được đổi ưu đãi hoặc đang cần đối soát.")
     stop_pending(invoice)
     invoice.payment_preference="";invoice.save()
@@ -140,6 +177,7 @@ def begin_promotion_edit(user,pk):
 @transaction.atomic
 def select_spa(user,pk):
     invoice=lock_invoice(pk);allowed(user,invoice)
+    require_invoice_detail(invoice)
     if not payable(invoice):raise ValidationError("Hóa đơn không đủ điều kiện chọn thanh toán tại Spa.")
     stop_pending(invoice)
     invoice.payment_preference="spa";invoice.save()
@@ -150,7 +188,10 @@ def select_spa(user,pk):
 def cash(user,pk,amount):
     from promotions.services import validate_invoice_usage
     invoice=lock_invoice(pk);allowed(user,invoice,admin=True)
+    require_invoice_detail(invoice)
     if not payable(invoice):raise ValidationError("Hóa đơn không đủ điều kiện thu tiền hoặc cần đối soát.")
+    if issue := cash_timing_issue(invoice):
+        raise ValidationError(issue)
     if amount!=invoice.total_amount:raise ValidationError("Số tiền phải khớp tổng hóa đơn.")
     stop_pending(invoice)
     validate_invoice_usage(invoice)
@@ -166,6 +207,7 @@ def online(user,pk):
     with transaction.atomic():
         invoice=lock_invoice(pk);allowed(user,invoice)
         if user.role!="User" or not online_eligible(invoice):raise ValidationError("Chỉ thanh toán online trước giờ bắt đầu, với hóa đơn chưa thanh toán.")
+        require_invoice_detail(invoice)
         if invoice.total_amount!=invoice.total_amount.to_integral_value():raise ValidationError("payOS yêu cầu số tiền nguyên VND. Vui lòng thanh toán tại Spa.")
         validate_invoice_usage(invoice)
         p=invoice.payments.filter(status="pending",payment_method="online").first()
@@ -175,6 +217,7 @@ def online(user,pk):
         invoice.payment_preference="online";invoice.save()
     with transaction.atomic():
         invoice=lock_invoice(pk);allowed(user,invoice)
+        require_invoice_detail(invoice)
         p=Payment.objects.select_for_update().get(pk=p.pk)
         if p.status!="pending" or not online_eligible(invoice):raise ValidationError("Hóa đơn/phiên thanh toán đã thay đổi.")
         validate_invoice_usage(invoice)
@@ -191,6 +234,7 @@ def online(user,pk):
 @transaction.atomic
 def cancel_online(user,pk):
     invoice=lock_invoice(pk);allowed(user,invoice)
+    require_invoice_detail(invoice)
     if invoice.payment_status!="unpaid":raise ValidationError("Hóa đơn không còn chờ thanh toán.")
     if not payable(invoice):raise ValidationError("Hóa đơn cần đối soát trước khi đóng phiên.")
     stop_pending(invoice);invoice.payment_preference="";invoice.save();return invoice
@@ -199,6 +243,7 @@ def cancel_online(user,pk):
 @transaction.atomic
 def refresh_online(user, pk):
     invoice=lock_invoice(pk);allowed(user,invoice)
+    require_invoice_detail(invoice)
     for p in invoice.payments.select_for_update().filter(payment_method="online",status="pending"):
         try: result=gateway.get(p)
         except Exception: raise ValidationError("Chưa thể đối chiếu trạng thái payOS. Vui lòng thử lại; hóa đơn chưa được đổi trạng thái.")
@@ -220,6 +265,7 @@ def accept_webhook(data):
     invoice=lock_invoice(p.invoice_id);p=Payment.objects.select_for_update().get(pk=p.pk)
     if Decimal(data.amount)!=p.amount or data.currency!="VND" or (p.payment_link_id and p.payment_link_id!=data.payment_link_id):raise ValidationError("Webhook không khớp giao dịch.")
     if data.code!="00":return False
+    require_invoice_detail(invoice)
     if p.status in ("success","review"):return True
     try:
         paid_at=datetime.fromisoformat(data.transaction_date_time)

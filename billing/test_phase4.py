@@ -3,6 +3,7 @@ from datetime import timedelta,time,datetime,date,timezone as dt_timezone
 from decimal import Decimal
 from unittest.mock import patch
 from types import SimpleNamespace
+from zoneinfo import ZoneInfo
 from django.test import TestCase,Client,override_settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -18,6 +19,11 @@ from reviews.models import Review
 def provider_state(p,status='PENDING',amount_paid=0):
     return SimpleNamespace(order_code=p.order_code,amount=int(p.amount),id=p.payment_link_id or 'test-link',status=status,amount_paid=amount_paid)
 
+def at_appointment_start(appointment):
+    starts_at = datetime.combine(appointment.appointment_date, appointment.start_time, ZoneInfo('Asia/Ho_Chi_Minh'))
+    return patch('billing.services.timezone.now', return_value=starts_at.astimezone(dt_timezone.utc))
+
+
 @override_settings(PAYOS_CLIENT_ID="test-client",PAYOS_API_KEY="test-api",PAYOS_CHECKSUM_KEY="test-checksum")
 class Phase4Tests(Fixtures,TestCase):
     def setUp(self):
@@ -30,10 +36,75 @@ class Phase4Tests(Fixtures,TestCase):
         p=Promotion.objects.create(name="Test",code="TEST10",discount_type="percent",discount_value=10,start_date=timezone.localdate(),end_date=self.day);p.services.add(self.service)
         apply_promotion(self.user,self.i.pk,"TEST10");self.i.refresh_from_db();self.assertEqual(self.i.total_amount,Decimal(450000));self.assertEqual(self.i.promotion_code_snapshot,"TEST10")
     def test_cash_once_and_amount(self):
-        with self.assertRaises(ValidationError):cash(self.admin,self.i.pk,Decimal(1))
-        cash(self.admin,self.i.pk,Decimal(500000));self.assertEqual(Payment.objects.get().recorded_by,self.admin)
-        with self.assertRaises(ValidationError):cash(self.admin,self.i.pk,Decimal(500000))
+        with at_appointment_start(self.a):
+            with self.assertRaisesMessage(ValidationError,"Số tiền phải khớp"):cash(self.admin,self.i.pk,Decimal(1))
+            cash(self.admin,self.i.pk,Decimal(500000));self.assertEqual(Payment.objects.get().recorded_by,self.admin)
+            with self.assertRaises(ValidationError):cash(self.admin,self.i.pk,Decimal(500000))
         self.i.refresh_from_db();self.assertEqual(self.i.payment_status,"paid")
+
+    def test_cash_api_rejects_before_vietnam_start_without_touching_pending_order(self):
+        self.client.force_login(self.admin)
+        start = datetime(self.day.year, self.day.month, self.day.day, 3, tzinfo=dt_timezone.utc)
+        invoice_before = Invoice.objects.filter(pk=self.i.pk).values().get()
+        with timezone.override('UTC'), patch('billing.services.timezone.now',return_value=start-timedelta(microseconds=1)), \
+                patch('billing.gateway.get') as provider_get, patch('billing.gateway.cancel') as provider_cancel:
+            expected = f'10:00 ngày {self.day:%d/%m/%Y}'
+            detail = self.client.get(f'/api/billing/{self.i.pk}/').json()['item']
+            self.assertIn(expected,detail['cashTimingIssue'])
+            response = self.client.post(f'/api/billing/{self.i.pk}/cash/',{'amount':self.i.total_amount})
+            self.assertEqual(response.status_code,400)
+            self.assertEqual(response.json()['error'],detail['cashTimingIssue'])
+            self.assertFalse(self.i.payments.exists())
+            with timezone.override('Asia/Ho_Chi_Minh'):
+                pending = Payment.objects.create(invoice=self.i,payment_method='online',amount=self.i.total_amount,order_code=412358)
+            payments_before = list(self.i.payments.values())
+            response = self.client.post(f'/api/billing/{self.i.pk}/cash/',{'amount':self.i.total_amount})
+            self.assertEqual(response.status_code,400)
+            self.assertEqual(response.json()['error'],detail['cashTimingIssue'])
+            provider_get.assert_not_called()
+            provider_cancel.assert_not_called()
+        self.assertEqual(Invoice.objects.filter(pk=self.i.pk).values().get(),invoice_before)
+        self.assertEqual(list(self.i.payments.values()),payments_before)
+        pending.refresh_from_db()
+        self.assertEqual(pending.status,'pending')
+
+    def test_cash_api_accepts_at_vietnam_start_and_after(self):
+        self.client.force_login(self.admin)
+        later_appointment = book(self.user,self.service.pk,self.employee.pk,self.day,time(13))
+        transition(self.admin,later_appointment.pk,'confirmed')
+        later_invoice = Invoice.objects.get(appointment=later_appointment)
+        for invoice,hour,delay in ((self.i,3,0),(later_invoice,6,1)):
+            with self.subTest(delay=delay), timezone.override('UTC'):
+                now = datetime(self.day.year,self.day.month,self.day.day,hour,tzinfo=dt_timezone.utc)+timedelta(seconds=delay)
+                with patch('billing.services.timezone.now',return_value=now):
+                    detail = self.client.get(f'/api/billing/{invoice.pk}/').json()['item']
+                    self.assertEqual(detail['cashTimingIssue'],'')
+                    response = self.client.post(f'/api/billing/{invoice.pk}/cash/',{'amount':invoice.total_amount})
+                self.assertEqual(response.status_code,200,response.content)
+                invoice.refresh_from_db()
+                self.assertEqual(invoice.payment_status,'paid')
+                payment = invoice.payments.get()
+                self.assertEqual((payment.status,payment.payment_method,payment.paid_at),('success','spa',now))
+
+    def test_cash_api_blocks_pending_cancelled_paid_and_review_at_start(self):
+        self.client.force_login(self.admin)
+        cases = (('pending','unpaid',False),('cancelled','unpaid',False),
+                 ('confirmed','cancelled',False),('confirmed','paid',False),('confirmed','unpaid',True))
+        pending = Payment.objects.create(invoice=self.i,payment_method='online',amount=self.i.total_amount,order_code=412359)
+        with at_appointment_start(self.a):
+            for appointment_status,invoice_status,review in cases:
+                with self.subTest(appointment=appointment_status,invoice=invoice_status,review=review):
+                    Appointment.objects.filter(pk=self.a.pk).update(status=appointment_status)
+                    Invoice.objects.filter(pk=self.i.pk).update(payment_status=invoice_status)
+                    if review:
+                        Payment.objects.filter(pk=pending.pk).update(status='review',requires_review=True)
+                    before = list(self.i.payments.values())
+                    response = self.client.post(f'/api/billing/{self.i.pk}/cash/',{'amount':self.i.total_amount})
+                    self.assertEqual(response.status_code,400)
+                    self.assertIn('không đủ điều kiện',response.json()['error'])
+                    self.i.refresh_from_db()
+                    self.assertEqual(self.i.payment_status,invoice_status)
+                    self.assertEqual(list(self.i.payments.values()),before)
     def test_invoice_ownership_and_csrf(self):
         self.client.force_login(self.other);self.assertEqual(self.client.get(f"/api/billing/{self.i.pk}/").status_code,404)
         self.client.force_login(self.user);self.assertEqual(self.client.post(f"/api/billing/{self.i.pk}/cash/",{"amount":500000}).status_code,403)
@@ -69,13 +140,15 @@ class Phase4Tests(Fixtures,TestCase):
     @patch("billing.gateway.create")
     def test_cash_closes_pending_online(self,create,cancel):
         create.side_effect=self.mock_create;p=online(self.user,self.i.pk)
-        cancel.side_effect=TimeoutError
-        with self.assertRaises(ValidationError):cash(self.admin,self.i.pk,Decimal(500000))
-        cancel.side_effect=None;cancel.return_value=provider_state(p,"CANCELLED",10000)
-        with self.assertRaises(ValidationError):cash(self.admin,self.i.pk,Decimal(500000))
-        self.i.refresh_from_db();self.assertEqual(self.i.payment_status,'unpaid')
-        cancel.return_value=provider_state(p,"CANCELLED")
-        cash(self.admin,self.i.pk,Decimal(500000));self.assertEqual(Payment.objects.filter(status="success").count(),1)
+        with at_appointment_start(self.a):
+            cancel.side_effect=TimeoutError
+            with self.assertRaises(ValidationError):cash(self.admin,self.i.pk,Decimal(500000))
+            cancel.side_effect=None;cancel.return_value=provider_state(p,"CANCELLED",10000)
+            with self.assertRaises(ValidationError):cash(self.admin,self.i.pk,Decimal(500000))
+            self.i.refresh_from_db();self.assertEqual(self.i.payment_status,'unpaid')
+            cancel.return_value=provider_state(p,"CANCELLED")
+            cash(self.admin,self.i.pk,Decimal(500000));self.assertEqual(Payment.objects.filter(status="success").count(),1)
+        self.assertEqual(cancel.call_count,3)
     def test_reviews_ownership_completion_edit_reply(self):
         self.client.force_login(self.user);url=f"/api/reviews/appointments/{self.a.pk}/"
         self.assertEqual(self.client.post(url,{"rating":5}).status_code,400)
@@ -110,7 +183,8 @@ class Phase4Tests(Fixtures,TestCase):
         self.assertIsNone(row()['invoiceId']);self.assertFalse(Invoice.objects.filter(appointment=a).exists())
         transition(self.admin,a.pk,'confirmed');i=Invoice.objects.get(appointment=a)
         self.assertEqual(row()['invoiceId'],i.pk)
-        cash(self.admin,i.pk,Decimal(500000));a.refresh_from_db();self.assertEqual(a.status,'confirmed')
+        with at_appointment_start(a):cash(self.admin,i.pk,Decimal(500000))
+        a.refresh_from_db();self.assertEqual(a.status,'confirmed')
         Appointment.objects.filter(pk=a.pk).update(appointment_date=timezone.localdate()-timedelta(days=1))
         transition(self.admin,a.pk,'completed')
         self.assertEqual(row()['invoiceId'],i.pk)
@@ -153,15 +227,51 @@ class Phase4Tests(Fixtures,TestCase):
         self.assertFalse(Invoice.objects.filter(appointment=a).exists())
 
     def test_public_service_reviews_do_not_expose_private_identifiers(self):
+        from reviews.models import ReviewReply
+
         Appointment.objects.filter(pk=self.a.pk).update(status='completed')
         self.a.refresh_from_db()
-        Review.objects.create(appointment=self.a,customer=self.customer,service=self.service,rating=5,comment='Verified review')
-        result=self.client.get(f'/api/reviews/services/{self.service.pk}/').json()
-        self.assertEqual(result['total'],1);self.assertEqual(result['items'][0]['comment'],'Verified review')
-        self.assertNotIn('appointmentId',result['items'][0]);self.assertNotIn('email',result['items'][0])
+        self.customer.full_name='An Nhiên Spa'  # Display names must not determine reply roles.
+        self.customer.save()
+        review=Review.objects.create(appointment=self.a,customer=self.customer,service=self.service,rating=5,comment='Verified review')
+        public_url=f'/api/reviews/services/{self.service.pk}/'
+        reply_url=f'/api/reviews/{review.pk}/replies/'
+        self.assertEqual(self.client.post(reply_url,{'content':'Guest'}).status_code,401)
+        self.client.force_login(self.user)
+        self.assertEqual(self.client.post(reply_url,{'content':'Owner reply'}).status_code,201)
+        self.client.force_login(self.admin)
+        self.assertEqual(self.client.post(reply_url,{'content':'Admin reply'}).status_code,201)
+
+        for actor,allowed in ((None,False),(self.other,False),(self.user,True),(self.admin,True)):
+            with self.subTest(actor=actor and actor.role,allowed=allowed):
+                client=Client()
+                if actor is not None:
+                    client.force_login(actor)
+                response=client.get(public_url)
+                self.assertEqual(response.status_code,200)
+                self.assertIn('no-store',response['Cache-Control'])
+                result=response.json()
+                self.assertEqual(result['total'],1)
+                item=result['items'][0]
+                self.assertEqual(item['comment'],'Verified review')
+                self.assertFalse({'id','appointmentId','customerId','email','phone'} & item.keys())
+                self.assertEqual(item.get('replyUrl'),reply_url if allowed else None)
+                self.assertEqual([r['name'] for r in item['replies']],['An Nhiên Spa','An Nhiên Spa'])
+                self.assertEqual([r['role'] for r in item['replies']],['User','Admin'])
+                self.assertTrue(all(set(r)=={'name','role','content','createdAt'} for r in item['replies']))
+
+        secure=Client(enforce_csrf_checks=True)
+        secure.force_login(self.user)
+        self.assertEqual(secure.post(reply_url,{'content':'Missing CSRF'}).status_code,403)
+        secure.get(f'/service-detail.html?id={self.service.pk}')
+        token=secure.cookies['csrftoken'].value
+        for content in ('  ','x'*2001):
+            self.assertEqual(secure.post(reply_url,{'content':content},HTTP_X_CSRFTOKEN=token).status_code,400)
+        self.assertEqual(ReviewReply.objects.filter(review=review).count(),2)
+        self.assertEqual(secure.post(reply_url,{'content':'x'*2000},HTTP_X_CSRFTOKEN=token).status_code,201)
 
     def test_revenue_local_midnight_boundaries(self):
-        cash(self.admin,self.i.pk,Decimal(500000))
+        with at_appointment_start(self.a):cash(self.admin,self.i.pk,Decimal(500000))
         # 17:00 UTC is exactly midnight of the following Vietnamese calendar day.
         Payment.objects.update(paid_at=datetime(2026,10,21,17,0,tzinfo=dt_timezone.utc))
         self.client.force_login(self.admin)
@@ -187,11 +297,11 @@ class Phase4Tests(Fixtures,TestCase):
     def test_late_webhook_after_cash_requires_review_not_double_revenue(self,create,cancel):
         create.side_effect=self.mock_create;p=online(self.user,self.i.pk)
         cancel.side_effect=lambda payment:provider_state(payment,"CANCELLED")
-        cash(self.admin,self.i.pk,Decimal(500000))
+        with at_appointment_start(self.a):cash(self.admin,self.i.pk,Decimal(500000))
         with gateway.client() as sdk:data=sdk.webhooks.verify(self.signed(p))
         accept_webhook(data);p.refresh_from_db();self.assertTrue(p.requires_review)
         self.client.force_login(self.admin)
-        self.assertEqual(Decimal(self.client.get('/api/dashboard/').json()['revenue']),500000)
+        self.assertEqual(Decimal(self.client.get('/api/dashboard/',{'end':self.day.isoformat()}).json()['revenue']),500000)
 
 
 from django.test import TransactionTestCase
@@ -205,6 +315,7 @@ class ConcurrentPaymentTests(Fixtures,TransactionTestCase):
         get=patch('billing.gateway.get',side_effect=provider_state);get.start();self.addCleanup(get.stop)
         self.seed();a=book(self.user,self.service.pk,self.employee.pk,self.day,time(10))
         transition(self.admin,a.pk,'confirmed');self.invoice=Invoice.objects.get(appointment=a)
+        self.enterContext(at_appointment_start(a))
 
     def test_simultaneous_cash_only_one_payment(self):
         barrier=Barrier(2)

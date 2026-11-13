@@ -134,7 +134,7 @@
     });
     nativeDate.addEventListener("input",()=>{dateText.value=nativeDate.value?nativeDate.value.split("-").reverse().join("/"):"";dateText.setCustomValidity("");dateText.removeAttribute("aria-invalid");$("#ops-notice").hidden=true;});
 
-    const code=id=>"LH-"+String(id).padStart(6,"0");
+    const code=window.spaAppointmentCode;
     const day=value=>/^\d{4}-\d{2}-\d{2}$/.test(value)?value.split("-").reverse().join("/"):value;
     const normalize=value=>String(value).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").toLocaleLowerCase("vi");
     const duration=r=>{const minutes=t=>Number(t.slice(0,2))*60+Number(t.slice(3,5));return minutes(r.end)-minutes(r.time);};
@@ -172,30 +172,51 @@
         ["Thời lượng",`${duration(r)} phút`,"clock"],["Nhân viên",r.employee,"heart"],
         ["Ghi chú",r.note||"—","note"],["Hóa đơn",r.invoiceStatus||"Chưa lập hóa đơn","note"]];
       const cancellation=r.cancelReason||r.cancelledBy||r.cancelledAt;
-      const actions=[["confirm","Xác nhận lịch",r.canConfirm],["complete","Xác nhận đã hoàn thành",r.canComplete],
-        ["cancel","Hủy lịch",r.canCancel],["no_show","Khách không đến",r.canNoShow],["reassign","Đổi chuyên viên ngoại lệ",r.canReassign]].filter(x=>x[2]);
+      const actions=[["confirm","Đã xác nhận",r.canConfirm],["complete","Đã hoàn thành",r.canComplete],
+        ["cancel","Đã hủy",r.canCancel]].filter(x=>x[2]);
+      const processing=editable&&(actions.length||r.canReassign);
+      const reasons=[["customer","Khách yêu cầu hủy"],...(r.canNoShow?[["no_show","Khách không đến"]]:[]),
+        ["unavailable","Nhân viên/Spa không thể phục vụ"],["other","Khác"]];
+      const replacements=r.canReassign?window.spaCatalog.staff.filter(x=>x.serviceIds.includes(r.serviceId)&&x.id!==r.employeeId):[];
       open(editable?"Xử lý lịch hẹn":"Thông tin lịch hẹn",`<div class="admin-service-modal-scroll">
-        <p role="status" class="appointment-feedback" ${message?"":"hidden"}>${escape(message)}</p><div class="admin-ops-detail-heading"><span class="admin-ops-detail-symbol">${icon("calendar")}</span><h3>${escape(r.customer)}</h3>${statusBadge(r)}</div>
-        <dl class="admin-profile-facts admin-ops-facts">${facts.map(([k,v,symbol])=>`<div><dt>${icon(symbol)}${escape(k)}</dt><dd>${escape(v)}</dd></div>`).join("")}</dl>
-        ${r.invoiceId?`<a class="admin-button" href="admin-invoices.html?invoice=HD-${r.invoiceId}">Xem hóa đơn HD-${r.invoiceId}</a>`:""}
+        <p role="status" class="appointment-feedback" ${message?"":"hidden"}>${escape(message)}</p>
+        ${processing?`<div class="admin-ops-process-heading">${statusBadge(r)}<span>${icon("heart")}${escape(r.employee)}</span></div>`:`<div class="admin-ops-detail-heading"><span class="admin-ops-detail-symbol">${icon("calendar")}</span><h3>${escape(r.customer)}</h3>${statusBadge(r)}</div>`}
+        <dl class="admin-profile-facts admin-ops-facts">${(processing?facts.slice(0,4):facts).map(([k,v,symbol])=>`<div><dt>${icon(symbol)}${escape(k)}</dt><dd>${escape(v)}</dd></div>`).join("")}</dl>
+        ${r.invoiceId&&!processing?`<a class="admin-button" href="admin-invoices.html?invoice=HD-${r.invoiceId}">Xem hóa đơn HD-${r.invoiceId}</a>`:""}
         ${cancellation?`<section class="admin-ops-detail-section"><h4>${icon("note")}Thông tin hủy</h4><dl class="admin-profile-facts admin-ops-facts">${[["Lý do hủy",r.cancelReason||"Chưa ghi nhận"],["Người hủy",r.cancelledBy||"Chưa ghi nhận"],["Thời điểm hủy",dateTime(r.cancelledAt)]].map(([k,v])=>`<div><dt>${escape(k)}</dt><dd>${escape(v)}</dd></div>`).join("")}</dl></section>`:""}
-        <details class="appointment-history" ${history.length?"open":""}><summary>Lịch sử phân công lại (${history.length})</summary>${history.length?history.map(h=>`<article class="admin-ops-form-section"><h4>${escape(h.previousEmployee)} → ${escape(h.newEmployee)}</h4><p>${escape(h.reason)}</p><p>${escape(h.changedBy)} · ${escape(dateTime(h.changedAt))}</p><p>Khách đã đồng ý · ${escape(h.consentMethod)} · ${escape(dateTime(h.consentAt))}</p><p>${escape(h.consentNote)}</p></article>`).join(""):"<p>Chưa có lịch sử phân công được ghi nhận.</p>"}</details>
-        ${editable&&actions.length?`<form class="admin-service-form admin-ops-form">
-          ${r.canReassign?`<fieldset class="admin-ops-reassignment"><legend>${icon("heart")}Phân công lại ngoại lệ</legend><p>Giữ nhân viên khách đã chọn khi xác nhận thông thường. Chỉ đổi trước giờ hẹn khi nhân viên không thể phục vụ và khách đã đồng ý.</p><label><input type="checkbox" data-reassign-toggle>Nhân viên hiện tại không thể phục vụ — cần phân công lại</label></fieldset>`:""}
-          <label>Thao tác<select name="action" required><option value="">Chọn thao tác</option>${actions.filter(([v])=>v!=="reassign").map(([v,l])=>`<option value="${v}">${l}</option>`).join("")}</select></label>
-          <fieldset class="admin-ops-form-section" data-reason hidden disabled><legend>Lý do hủy</legend><textarea name="reason" maxlength="500" required aria-label="Lý do hủy"></textarea></fieldset>
-          <fieldset class="admin-ops-form-section" data-reassign-fields hidden disabled><legend>${icon("heart")}Thông tin phân công và sự đồng ý của khách</legend>
-            <label>Chuyên viên thay thế<select name="employee" required><option value="">Chọn chuyên viên</option>${window.spaCatalog.staff.filter(x=>x.serviceIds.includes(r.serviceId)&&x.id!==r.employeeId).map(x=>`<option value="${x.id}">${escape(x.name)}</option>`).join("")}</select></label>
-            <label>Lý do ngoại lệ<textarea name="reassign_reason" maxlength="500" required></textarea></label>
-            <label><input type="checkbox" name="consent" required>Đã thông báo và được khách đồng ý</label>
+        ${processing?`<form class="admin-service-form admin-ops-form">
+          <fieldset class="admin-ops-reassignment"><legend><span>${icon("heart")}Phân công lại ngoại lệ</span></legend><p>Giữ nhân viên khách đã chọn khi xác nhận thông thường. Chỉ đổi trước giờ hẹn nếu nhân viên không thể phục vụ và khách đã đồng ý.</p><label><input type="checkbox" data-reassign-toggle ${replacements.length?"":"disabled"}>Nhân viên hiện tại không thể phục vụ — cần phân công lại</label>
+          ${r.canReassign&&!replacements.length?"<p class=\"admin-data-note\">Chưa có nhân viên thay thế cho dịch vụ này.</p>":""}
+          <fieldset class="appointment-consent" data-reassign-fields hidden disabled><legend class="admin-sr-only">Xác nhận sự đồng ý của khách</legend>
+            <label><input type="checkbox" name="consent" required>Đã thống nhất với khách</label>
+            <label class="appointment-reassign-reason"><span>${icon("note")}Lý do phân công lại * (tối đa 500 ký tự)</span><textarea name="reassign_reason" maxlength="500" required></textarea></label>
+            <div class="admin-service-form-grid">
             <label>Kênh xác nhận<select name="consent_method" required><option value="">Chọn kênh</option><option value="phone">Điện thoại</option><option value="in_person">Trực tiếp</option><option value="other">Kênh khác</option></select></label>
+            <label>Thời điểm khách đồng ý (giờ Việt Nam)<input type="datetime-local" name="consent_at" required></label></div>
             <label>Ghi chú / bằng chứng xác nhận<textarea name="consent_note" maxlength="500" required></textarea></label>
-            <label>Thời điểm khách đồng ý (giờ Việt Nam)<input type="datetime-local" name="consent_at" required></label>
+            <p class="admin-data-note">Admin xác nhận thủ công sau khi đã trao đổi với khách.</p>
+          </fieldset></fieldset>
+          <fieldset class="admin-ops-form-section appointment-assignment"><legend>${icon("calendar")}Phân công &amp; trạng thái</legend>
+            <div class="admin-service-form-grid">
+              <label data-current-employee>Nhân viên phụ trách<select disabled><option>${escape(r.employee||"Chưa phân công")}</option></select></label>
+              <label data-replacement hidden>Nhân viên phụ trách<select name="employee" required disabled><option value="">Chọn nhân viên thay thế</option>${replacements.map(x=>`<option value="${x.id}">${escape(x.name)}</option>`).join("")}</select></label>
+              <label>Trạng thái<select name="action" ${actions.length?"required":"disabled"}><option value="">${escape(r.statusLabel)}</option>${actions.map(([v,l])=>`<option value="${v}">${l}</option>`).join("")}</select></label>
+            </div>
+            <p class="admin-data-note" data-action-note role="status" hidden>Phân công lại giữ nguyên trạng thái. Hãy mở lại lịch để xác nhận hoặc đổi trạng thái sau khi lưu.</p>
           </fieldset>
-          <p data-action-note role="status"></p><p data-error class="admin-service-error" tabindex="-1" role="alert" hidden></p>
+          <fieldset class="admin-cancellation-reason" data-reason hidden disabled><legend>Lý do hủy</legend>
+            <label>Lý do hủy *<select name="cancel_reason" required><option value="">Chọn lý do</option>${reasons.map(([v,l])=>`<option value="${v}">${l}</option>`).join("")}</select></label>
+            <label><span>${icon("note")}Chi tiết lý do (bắt buộc khi chọn Khác)</span><textarea name="reason" maxlength="500" aria-describedby="appointment-no-show-note" disabled></textarea></label>
+            <label data-no-show-confirm hidden><input type="checkbox" name="no_show_confirm" disabled>Đã kiểm tra và xác minh khách không đến</label>
+            <p class="admin-data-note" id="appointment-no-show-note" hidden>Hệ thống lưu lý do “Khách không đến”.</p>
+            <p class="admin-data-note">Khách không đến chỉ được ghi nhận sau giờ bắt đầu của lịch đã xác nhận.</p>
+          </fieldset>
+          <p data-error class="admin-service-error" tabindex="-1" role="alert" hidden></p>
           <div class="appointment-confirm" data-confirm hidden tabindex="-1"><h3>Xác nhận thao tác</h3><p data-confirm-text></p><div class="admin-dialog-actions"><button type="button" class="admin-button" data-back>Quay lại</button><button type="button" class="admin-button admin-button-primary" data-commit>Xác nhận</button></div></div>
           <button class="admin-button admin-button-primary" type="submit" disabled>Tiếp tục</button>
-        </form>`:"<p>Chế độ xem thông tin. Lịch đã hoàn thành hoặc đã hủy không được chỉnh sửa. Yêu cầu hủy lịch đã thanh toán cần xử lý thủ công theo quy định.</p>"}</div><footer class="admin-dialog-actions"><button type="button" class="admin-button" data-close>Đóng</button></footer>`);
+        </form>`:"<p>Chế độ xem thông tin. Lịch đã hoàn thành hoặc đã hủy không được chỉnh sửa. Yêu cầu hủy lịch đã thanh toán cần xử lý thủ công theo quy định.</p>"}
+        <details class="appointment-history" ${history.length&&!processing?"open":""}><summary>Lịch sử phân công lại (${history.length})</summary>${history.length?history.map(h=>`<article class="admin-ops-form-section"><h4>${escape(h.previousEmployee)} → ${escape(h.newEmployee)}</h4><p>${escape(h.reason)}</p><p>${escape(h.changedBy)} · ${escape(dateTime(h.changedAt))}</p><p>Khách đã đồng ý · ${escape(h.consentMethod)} · ${escape(dateTime(h.consentAt))}</p><p>${escape(h.consentNote)}</p></article>`).join(""):"<p>Chưa có lịch sử phân công được ghi nhận.</p>"}</details>
+        </div><footer class="admin-dialog-actions"><button type="button" class="admin-button" data-close>Đóng</button></footer>`);
       dialog.querySelector(".admin-eyebrow").textContent="AN NHIÊN SPA / QUẢN TRỊ";
       dialog.querySelector(".admin-service-modal-heading [data-close]").innerHTML=icon("close");
       const form=dialog.querySelector("form");if(!form)return;
@@ -206,48 +227,80 @@
       footer.querySelector("[data-close]").textContent="Hủy";
       footer.append(submit);
       const toggle=form.querySelector("[data-reassign-toggle]");
-      const selectedAction=()=>toggle?.checked?"reassign":form.elements.action.value;
-      if(toggle)toggle.onchange=()=>{
-        // Reassignment is a separate API operation, never an implicit side effect of confirmation.
-        form.elements.action.disabled=toggle.checked;
-        form.elements.action.required=!toggle.checked;
-        form.elements.action.closest("label").hidden=toggle.checked;
-        form.elements.action.value="";
+      const {action:status,employee,cancel_reason:category,reason,no_show_confirm:noShow}=form.elements;
+      const reasonText=()=>{
+        const detail=reason.value.trim();
+        if(category.value==="other")return detail;
+        const label=category.selectedOptions[0].textContent;
+        return detail&&category.value!=="no_show"?`${label}: ${detail}`:label;
+      };
+      const selectedAction=()=>toggle.checked?"reassign":status.value==="cancel"&&category.value==="no_show"?"no_show":status.value;
+      const confirmation=form.querySelector("[data-confirm]");
+      const resetConfirmation=()=>{confirmation.hidden=true;submit.hidden=false;};
+      function syncForm(){
+        const reassign=toggle.checked, cancelling=!reassign&&status.value==="cancel";
+        status.disabled=reassign||!actions.length;
+        toggle.disabled=!replacements.length||cancelling||status.value==="complete";
+        form.querySelector("[data-current-employee]").hidden=reassign;
+        form.querySelector("[data-replacement]").hidden=!reassign;
+        employee.disabled=!reassign;
+        const consentFields=form.querySelector("[data-reassign-fields]");
+        consentFields.hidden=!reassign;consentFields.disabled=!reassign;
+        const cancelFields=form.querySelector("[data-reason]");
+        cancelFields.hidden=!cancelling;cancelFields.disabled=!cancelling;
+        const customReason=cancelling&&category.value==="other";
+        const confirmNoShow=cancelling&&category.value==="no_show";
+        reason.disabled=!cancelling||confirmNoShow;reason.required=customReason;
+        noShow.closest("label").hidden=!confirmNoShow;noShow.disabled=!confirmNoShow;noShow.required=confirmNoShow;
+        form.querySelector("#appointment-no-show-note").hidden=!confirmNoShow;
+        const otherReason=reason.value.trim();
+        let reasonError="";
+        if(customReason&&!otherReason)reasonError="Nhập lý do hủy lịch.";
+        if(customReason&&otherReason.toLowerCase()==="khách không đến"){
+          reasonError=r.canNoShow?"Chọn lý do ‘Khách không đến’ và xác nhận đã kiểm tra.":"Lịch này chưa đủ điều kiện ghi nhận khách không đến.";
+        }
+        if(cancelling&&category.value&&!confirmNoShow&&reasonText().length>500){
+          reasonError="Lý do và chi tiết không được vượt quá 500 ký tự.";
+        }
+        reason.setCustomValidity(reasonError);
+        form.querySelector("[data-action-note]").hidden=!reassign;
+        submit.disabled=!selectedAction();
+      }
+      toggle.onchange=()=>{
+        status.value="";employee.value="";
         if(!toggle.checked){
           form.querySelectorAll("[data-reassign-fields] input,[data-reassign-fields] select,[data-reassign-fields] textarea").forEach(field=>{if(field.type==="checkbox")field.checked=false;else field.value="";});
         }
-        form.elements.action.onchange();resetConfirmation();
+        syncForm();resetConfirmation();
       };
-      form.elements.action.onchange=()=>{
-        const action=selectedAction();
-        for(const [selector,on] of [["[data-reason]",action==="cancel"],["[data-reassign-fields]",action==="reassign"]]){
-          const fieldset=form.querySelector(selector);fieldset.hidden=!on;fieldset.disabled=!on;
-        }
-        submit.disabled=!action;
-        form.querySelector("[data-action-note]").textContent=action==="no_show"?"Chỉ xác nhận sau khi đã kiểm tra khách không đến. Không tự động hủy theo thời gian.":action==="reassign"?"Backend kiểm tra lại chuyên môn, ca làm và lịch trùng. Thông tin đồng ý được lưu nội bộ.":"";
-      };
-      const confirmation=form.querySelector("[data-confirm]");
-      const resetConfirmation=()=>{confirmation.hidden=true;submit.hidden=false;};
+      status.onchange=()=>{category.value="";reason.value="";noShow.checked=false;syncForm();resetConfirmation();};
+      category.onchange=()=>{reason.value="";noShow.checked=false;syncForm();resetConfirmation();};
       form.addEventListener("input",resetConfirmation);
+      reason.addEventListener("input",syncForm);
+      syncForm();
       form.querySelector("[data-back]").onclick=()=>{resetConfirmation();submit.focus();};
       form.onsubmit=event=>{
         event.preventDefault();if(!form.reportValidity())return;
         const action=selectedAction();
-        form.querySelector("[data-confirm-text]").textContent=`${actions.find(x=>x[0]===action)[1]} — ${code(r.id)}, ${day(r.date)} ${r.time}. `+(action==="reassign"?`Chuyên viên mới: ${form.elements.employee.selectedOptions[0].textContent}. Lý do: ${form.elements.reassign_reason.value}`:action==="cancel"?`Lý do: ${form.elements.reason.value}`:"Vui lòng kiểm tra trước khi xác nhận.");
+        if(!action)return;
+        const summary={confirm:"Xác nhận lịch",complete:"Hoàn thành lịch",cancel:"Hủy lịch",no_show:"Xác nhận khách không đến",reassign:"Phân công lại ngoại lệ"};
+        form.querySelector("[data-confirm-text]").textContent=`${summary[action]} — ${code(r.id)}, ${day(r.date)} ${r.time}. `+(action==="reassign"?`Chuyên viên mới: ${employee.selectedOptions[0].textContent}. Lý do: ${form.elements.reassign_reason.value}`:action==="cancel"||action==="no_show"?`Lý do: ${reasonText()}.`:"Vui lòng kiểm tra trước khi xác nhận.");
         confirmation.hidden=false;submit.hidden=true;confirmation.focus();
       };
       let saving=false;
       form.querySelector("[data-commit]").onclick=async ()=>{
         if(saving||!form.reportValidity())return;
         saving=true;submit.disabled=true;
-        const snapshot=new FormData(form);snapshot.set("action",selectedAction());
+        const snapshot=new FormData(form),action=selectedAction();
+        if(action==="cancel"||action==="no_show")snapshot.set("reason",reasonText());
+        snapshot.delete("action");snapshot.delete("cancel_reason");snapshot.delete("no_show_confirm");
         const controls=[...form.querySelectorAll("input,select,textarea,button")].filter(el=>!el.disabled);
         controls.forEach(el=>el.disabled=true);
         const errorNode=form.querySelector("[data-error]");errorNode.hidden=true;
         try {
           const latest=(await api(`/api/appointments/${id}/admin-detail/`)).item;
           if(latest.updatedAt!==r.updatedAt){await load();await detail(id,true,"Lịch đã thay đổi. Vui lòng kiểm tra dữ liệu mới và xác nhận lại.");return;}
-          const data=snapshot,action=data.get("action");data.delete("action");
+          const data=snapshot;
           data.set("status",({confirm:"confirmed",complete:"completed",cancel:"cancelled",no_show:"cancelled",reassign:r.status})[action]);
           if(action==="no_show"){data.set("no_show","true");data.set("reason","Khách không đến");}
           if(action==="reassign"){
@@ -263,7 +316,7 @@
             if(latest.updatedAt!==r.updatedAt){await load();await detail(id,true,"Lịch đã thay đổi. Vui lòng kiểm tra và xác nhận lại.");return;}
           } catch (_) { /* Keep original failure visible; never retry a mutation. */ }
           errorNode.textContent=error.message;errorNode.hidden=false;errorNode.focus();
-        } finally {saving=false;controls.forEach(el=>el.disabled=false);form.elements.action.disabled=Boolean(toggle?.checked);submit.disabled=!selectedAction();resetConfirmation();}
+        } finally {saving=false;controls.forEach(el=>el.disabled=false);syncForm();resetConfirmation();}
       };
     }
     root.addEventListener("click",event=>{

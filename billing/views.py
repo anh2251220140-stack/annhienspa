@@ -32,13 +32,16 @@ def payment_row(p):
     return dict(id=p.pk,invoiceId=p.invoice_id,amount=p.amount,method=p.payment_method,status=p.status,statusLabel=p.get_status_display(),createdAt=timezone.localtime(p.created_at).isoformat(),paidAt=timezone.localtime(p.paid_at).isoformat() if p.paid_at else None,reference=p.transaction_code or "",orderCode=p.order_code,providerStatus=p.provider_status,requiresReview=p.requires_review,recordedBy=p.recorded_by_id)
 
 
-def invoice_row(i):
-    a=i.appointment;detail=i.details.first()
-    row=dict(id=i.pk,appointmentId=a.pk,customer=a.customer.full_name,service=detail.service_name_snapshot if detail else a.service.name,employee=a.employee.full_name,date=a.appointment_date.isoformat(),time=a.start_time.strftime("%H:%M"),appointmentStatus=a.status,subtotal=i.subtotal,priceSnapshot=i.subtotal,discount=i.discount_amount,total=i.total_amount,promotion=i.promotion_code_snapshot or (i.promotion.code if i.promotion else ""),status=i.payment_status,statusLabel=i.get_payment_status_display(),createdAt=timezone.localtime(i.created_at).isoformat(),onlineEligible=services.online_eligible(i),payments=[payment_row(p) for p in i.payments.all()])
+def invoice_row(i, *, include_cash_timing=False):
+    a = i.appointment
+    detail = services.require_invoice_detail(i)
+    row=dict(id=i.pk,appointmentId=a.pk,customer=a.customer.full_name,service=detail.service_name_snapshot,employee=a.employee.full_name,date=a.appointment_date.isoformat(),time=a.start_time.strftime("%H:%M"),appointmentStatus=a.status,subtotal=i.subtotal,priceSnapshot=i.subtotal,discount=i.discount_amount,total=i.total_amount,promotion=i.promotion_code_snapshot or (i.promotion.code if i.promotion else ""),status=i.payment_status,statusLabel=i.get_payment_status_display(),createdAt=timezone.localtime(i.created_at).isoformat(),onlineEligible=services.online_eligible(i),payments=[payment_row(p) for p in i.payments.all()])
     pending=next((p for p in i.payments.all() if p.status=="pending" and p.payment_method=="online"),None)
     row.update(paymentPreference="online" if pending else i.payment_preference,
         paymentAllowed=services.payable(i),promotionEditable=services.promotion_editable(i),
         needsReview=any(p.requires_review for p in i.payments.all()),currentOnline=None)
+    if include_cash_timing:
+        row['cashTimingIssue'] = services.cash_timing_issue(i)
     row['promotionUsage']=None
     row['payosConfigured']=gateway.configured()
     if i.promotion_id:
@@ -79,18 +82,19 @@ def listing(request):
         qs=qs.filter(Q(appointment__customer__full_name__icontains=q)|Q(details__service_name_snapshot__icontains=q)
             |Q(pk=int(number[1]) if number else 0)|Q(appointment_id=int(appointment[1]) if appointment else 0)).distinct()
     page=Paginator(qs,10).get_page(request.GET.get("page"))
-    return JsonResponse(dict(items=[invoice_row(i) for i in page],page=page.number,pages=page.paginator.num_pages,total=page.paginator.count))
+    return JsonResponse(dict(items=[invoice_row(i, include_cash_timing=request.user.role=="Admin") for i in page],page=page.number,pages=page.paginator.num_pages,total=page.paginator.count))
 
 
 @api
 @require_GET
-def detail(request,pk):return JsonResponse({"item":invoice_row(get_object_or_404(invoices_for(request.user),pk=pk))})
+def detail(request,pk):return JsonResponse({"item":invoice_row(get_object_or_404(invoices_for(request.user),pk=pk), include_cash_timing=request.user.role=="Admin")})
 
 
 @api
 @require_GET
 def promotions(request,pk):
     invoice=get_object_or_404(invoices_for(request.user),pk=pk)
+    services.require_invoice_detail(invoice)
     return JsonResponse(services.promotion_choices(invoice))
 
 
@@ -98,13 +102,15 @@ def promotions(request,pk):
 @require_GET
 def ledger(request):
     if request.user.role!="Admin":raise PermissionDenied
-    return JsonResponse({"invoices":[invoice_row(i) for i in invoices_for(request.user)],"payments":[payment_row(p) for p in Payment.objects.order_by("-pk")]})
+    return JsonResponse({"invoices":[invoice_row(i, include_cash_timing=True) for i in invoices_for(request.user)],"payments":[payment_row(p) for p in Payment.objects.order_by("-pk")]})
 
 
 @api
 @require_POST
 def action(request,pk,action):
     get_object_or_404(invoices_for(request.user),pk=pk)
+    if action in ("promotion", "remove-promotion", "edit-promotion") and request.user.role != "User":
+        raise PermissionDenied
     if action=="cash":services.cash(request.user,pk,forms.DecimalField(max_digits=12,decimal_places=2,min_value=0).clean(request.POST.get("amount")))
     elif action=="promotion":services.apply_promotion(request.user,pk,forms.CharField(max_length=50,required=False).clean(request.POST.get("code")))
     elif action=="remove-promotion":services.apply_promotion(request.user,pk,"")
@@ -116,7 +122,7 @@ def action(request,pk,action):
         p=services.online(request.user,pk)
         return JsonResponse({"checkoutUrl":p.checkout_url,"orderCode":p.order_code,"status":p.status})
     else:raise ValidationError("Thao tác không hợp lệ.")
-    return JsonResponse({"item":invoice_row(invoices_for(request.user).get(pk=pk))})
+    return JsonResponse({"item":invoice_row(invoices_for(request.user).get(pk=pk), include_cash_timing=request.user.role=="Admin")})
 
 
 @csrf_exempt
@@ -126,5 +132,8 @@ def webhook(request):
     try:data=gateway.verify(request.body)
     except Exception:return JsonResponse({"error":"Invalid signature or payload"},status=400)
     try:services.accept_webhook(data)
-    except ValidationError:return JsonResponse({"error":"Transaction mismatch"},status=400)
+    except ValidationError as error:
+        if getattr(error, "code", None) == "invalid_invoice_details":
+            return JsonResponse({"error": "Invoice detail requires reconciliation"}, status=503)
+        return JsonResponse({"error": "Transaction mismatch"}, status=400)
     return JsonResponse({"code":"00","desc":"success"})

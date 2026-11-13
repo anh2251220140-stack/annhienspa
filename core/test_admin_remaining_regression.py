@@ -7,8 +7,8 @@ from datetime import datetime, time, timedelta, timezone as dt_timezone
 from decimal import Decimal
 from unittest.mock import patch
 
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.exceptions import ValidationError
+from config.fr14_test_guard import require_isolated_database
 from django.test import Client, TestCase
 from django.utils import timezone
 
@@ -25,12 +25,7 @@ from services.models import Service, ServiceCategory
 class IsolatedAdminFixtures(Fixtures):
     @classmethod
     def setUpClass(cls):
-        db = settings.DATABASES['default']
-        expected = dict(NAME='annhien_spa_fr14_tests', USER='annhien_fr14_tests', HOST='127.0.0.1', PORT='3306')
-        if (db.get('ENGINE') != 'django.db.backends.mysql' or
-                any(str(db.get(k)) != v for k, v in expected.items()) or
-                db.get('TEST', {}).get('NAME') != expected['NAME']):
-            raise ImproperlyConfigured('Use the guarded isolated FR-14 runner only.')
+        require_isolated_database()
         super().setUpClass()
 
     def setUp(self):
@@ -177,7 +172,7 @@ class EmployeeMissingRegressionTests(IsolatedAdminFixtures, TestCase):
                 with self.subTest(status=status, plan=plan):
                     before = self.shifts()
                     r = self.post_plan(plan)
-                    self.assertEqual(r.status_code, 400, r.content); self.assertIn(f'LH-{appointment.pk}', r.json()['error'])
+                    self.assertEqual(r.status_code, 400, r.content); self.assertIn(f'LH-{appointment.pk:06d}:', r.json()['error'])
                     self.assertEqual(self.shifts(), before)
                     appointment.refresh_from_db(); self.assertEqual(appointment.status, status)
                     self.assertEqual((appointment.start_time, appointment.end_time, appointment.employee_id), (time(10), time(11), self.employee.pk))

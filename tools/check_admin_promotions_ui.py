@@ -28,7 +28,7 @@ const records=[
  {id:19,code:'EXPIRED',name:'Chương trình hết hạn',description:'Đã kết thúc',active:true,discount_type:'percent',discount_value:'10.00',start_date:'2026-10-01',end_date:'2026-11-08'},
  {id:21,code:'DISABLED',name:'Chương trình tạm ngừng',description:'Không hiệu lực',active:false,discount_type:'percent',discount_value:'10.00',start_date:'2026-10-01',end_date:'2026-11-30'},
  {id:31,code:'EXTRA',name:'Chương trình bổ sung',description:'Phân trang',active:true,discount_type:'percent',discount_value:'20.00',start_date:'2026-10-01',end_date:'2026-11-30'}];
-let writes=0,lastBody,lastPath,failWrite=false,emptyAPI=false,readError=false;
+let writes=0,lastBody,lastPath,failWrite=false,emptyAPI=false,readError=false,brokenForm=false;
 window.fetch=async(path,options)=>{
  if(!path.startsWith('/api/admin/promotions/'))throw Error('External HTTP forbidden');
  if(options?.method==='POST'){
@@ -40,7 +40,7 @@ window.fetch=async(path,options)=>{
   return {ok:true,json:async()=>({})};
  }
  if(readError)return {ok:false,json:async()=>({error:'Không thể tải biểu mẫu.'})};
- if(/\/\d+\//.test(path))return {ok:true,json:async()=>({html:path.includes('?view=1')?detailHTML:path.includes('/0/')?addHTML:editHTML})};
+ if(/\/\d+\//.test(path))return {ok:true,json:async()=>({html:path.includes('?view=1')?detailHTML:path.includes('/0/')?addHTML:brokenForm?editHTML.replace(/<legend>[\s\S]*?<\/legend>/g,''):editHTML})};
  return {ok:true,json:async()=>({items:emptyAPI?[]:records})};
 };
 '''
@@ -97,6 +97,8 @@ TESTS = r'''
 (async()=>{
  const $=s=>document.querySelector(s),all=s=>[...document.querySelectorAll(s)],wait=()=>new Promise(r=>setTimeout(r,60));
  let count=0;const check=(ok,msg)=>{if(!ok)throw Error(msg);count++;},input=e=>e.dispatchEvent(new Event('input',{bubbles:true}));
+ let nativeSubmits=0;
+ document.addEventListener('submit',event=>{if(!event.defaultPrevented){nativeSubmits++;event.preventDefault();}});
  const fits=()=>check($('#ops-dialog').getBoundingClientRect().bottom<=innerHeight&&$('#ops-dialog').getBoundingClientRect().top>=0,'modal fits viewport');
  try{
  await document.fonts.ready;await wait();await wait();
@@ -141,8 +143,10 @@ TESTS = r'''
  dateText.value='20/10/2026';input(dateText);check($('#ops-dialog [name="start_date"]').value==='2026-10-20','date converts to ISO');
  check($('#ops-dialog [name="per_customer_limit"]')&&$('#ops-dialog [name="max_discount"]')&&$('#ops-dialog [name="aliases"]'),'all backend fields retained');
  check(all('#ops-dialog [name="services"]:checked').map(e=>e.value).join(',')==='1,2','edit preselected multiple');
+ check(!$('#ops-dialog [name="note_is_informational"]').checked,'existing promotion retains legacy mode');
  if(location.hash==='#edit-preview'){document.body.insertAdjacentHTML('beforeend',`<pre id="test-result">PASS ${count}</pre>`);return;}
  const search=$('#promotion-service-search');search.scrollIntoView({block:'center'});await wait();
+ check(search.closest('fieldset').querySelector('[name="services"]'),'search stays in service fieldset');
  const rect=search.getBoundingClientRect();check(rect.width>200&&rect.height>=40,'service search usable size');
  search.focus();check(document.activeElement===search&&document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height/2)===search,'service search focus and hit test');
  search.value='cham soc';input(search);check(all('#ops-dialog [name="services"]').filter(c=>!c.closest('label').hidden).length===1,'service search unaccented');
@@ -160,19 +164,35 @@ TESTS = r'''
  $('#ops-dialog form').requestSubmit();$('#ops-dialog form').requestSubmit();await wait();await wait();
  check(writes===1&&lastBody.getAll('services').join(',')==='2,3','multiple exact IDs, repeat submit blocked');
  check(lastPath==='/api/admin/promotions/4/'&&lastBody.get('start_date')==='2026-10-20'&&lastBody.get('csrfmiddlewaretoken'),'unchanged API and CSRF');
+ check(!lastBody.has('note_is_informational'),'edit unchecked mode');
+ $('[data-promotion-edit="4"]').click();await wait();
+ $('#ops-dialog [name="note_is_informational"]').checked=true;
+ $('#ops-dialog [name="note"]').value='Liên hệ Spa để được hướng dẫn.';
+ $('#ops-dialog [type="submit"]').click();await wait();await wait();
+ check(writes===2&&lastPath==='/api/admin/promotions/4/'&&lastBody.get('note_is_informational')==='on'&&lastBody.get('note').includes('Liên hệ Spa'),'edit checked mode and note');
  $('#ops-add').click();await wait();fits();check($('#ops-dialog [type="submit"]').textContent.trim()==='Lưu','add label');
  check(all('#ops-dialog [name="services"]:checked').length===0,'add not preselected');
- $('#ops-dialog form').requestSubmit();await wait();await wait();check(writes===2&&lastBody.getAll('services').length===0&&lastPath==='/api/admin/promotions/0/','empty selection and real create endpoint');
- $('[data-promotion-toggle="4"]').click();await wait();check(writes===2&&$('#ops-dialog').open,'toggle confirmation');
- $('#ops-dialog [data-close]').click();check(writes===2,'cancel toggle');
+ check($('#ops-dialog [name="note_is_informational"]').checked,'add informational default');
+ $('#ops-dialog [type="submit"]').click();await wait();await wait();
+ check(writes===3&&lastPath==='/api/admin/promotions/0/'&&lastBody.get('note_is_informational')==='on','add checked mode');
+ $('#ops-add').click();await wait();$('#ops-dialog [name="note_is_informational"]').checked=false;
+ $('#ops-dialog form').requestSubmit();await wait();await wait();
+ check(writes===4&&lastBody.getAll('services').length===0&&!lastBody.has('note_is_informational')&&lastPath==='/api/admin/promotions/0/','add unchecked mode and empty selection');
+ brokenForm=true;$('[data-promotion-edit="4"]').click();await wait();
+ check($('#ops-dialog [type="submit"]').disabled&&!$('#ops-dialog [data-error]').hidden,'partial initialization failure visible');
+ $('#ops-dialog form').requestSubmit();await wait();check(writes===4&&nativeSubmits===0,'partial initialization cannot submit HTML or API');
+ $('#ops-dialog [data-close]').click();brokenForm=false;
+ $('[data-promotion-toggle="4"]').click();await wait();check(writes===4&&$('#ops-dialog').open,'toggle confirmation');
+ $('#ops-dialog [data-close]').click();check(writes===4,'cancel toggle');
  $('[data-promotion-toggle="4"]').click();await wait();$('#ops-dialog form').requestSubmit();await wait();await wait();
- check(writes===3&&lastBody.get('_toggle')==='1','toggle exact existing contract');
+ check(writes===5&&lastBody.get('_toggle')==='1','toggle exact existing contract');
  check(all('#ops-stats strong').map(e=>e.textContent).join(',')==='7,3,2','calendar KPI refreshed after toggle');
  readError=true;$('[data-promotion-view="4"]').click();await wait();check($('#ops-notice').textContent==='Không thể tải biểu mẫu.','GET error visible');readError=false;
  $('#ops-search').value='no-results';input($('#ops-search'));check(!$('#ops-empty').hidden&&all('#ops-pagination button').every(b=>b.disabled),'empty search pagination');
  emptyAPI=true;$('#ops-reset').click();$('[data-promotion-toggle="4"]').click();await wait();$('#ops-dialog form').requestSubmit();await wait();await wait();
  check(all('#ops-stats strong').map(e=>e.textContent).join(',')==='0,0,0'&&!$('#ops-empty').hidden,'empty API state');
  check(document.documentElement.scrollWidth<=innerWidth,'no page overflow');check(!document.body.innerText.includes('Bản mẫu'),'no demo banner');
+ check(nativeSubmits===0,'all submit events prevented from navigating to the HTML page');
  // Leave a populated view/form for screenshot review after all assertions.
  emptyAPI=false;if(location.hash==='#add-preview'){$('#ops-add').click();await wait();}
  document.body.insertAdjacentHTML('beforeend',`<pre id="test-result">PASS ${count}</pre>`);
@@ -198,6 +218,7 @@ def main():
         form = PromotionForm(instance=Promotion(name='Ưu đãi trải nghiệm', code='EXACT10', discount_type='percent', discount_value=Decimal('10.00'), start_date=date(2026,10,20), end_date=date(2026,11,30), min_amount=Decimal('200000'), max_discount=Decimal('50000'), per_customer_limit=1, conditions='Điều kiện chưa hiểu vẫn cần xác minh', detail='Chi tiết chương trình', note='Lưu ý nghiệp vụ'))
         form.fields['services'].choices = choices
         form.initial['services'] = [1, 2]
+        form.initial['note_is_informational'] = False
         groups = groups_for(form, 'promotions')
         for group in groups:
             for field in group['fields']:

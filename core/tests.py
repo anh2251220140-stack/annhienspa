@@ -24,7 +24,7 @@ class SourcePreservationTests(SimpleTestCase):
         for name, expected in manifest.items():
             with self.subTest(file=name):
                 self.assertEqual(hashlib.sha256((settings.BASE_DIR / name).read_bytes()).hexdigest(), expected)
-                if name.startswith(("css/", "images/")):
+                if name.startswith(("css/", "images/")) and f"static/{name}" not in manifest:
                     self.assertEqual(hashlib.sha256((settings.BASE_DIR / "static" / name).read_bytes()).hexdigest(), expected)
 
 class PageAccessTests(TestCase):

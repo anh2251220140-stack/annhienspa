@@ -14,7 +14,7 @@
 .appointments-luxury #ops-dialog legend { padding:0 8px; color:var(--admin-espresso); font-weight:600; }
 .appointments-luxury #ops-dialog label { display:grid; gap:8px; }
 .appointments-luxury #ops-dialog label:has([type=checkbox]) { display:flex; align-items:center; }
-.appointments-luxury #ops-dialog [type=checkbox] { width:18px; height:18px; }
+.appointments-luxury #ops-dialog [type=checkbox] { flex-shrink:0; width:18px; height:18px; min-height:18px; margin:3px 0 0; padding:0; }
 .appointments-luxury .appointment-confirm { padding:20px; border:1px solid var(--admin-gold); border-radius:12px; background:var(--admin-surface); }
 .appointments-luxury .appointment-feedback { padding:12px; border-left:2px solid var(--admin-gold); }
 .appointments-luxury .appointment-date-control { display:flex; position:relative; }
@@ -34,6 +34,26 @@ html:has(.appointments-luxury #ops-dialog[open]) { overflow:hidden; scroll-behav
 .appointments-luxury #ops-dialog .appointment-history { margin:24px 0; padding:16px 0; border-top:1px solid var(--admin-line); }
 .appointments-luxury #ops-dialog .appointment-history summary { cursor:pointer; color:var(--admin-ink); }
 .appointments-luxury #ops-dialog > .admin-dialog-actions { flex-shrink:0; }
-.appointments-luxury #ops-dialog .admin-ops-reassignment { border-left:2px solid var(--admin-terracotta); background:var(--admin-canvas); }
+.appointments-luxury #ops-dialog .admin-ops-form { display:grid; gap:24px; margin-top:24px; overflow:visible; }
+.appointments-luxury #ops-dialog .admin-ops-form fieldset { min-width:0; margin:0; }
+.appointments-luxury #ops-dialog .admin-ops-reassignment,
+.appointments-luxury #ops-dialog .admin-cancellation-reason { border-color:var(--admin-control-border); background:var(--admin-canvas); }
+.appointments-luxury #ops-dialog .admin-ops-reassignment { border-left:2px solid var(--admin-terracotta); }
+.appointments-luxury #ops-dialog .admin-ops-reassignment legend { font-weight:400; }
+.appointments-luxury #ops-dialog .admin-ops-reassignment legend span,
+.appointments-luxury #ops-dialog .appointment-reassign-reason > span { display:flex; align-items:center; gap:8px; }
+.appointments-luxury #ops-dialog .admin-ops-form label { min-width:0; margin:0; }
+.appointments-luxury #ops-dialog .admin-ops-form label:has([type=checkbox]) { align-items:flex-start; gap:10px; }
+.appointments-luxury #ops-dialog .admin-ops-reassignment .appointment-consent { border:0; padding:0; }
+.appointments-luxury #ops-dialog .appointment-consent input[type=datetime-local] { width:100%; height:auto; min-height:48px; margin:0; padding:12px 14px; }
+.appointments-luxury #ops-dialog .appointment-reassign-reason { grid-template-columns:minmax(0,1fr) minmax(0,2fr); align-items:start; }
+.appointments-luxury #ops-dialog .admin-ops-form textarea { min-height:110px; }
+.appointments-luxury #ops-dialog .admin-ops-form .admin-data-note { margin:0; }
+.appointments-luxury #ops-dialog .appointment-assignment legend { font-weight:400; }
+.appointments-luxury #ops-dialog .appointment-assignment select:disabled { background:var(--admin-canvas); }
+@media(max-width:700px) {
+  .appointments-luxury #ops-dialog .appointment-reassign-reason,
+  .appointments-luxury #ops-dialog .admin-ops-form .admin-service-form-grid { grid-template-columns:minmax(0,1fr); }
+}
 @media(max-width:1100px) { .appointments-luxury .admin-toolbar { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:600px) { .appointments-luxury .admin-toolbar { grid-template-columns:minmax(0,1fr); } .appointments-luxury #ops-dialog .admin-ops-detail-heading { flex-wrap:wrap; } }

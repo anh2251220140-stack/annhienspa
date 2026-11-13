@@ -4,13 +4,16 @@ from tempfile import TemporaryDirectory
 
 from django.contrib.auth import authenticate
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.http import Http404
-from django.test import Client, RequestFactory, TestCase
-from django.urls import reverse
+from django.test import Client, TestCase
+from django.urls import path, reverse
 from PIL import Image
 
 from config.local_media import local_image
 from .models import Customer, User
+
+
+# Route the conditional local media endpoint through Django's test client.
+urlpatterns = [path("media/<path:path>", local_image)]
 
 
 class ProfilePasswordTests(TestCase):
@@ -108,25 +111,20 @@ class ProfileAvatarTests(TestCase):
             self.assertEqual(response.json()["item"]["avatar"], "/media/" + avatar_name)
             self.assertEqual((Path(directory) / avatar_name).read_bytes(), data)
 
-            factory = RequestFactory()
-
-            def request(user, **headers):
-                req = factory.get("/media/" + avatar_name, HTTP_HOST="localhost", **headers)
-                req.user = user
-                return req
-
-            for user in (self.owner, self.admin):
-                result = local_image(request(user), avatar_name)
-                try:
+            url = "/media/" + avatar_name
+            admin_client = Client()
+            admin_client.force_login(self.admin)
+            other_client = Client()
+            other_client.force_login(self.other)
+            with self.settings(ROOT_URLCONF=__name__):
+                for client in (self.client, admin_client):
+                    result = client.get(url, HTTP_HOST="localhost")
                     self.assertEqual(result.status_code, 200)
                     self.assertEqual(result.headers["Content-Type"], "image/png")
                     self.assertEqual(b"".join(result.streaming_content), data)
-                finally:
-                    result.close()
-
-            for req in (request(self.other), request(self.owner, HTTP_X_FORWARDED_FOR="127.0.0.1"),
-                        request(self.owner, REMOTE_ADDR="192.0.2.1")):
-                with self.assertRaises(Http404):
-                    local_image(req, avatar_name)
-            with self.settings(LOCAL_MEDIA_ENABLED=False), self.assertRaises(Http404):
-                local_image(request(self.owner), avatar_name)
+                self.assertEqual(other_client.get(url, HTTP_HOST="localhost").status_code, 404)
+                for headers in ({"HTTP_X_FORWARDED_FOR": "127.0.0.1"},
+                                {"REMOTE_ADDR": "192.0.2.1"}):
+                    self.assertEqual(self.client.get(url, HTTP_HOST="localhost", **headers).status_code, 404)
+                with self.settings(LOCAL_MEDIA_ENABLED=False):
+                    self.assertEqual(self.client.get(url, HTTP_HOST="localhost").status_code, 404)

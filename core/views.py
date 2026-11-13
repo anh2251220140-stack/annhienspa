@@ -14,7 +14,9 @@ class FrontendView(TemplateView):
         context = super().get_context_data(**kwargs)
         from .catalog_data import catalog, promotions
         context["live_catalog"] = catalog()
-        context["live_promotions"] = promotions()
+        context["live_promotions"] = promotions(promotion_page=self.template_name in (
+            "pages/promotions.html", "pages/promotion-detail.html",
+        ))
         return context
 
     http_method_names = ["get", "head", "options"]

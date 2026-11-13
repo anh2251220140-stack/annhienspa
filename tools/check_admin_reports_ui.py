@@ -107,7 +107,7 @@ def main():
   from services.models import ServiceCategory,Service
   from employees.models import Employee,EmployeeService,EmployeeSchedule
   from appointments.models import Appointment
-  from billing.models import Invoice,Payment
+  from billing.models import Invoice,InvoiceDetail,Payment
   from reviews.models import Review
   from dashboard.views import summary
   from tools.check_admin_promotions_ui import CHROME_CHECK
@@ -123,7 +123,10 @@ def main():
    day=date.fromisoformat(day)
    if not EmployeeSchedule.objects.filter(employee=employee,work_date=day).exists():EmployeeSchedule.objects.create(employee=employee,work_date=day,start_time=time(8),end_time=time(20))
    return Appointment.objects.create(customer=customer,employee=employee,service=service,appointment_date=day,start_time=time(hour),end_time=time(hour+1),status=status)
-  def invoice(a,amount=390000,discount=0):return Invoice.objects.create(appointment=a,subtotal=amount,discount_amount=discount,total_amount=amount-discount)
+  def invoice(a,amount=390000,discount=0):
+   i=Invoice.objects.create(appointment=a,subtotal=amount,discount_amount=discount,total_amount=amount-discount)
+   InvoiceDetail.objects.create(invoice=i,service=a.service,service_name_snapshot=a.service.name,unit_price=amount,line_total=amount)
+   return i
   def pay(i,amount,paid_at):
    p=Payment.objects.create(invoice=i,payment_method='spa',status='success',amount=amount,paid_at=paid_at)
    i.payment_status='paid';i.save();return p

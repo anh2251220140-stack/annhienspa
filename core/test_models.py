@@ -105,6 +105,8 @@ class ModelTests(TestCase):
         ServiceProduct.objects.create(service=self.service, product=product)
         with self.assertRaises(ValidationError): ServiceProduct.objects.create(service=self.service, product=product)
         invoice = Invoice.objects.create(appointment=self.appointment(status="confirmed"), subtotal=500000, total_amount=500000)
+        InvoiceDetail.objects.create(invoice=invoice, service=self.service, service_name_snapshot=self.service.name,
+                                     unit_price=invoice.subtotal, line_total=invoice.subtotal)
         Payment.objects.create(invoice=invoice, amount=500000, payment_method="spa")
         Payment.objects.create(invoice=invoice, amount=500000, payment_method="online", transaction_code="unique")
         with self.assertRaises(ValidationError): Payment.objects.create(invoice=invoice, amount=500000, payment_method="online", transaction_code="unique")
@@ -122,6 +124,8 @@ class ModelTests(TestCase):
     def test_online_payment_after_start_rejected(self):
         EmployeeSchedule.objects.create(employee=self.employee, work_date=date(2020,1,1), start_time=time(9), end_time=time(18))
         invoice = Invoice.objects.create(appointment=self.appointment(status="confirmed", appointment_date=date(2020,1,1)), subtotal=500000, total_amount=500000)
+        InvoiceDetail.objects.create(invoice=invoice, service=self.service, service_name_snapshot=self.service.name,
+                                     unit_price=invoice.subtotal, line_total=invoice.subtotal)
         with self.assertRaises(ValidationError):
             Payment.objects.create(invoice=invoice, amount=500000, payment_method="online")
         Payment.objects.create(invoice=invoice, amount=500000, payment_method="spa")

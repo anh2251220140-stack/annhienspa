@@ -12,8 +12,8 @@ from decimal import Decimal
 from unittest.mock import patch
 
 from PIL import Image
-from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.core.exceptions import ValidationError
+from config.fr14_test_guard import require_isolated_database
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError, transaction
 from django.test import Client, TestCase, override_settings
@@ -30,11 +30,7 @@ class AdminCatalogRegressionTests(Fixtures, TestCase):
 
     @classmethod
     def setUpClass(cls):
-        db = settings.DATABASES['default']
-        expected = {'NAME': 'annhien_spa_fr14_tests', 'USER': 'annhien_fr14_tests',
-                    'HOST': '127.0.0.1', 'PORT': '3306'}
-        if any(str(db.get(k)) != v for k, v in expected.items()) or db.get('TEST', {}).get('NAME') != expected['NAME']:
-            raise ImproperlyConfigured('Catalog tests require the isolated FR-14 test configuration and guarded runner.')
+        require_isolated_database()
         super().setUpClass()
 
     def setUp(self):

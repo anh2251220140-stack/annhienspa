@@ -32,12 +32,14 @@ def main():
   from appointments.models import Appointment
   from billing.models import Invoice,Payment
   from billing.services import cash
+  from billing.test_phase4 import at_appointment_start
   from reviews.models import Review
   class ReportExtraTests(Fixtures,TestCase):
    def setUp(self):
     self.seed();self.client.force_login(self.admin)
     self.a=book(self.user,self.service.pk,self.employee.pk,self.day,time(9));transition(self.admin,self.a.pk,'confirmed')
-    self.invoice=Invoice.objects.get(appointment=self.a);cash(self.admin,self.invoice.pk,self.invoice.total_amount)
+    self.invoice=Invoice.objects.get(appointment=self.a)
+    with at_appointment_start(self.a):cash(self.admin,self.invoice.pk,self.invoice.total_amount)
     Payment.objects.update(paid_at=timezone.make_aware(datetime.combine(self.day,time(12))))
     Appointment.objects.filter(pk=self.a.pk).update(status='completed');self.a.refresh_from_db()
     self.review=Review.objects.create(appointment=self.a,customer=self.customer,service=self.service,rating=5,comment='')

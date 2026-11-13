@@ -62,7 +62,7 @@ class Phase3CompletionTests(Fixtures,TestCase):
         apply_plan(self.employee.pk,self.plan(mode='leave',end_date=end.isoformat()));self.assertEqual(available_slots(self.user,self.service.pk,self.employee.pk,self.day),[])
     def test_schedule_warns_affected_appointments_without_changes(self):
         a=book(self.user,self.service.pk,self.employee.pk,self.day,time(10));before=list(self.employee.schedules.values())
-        with self.assertRaisesMessage(ValidationError,f'LH-{a.pk}'):
+        with self.assertRaisesMessage(ValidationError,f'LH-{a.pk:06d}:'):
             apply_plan(self.employee.pk,self.plan(mode='leave'))
         self.assertEqual(list(self.employee.schedules.values()),before);a.refresh_from_db();self.assertEqual(a.status,'pending')
         apply_plan(self.employee.pk,self.plan());a.refresh_from_db();self.assertEqual(a.employee,self.employee)

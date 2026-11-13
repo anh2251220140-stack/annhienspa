@@ -19,10 +19,13 @@ def code_lock():
         with connection.cursor() as cursor:cursor.execute('SELECT RELEASE_LOCK(%s)', ['annhien_promotion_codes'])
 
 def policy(promotion):
-    """Exact, documented legacy clauses only; never infer rules from arbitrary prose."""
+    """Check conditions and legacy notes without inferring rules from arbitrary prose."""
     limit=promotion.per_customer_limit
     manual=[]
-    for clause in re.split(r'[.;\n]+', promotion.conditions+'\n'+promotion.note):
+    text = promotion.conditions
+    if not promotion.note_is_informational:
+        text += '\n' + promotion.note
+    for clause in re.split(r'[.;\n]+', text):
         clause=clause.strip()
         if not clause:continue
         normalized=' '.join(unicodedata.normalize('NFC',clause).casefold().split())

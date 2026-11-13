@@ -17,7 +17,7 @@ from appointments.services import book,transition
 from core.test_phase3 import Fixtures
 from promotions.models import Promotion
 from . import gateway,services
-from .models import Invoice,Payment
+from .models import Invoice, InvoiceDetail, Payment
 from .test_phase4 import provider_state
 
 
@@ -167,7 +167,7 @@ class InvoiceFlowTests(FlowFixtures,TestCase):
     def test_invoice_appointment_mapping_search_filter_and_pagination(self):
         row=self.client.get(f'/api/billing/{self.i.pk}/').json()['item']
         self.assertEqual(row['id'],self.i.pk);self.assertEqual(row['appointmentId'],self.a.pk)
-        for q in [f'HD-{self.i.pk}',f'LH-{self.a.pk}']:
+        for q in [f'HD-{self.i.pk}', f'LH-{self.a.pk}', f'LH-{self.a.pk:06d}']:
             self.assertEqual(self.client.get('/api/billing/',{'search':q}).json()['items'][0]['id'],self.i.pk)
         self.assertEqual(self.client.get('/api/billing/',{'status':'paid'}).json()['items'],[])
         for number in range(11):
@@ -175,7 +175,10 @@ class InvoiceFlowTests(FlowFixtures,TestCase):
                 appointment_date=self.day+timedelta(days=number+1),start_time=time(10),end_time=time(11),status='cancelled')
             Appointment.objects.filter(pk=a.pk).update(status='completed')
             a.refresh_from_db()
-            Invoice.objects.create(appointment=a,subtotal=500000,total_amount=500000,historical_basis='Fixture for pagination only')
+            invoice = Invoice.objects.create(appointment=a, subtotal=500000, total_amount=500000,
+                                             historical_basis='Fixture for pagination only')
+            InvoiceDetail.objects.create(invoice=invoice, service=self.service, service_name_snapshot=self.service.name,
+                                         unit_price=invoice.subtotal, line_total=invoice.subtotal)
         first=self.client.get('/api/billing/').json();second=self.client.get('/api/billing/',{'page':2}).json()
         self.assertEqual((first['total'],len(first['items']),len(second['items'])),(12,10,2))
 

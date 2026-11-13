@@ -174,7 +174,7 @@ Khi đặt `DJANGO_DEBUG=false` trong `.env` (`DEBUG=False`), chạy `collectsta
 
 Truy cập [Home](http://127.0.0.1:8000/), [Đăng nhập](http://127.0.0.1:8000/login.html), hoặc [Admin Dashboard](http://127.0.0.1:8000/admin-dashboard.html) sau khi đăng nhập đúng quyền. Website Django cần MySQL hoạt động; mở HTML gốc không kiểm chứng được backend.
 
-WhiteNoise phục vụ `/static/`, không phục vụ ảnh upload. Khi cần xem ảnh upload trên máy local với `DEBUG=False`, có thể chủ động đặt `DJANGO_LOCAL_MEDIA_ENABLED=true` trong `.env` rồi khởi động lại Django. Route này chỉ cho kết nối loopback trực tiếp, chặn proxy/tunnel và chỉ phục vụ ảnh hợp lệ trong `services/`, `products/`, `employees/` dưới `MEDIA_ROOT`; không bao phủ mọi thư mục upload. Giữ biến này `false` khi triển khai, phục vụ media qua giải pháp riêng phù hợp.
+WhiteNoise phục vụ `/static/`. Để xem ảnh tải lên khi phát triển local, đặt `DJANGO_LOCAL_MEDIA_ENABLED=true` trong `.env` rồi khởi động lại Django. Tuyến `/media/` hoạt động cả khi `DEBUG=False`, chỉ nhận kết nối loopback trực tiếp và kiểm tra ảnh trong `services/`, `products/`, `employees/`, `avatars/` dưới `MEDIA_ROOT`. Avatar chỉ được trả cho chủ hồ sơ hoặc Admin đã đăng nhập. Khi triển khai, giữ biến này `false`, lưu media trên volume bền vững hoặc object storage và dùng máy chủ media riêng. Dùng truy cập có xác thực hoặc URL ký cho avatar để giữ quyền xem như trên local.
 
 ## Kiểm thử và xác minh
 

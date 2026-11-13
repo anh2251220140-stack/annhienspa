@@ -41,8 +41,11 @@ class InvoiceDetail(ValidatedModel):
     line_total = models.DecimalField(max_digits=12, decimal_places=2)
     class Meta:
         db_table = "invoice_details"
-        constraints = [models.CheckConstraint(condition=models.Q(unit_price__gte=0, quantity__gt=0, line_total__gte=0), name="detail_valid_amounts"),
-            models.CheckConstraint(condition=models.Q(line_total=models.F("unit_price")*models.F("quantity")), name="detail_total_matches")]
+        constraints = [
+            models.CheckConstraint(condition=models.Q(unit_price__gte=0, quantity__gt=0, line_total__gte=0), name="detail_valid_amounts"),
+            models.CheckConstraint(condition=models.Q(line_total=models.F("unit_price")*models.F("quantity")), name="detail_total_matches"),
+            models.UniqueConstraint(fields=["invoice"], name="unique_detail_per_invoice"),
+        ]
     def clean(self):
         if self.invoice_id and self.service_id and self.invoice.appointment.service_id != self.service_id:
             raise ValidationError("Chi tiết hóa đơn chỉ chứa dịch vụ của lịch hẹn.")

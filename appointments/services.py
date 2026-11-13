@@ -7,6 +7,7 @@ from accounts.models import Customer
 from employees.models import Employee, EmployeeService, EmployeeSchedule
 from services.models import Service
 from billing.models import Invoice
+from billing.services import require_invoice_detail
 from .models import Appointment, AppointmentReassignment
 
 LIVE = ["pending", "confirmed"]
@@ -76,6 +77,7 @@ def transition(user, appointment_id, status, employee_id=None, consent=False, re
     if user.role == "Admin" and item.status == "confirmed" and status == "confirmed" and not employee_id:
         if not invoice:
             raise ValidationError("Lịch cũ thiếu hóa đơn: Admin cần đối soát giá lịch sử trước khi bổ sung hóa đơn.")
+        require_invoice_detail(invoice)
         return item
     if item.status not in LIVE: raise ValidationError("Lịch đã hoàn thành hoặc đã hủy không được thay đổi.")
     if user.role == "User":
@@ -123,6 +125,8 @@ def transition(user, appointment_id, status, employee_id=None, consent=False, re
         raise ValidationError("Chuyển trạng thái không hợp lệ.")
     if status == "completed" and start_datetime(item.appointment_date,item.end_time) > timezone.now():
         raise ValidationError("Chưa đến thời điểm kết thúc liệu trình.")
+    if invoice:
+        require_invoice_detail(invoice)
     if status == "cancelled" and invoice and invoice.payment_status == "paid":
         raise ValidationError("Hóa đơn đã thanh toán: cần xử lý thủ công với khách; không hoàn tiền tự động.")
     if status == "cancelled" and invoice:
@@ -141,7 +145,7 @@ def transition(user, appointment_id, status, employee_id=None, consent=False, re
     item.updated_at = now
     if history:
         history.save()
-    if status == "confirmed":
+    if status == "confirmed" and not invoice:
         from billing.services import ensure_invoice
         ensure_invoice(item)
     if status == "cancelled" and invoice:
