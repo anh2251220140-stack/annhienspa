@@ -1,0 +1,61 @@
+#admin-chat { min-width: 0; }
+#admin-chat .chat-filters { display: flex; flex-wrap: wrap; gap: 16px; }
+#admin-chat .chat-filters > label { min-width: 0; max-width: 100%; }
+#admin-chat [data-chat-list] { display: grid; gap: 14px; }
+#admin-chat [data-chat-status]:empty, #admin-chat .chat-pages:empty { display: none; }
+#admin-chat .chat-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 20px;
+  overflow-wrap: anywhere;
+}
+#admin-chat .chat-summary h3 { font: 600 1rem var(--font-body); margin: 0 0 5px; }
+#admin-chat .chat-summary small { display: block; color: var(--admin-muted); }
+#admin-chat .chat-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+#admin-chat .chat-facts dd { margin: 2px 0 0; }
+#admin-chat .chat-facts dt { color: var(--admin-muted); font-size: .8rem; }
+#admin-chat .chat-actions { display: grid; justify-items: start; gap: 10px; }
+#admin-chat .chat-pages { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 14px 0; }
+#admin-chat .chat-detail { margin-top: 20px; }
+#admin-chat .chat-detail > header { padding: 18px 24px; border-bottom: 1px solid var(--admin-line); background: #c6a07e0d; }
+#admin-chat .chat-detail h3 { margin: 0 0 4px; }
+#admin-chat .chat-detail .chat-pages { padding-inline: 24px; }
+#admin-chat .chat-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: min(600px, 65dvh);
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 24px;
+}
+#admin-chat .chat-message {
+  flex-shrink: 0;
+  align-self: flex-start;
+  max-width: 85%;
+  min-width: 0;
+  padding: 14px 18px;
+  border: 1px solid #c6a07e66;
+  border-radius: 16px 16px 16px 4px;
+  background: #fff8f1;
+  color: #3a2419;
+  overflow-wrap: anywhere;
+}
+#admin-chat .chat-message.is-user { align-self: flex-end; border-radius: 16px 16px 4px 16px; background: #3a2419; color: #FFFFFF; }
+#admin-chat .chat-message small { display: block; }
+#admin-chat .chat-message p { margin: 7px 0; white-space: pre-wrap; }
+#admin-chat .chat-message.is-user p { color: inherit; }
+#admin-chat .chat-result { display: inline-block; padding: 4px 9px; border: 1px solid #c6a07e66; border-radius: 20px; font-size: .76rem; }
+#admin-chat .chat-result[data-result="success"] { border-color: #7d947380; }
+#admin-chat .chat-result[data-result="error"] { border-color: #b66b527f; }
+@media (max-width: 980px) {
+  #admin-chat .chat-summary { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); }
+  #admin-chat .chat-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; }
+}
+@media (max-width: 600px) {
+  #admin-chat .chat-summary { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+  #admin-chat .chat-detail > header, #admin-chat .chat-thread { padding: 14px; }
+  #admin-chat .chat-message { max-width: 95%; }
+}

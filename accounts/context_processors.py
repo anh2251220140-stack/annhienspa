@@ -1,3 +1,6 @@
+from django.conf import settings
+
+
 def auth_ui(request):
     """Only presentation data; no credentials, session ID, or authorization from JS."""
     user = request.user
@@ -10,4 +13,6 @@ def auth_ui(request):
         if customer and user.role == "User" and not user.is_superuser:
             from .admin_views import customer_row
             payload["profile"] = customer_row(customer)
+        if user.role == "User":
+            payload["chatEnabled"] = settings.AI_CHAT_ENABLED
     return {"auth_ui": payload}

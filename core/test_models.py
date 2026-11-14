@@ -32,8 +32,8 @@ class ModelTests(TestCase):
         data.update(kwargs)
         return Appointment.objects.create(**data)
 
-    def test_exact_20_business_tables_and_no_auth_user(self):
-        names = "users customers service_categories services employees employee_services employee_schedules appointments appointment_reassignments promotions promotion_services invoices invoice_details payments reviews review_replies ai_recommendations ai_review_analysis care_products service_products".split()
+    def test_exact_22_business_tables_and_no_auth_user(self):
+        names = "users customers service_categories services employees employee_services employee_schedules appointments appointment_reassignments promotions promotion_services invoices invoice_details payments reviews review_replies ai_recommendations ai_review_analysis care_products service_products chat_sessions chat_messages".split()
         models = [m for m in apps.get_models() if m._meta.app_label in "accounts services products employees appointments promotions billing reviews ai_features".split()]
         self.assertEqual(set(m._meta.db_table for m in models), set(names))
         self.assertNotIn("auth_user", connection.introspection.table_names())

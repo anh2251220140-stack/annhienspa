@@ -86,3 +86,9 @@ PAYOS_API_KEY = os.getenv("PAYOS_API_KEY", "")
 PAYOS_CHECKSUM_KEY = os.getenv("PAYOS_CHECKSUM_KEY", "")
 PAYOS_RETURN_URL = os.getenv("PAYOS_RETURN_URL", "http://127.0.0.1:8000/invoice.html")
 PAYOS_CANCEL_URL = os.getenv("PAYOS_CANCEL_URL", "http://127.0.0.1:8000/invoice.html")
+
+# The first chat release uses a local mock. Enable only after applying its migration.
+AI_CHAT_ENABLED = os.getenv("AI_CHAT_ENABLED", "false").lower() == "true"
+AI_CHAT_DAILY_LIMIT = int(os.getenv("AI_CHAT_DAILY_LIMIT", "30"))
+AI_CHAT_COOLDOWN_SECONDS = int(os.getenv("AI_CHAT_COOLDOWN_SECONDS", "5"))
+AI_CHAT_SPA_INFORMATION = os.getenv("AI_CHAT_SPA_INFORMATION", "")

@@ -14,6 +14,8 @@
     <script src="{% static 'js/auth.js' %}"></script>
     <script src="{% static 'js/admin.js' %}?v=core-2" defer></script>
     <script src="{% static 'js/live-people.js' %}?v=core-2" defer></script>
+    <script src="{% static 'js/admin-chat-history.js' %}" defer></script>
+    <link rel="stylesheet" href="{% static 'css/admin-chat-history.css' %}">
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
@@ -86,7 +88,17 @@
         <div class="admin-page-heading"><div><span class="admin-eyebrow">AN NHIÊN SPA / TÀI KHOẢN VÀ KHÁCH HÀNG / KHÁCH HÀNG</span><h1>Quản lý khách hàng</h1><p>Thấu hiểu từng nhu cầu, để chăm sóc mỗi trải nghiệm riêng.</p></div><span class="admin-status-badge">Quyền hạn: Chỉ xem</span></div>
         <p class="admin-readonly-note">Hồ sơ chỉ đọc. Chỉ khách hàng có thể cập nhật thông tin chăm sóc qua Hồ sơ cá nhân.</p>
         <div class="admin-chat-tabs" role="group" aria-label="Nội dung khách hàng"><button type="button" class="admin-button" data-customer-tab="profile" aria-pressed="true" aria-controls="customer-profile-panel">Hồ sơ khách hàng</button><button type="button" class="admin-button" data-customer-tab="chat" aria-pressed="false" aria-controls="admin-chat">Lịch sử hội thoại</button></div>
-        <section id="admin-chat" class="admin-table-card" hidden aria-label="Lịch sử hội thoại"><div class="admin-empty-state"><h2>Lịch sử hội thoại</h2><p>Chưa kết nối backend FR-24. Chưa có API và bảng chat_sessions/chat_messages để hiển thị lịch sử hội thoại thật.</p><p>Chức năng lưu và truy xuất hội thoại sẽ được triển khai riêng.</p></div></section>
+        <section id="admin-chat" hidden aria-label="Lịch sử hội thoại">
+          <form class="admin-toolbar chat-filters" hidden>
+            <label>Tìm phiên hoặc khách hàng <input type="search" name="search" maxlength="150"></label>
+            <label>Kết quả <select name="result"><option value="">Tất cả</option><option value="success">Thành công</option><option value="fallback">Phản hồi dự phòng</option><option value="error">Lỗi</option><option value="pending">Đang xử lý</option></select></label>
+          </form>
+          <p data-chat-status role="status"></p>
+          <div data-chat-list></div>
+          <div class="chat-pages" data-chat-pages></div>
+          <section class="admin-table-card chat-detail" data-chat-detail aria-label="Nội dung hội thoại" hidden></section>
+          <p class="admin-data-note" data-chat-read-only hidden>Lịch sử hội thoại chỉ đọc.</p>
+        </section>
         <div class="admin-customers-grid" id="customer-profile-panel">
           <section class="admin-table-card" aria-labelledby="customers-list-title"><div class="admin-card-heading"><h2 id="customers-list-title">Danh sách khách hàng</h2></div>
             <div class="admin-toolbar admin-customer-toolbar"><label class="admin-search">Tìm khách hàng<input type="search" id="customers-search" placeholder="Họ tên, email hoặc số điện thoại…"></label></div>

@@ -1,8 +1,7 @@
 ;(() => {
   "use strict"
   if (window.spaAuth?.allowed === false) return
-  // Demo data stays in this browser tab; no requests are sent to a backend.
-  // Names and telephone numbers are deliberately not persisted.
+  // Presentation state can be kept in the browser tab. Account and chat data come from Django.
   const read = (key, fallback) => {
     if (key === "spa-auth") return window.spaAuth?.getSession() || fallback;
     try {
@@ -1124,74 +1123,219 @@
   const chatPages = new Set(["home.html", "services.html", "service-detail.html", "products.html", "product-detail.html",
     "promotions.html", "promotion-detail.html", "booking.html", "appointments.html", "invoice.html", "reviews.html", "profile.html"])
   const pageName = location.pathname.split("/").pop()
-  if (chatPages.has(pageName) && window.spaAuth.isAuthenticated() && read("spa-auth", {}).role === "User") {
+  const chatUser = window.spaAuth?.getSession()
+  if (chatPages.has(pageName) && chatUser?.role === "User" && chatUser.chatEnabled) {
+    const stylesheet = document.createElement("link")
+    stylesheet.rel = "stylesheet"
+    stylesheet.href = new URL("../css/chat.css", document.currentScript.src)
+    document.head.append(stylesheet)
+
     const concierge = document.createElement("aside")
     concierge.className = "concierge"
     concierge.innerHTML = `<button class="concierge-bubble" type="button" aria-label="Mở Trợ lý An Nhiên" aria-controls="concierge-panel" aria-expanded="false">${window.spaIcon("chat")}</button>
       <section class="concierge-panel" id="concierge-panel" role="dialog" aria-modal="false" aria-labelledby="concierge-title" hidden>
-        <div class="concierge-heading"><div><span class="eyebrow">AN NHIÊN / CONCIERGE</span><h2 id="concierge-title">Trợ lý An Nhiên</h2><p>Tư vấn dịch vụ và chăm sóc tại Spa</p></div>
+        <div class="concierge-heading"><div><h2 id="concierge-title">Trợ lý An Nhiên</h2><p>Bản thử nghiệm · Nhà cung cấp mô phỏng</p></div>
           <button type="button" data-chat-close aria-label="Đóng trò chuyện">${window.spaIcon("close")}</button></div>
-        <div class="concierge-messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="Cuộc trò chuyện minh họa">
-          <p>Xin chào, mình là trợ lý An Nhiên. Mình có thể giúp bạn tìm dịch vụ phù hợp, khuyến mãi và thông tin chăm sóc.</p></div>
-        <div class="concierge-suggestions"><button type="button">Tư vấn dịch vụ</button><button type="button">Khuyến mãi hiện có</button><button type="button">Chăm sóc da</button></div>
-        <form class="concierge-form"><input id="concierge-message" name="message" required maxlength="500" autocomplete="off" aria-label="Tin nhắn của bạn" placeholder="Mình có thể giúp gì cho bạn?"><button class="button filled small" type="submit">Gửi</button></form>
-        <p class="concierge-note">Phản hồi minh họa, chưa gọi AI thật. Không nhập thông tin nhạy cảm.</p>
+        <div class="concierge-messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="Cuộc trò chuyện"></div>
+        <div class="concierge-suggestions"><button type="button">Dịch vụ</button><button type="button">Khuyến mãi hiện có</button><button type="button">Giờ mở cửa</button></div>
+        <p class="concierge-status" role="status"></p>
+        <form class="concierge-form"><input name="message" required maxlength="500" autocomplete="off" aria-label="Tin nhắn của bạn" placeholder="Nhập câu hỏi…"><button class="button filled small" type="submit">Gửi</button></form>
+        <p class="concierge-note">Hội thoại được lưu vào tài khoản. Vui lòng không nhập thông tin nhạy cảm.</p>
+        <p class="concierge-note" data-chat-limit></p>
       </section>`
     document.body.append(concierge)
-    const bubble = concierge.querySelector(".concierge-bubble"), panel = concierge.querySelector(".concierge-panel")
-    const messages = concierge.querySelector(".concierge-messages"), chatForm = concierge.querySelector("form")
-    const footer = document.querySelector("footer")
-    const adjustDock = () => {
-      const top = footer?.getBoundingClientRect().top ?? innerHeight
+    const find = selector => concierge.querySelector(selector)
+    const bubble = find(".concierge-bubble"), panel = find(".concierge-panel")
+    const log = find(".concierge-messages"), form = find("form"), status = find(".concierge-status")
+    const input = form.elements.message
+    const statuses = {pending: "Đang xử lý", success: "Thành công", fallback: "Phản hồi dự phòng", error: "Lỗi"}
+    const date = new Intl.DateTimeFormat("vi-VN", {timeZone: "Asia/Ho_Chi_Minh", dateStyle: "short", timeStyle: "short"})
+    const base = "/api/ai/chat/"
+    let active = null, busy = false, restored = false, resend = null
+
+    function adjustDock() {
+      const top = document.querySelector("footer")?.getBoundingClientRect().top ?? innerHeight
       const lift = panel.hidden ? Math.max(0, innerHeight - top) : 0
       concierge.style.setProperty("--footer-lift", `${Math.min(lift, Math.max(0, innerHeight - 112))}px`)
+      const viewport = window.visualViewport
+      const keyboard = viewport ? Math.max(0, innerHeight - viewport.height - viewport.offsetTop) : 0
+      concierge.style.setProperty("--chat-keyboard", `${keyboard}px`)
+      concierge.style.setProperty("--chat-height", `${Math.max(100, (viewport?.height ?? innerHeight) - 115)}px`)
       bubble.hidden = panel.hidden && top < 100
     }
-    const setOpen = (shown) => {
+
+    async function api(path, data) {
+      const options = {headers: {"X-Chat-User": String(chatUser.id)}}
+      if (data !== undefined) {
+        options.method = "POST"
+        options.headers["Content-Type"] = "application/json"
+        options.headers["X-CSRFToken"] = document.querySelector('#spa-logout-form [name=csrfmiddlewaretoken]').value
+        options.body = JSON.stringify(data)
+      }
+      const response = await fetch(base + path, options)
+      const result = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        const error = new Error(result.error || "Không thể tải hội thoại. Vui lòng đăng nhập lại hoặc thử sau.")
+        error.status = response.status
+        if (response.status === 401 || response.status === 403) {
+          log.replaceChildren()
+          input.value = ""
+          active = resend = null
+          restored = false
+        }
+        throw error
+      }
+      return result
+    }
+
+    function updateControls() {
+      concierge.querySelectorAll("button").forEach(button => {
+        if (button.matches(".concierge-bubble, [data-chat-close]")) return
+        button.disabled = busy || !restored
+      })
+      input.disabled = !restored
+    }
+
+    async function run(operation) {
+      if (busy) return
+      busy = true
+      status.textContent = ""
+      updateControls()
+      try { await operation() }
+      catch (error) { status.textContent = error.message }
+      finally { busy = false; updateControls() }
+    }
+
+    function action(label, handler) {
+      const button = document.createElement("button")
+      button.type = "button"
+      button.textContent = label
+      button.addEventListener("click", handler)
+      return button
+    }
+
+    function message(item, retried, open) {
+      const row = document.createElement("article")
+      row.className = item.role === "user" ? "concierge-entry concierge-question" : "concierge-entry"
+      const speaker = document.createElement("strong")
+      speaker.textContent = item.role === "user" ? "Bạn" : "Trợ lý An Nhiên"
+      const body = document.createElement("div")
+      body.className = "concierge-message-body"
+      body.textContent = item.status === "pending" ? "Đang trả lời…" : item.content
+      const meta = document.createElement("small")
+      meta.textContent = `${date.format(new Date(item.createdAt))} · ${statuses[item.status]}`
+      row.append(speaker, body, meta)
+      if (open && item.role === "assistant" && item.status === "error" && !retried.has(item.id)) {
+        const retry = action("Thử lại", () => submit(null, item.id))
+        retry.dataset.retryMessage = ""
+        row.append(retry)
+      }
+      return row
+    }
+
+    async function thread(id, page = 1) {
+      const data = await api(`sessions/${id}/?page=${page}`)
+      const open = data.session.status === "open"
+      active = open ? data.session.id : null
+      const retried = new Set(data.items.map(item => item.retryOf).filter(Boolean))
+      log.replaceChildren()
+      if (data.page < data.pages) log.append(action("Tin nhắn cũ hơn", () => run(() => thread(id, data.page + 1))))
+      if (!data.items.length) log.textContent = "Chưa có tin nhắn. Bạn có thể bắt đầu bằng một câu hỏi."
+      else log.append(...data.items.map(item => message(item, retried, open)))
+      if (data.page > 1) log.append(action("Tin nhắn mới hơn", () => run(() => thread(id, data.page - 1))))
+      if (!open) log.append("Phiên đã kết thúc. Tin nhắn tiếp theo sẽ bắt đầu hội thoại mới.")
+      log.scrollTop = data.page === 1 ? log.scrollHeight : 0
+    }
+
+    function restore() {
+      return run(async () => {
+        restored = false
+        updateControls()
+        log.textContent = "Đang tải hội thoại…"
+        try {
+          const data = await api("sessions/?resume=1")
+          find("[data-chat-limit]").textContent = `${data.dailyLimit} lượt/ngày (giờ Việt Nam), cách nhau ${data.cooldown} giây. Thử lại sau lỗi cũng tính lượt.`
+          if (data.session) await thread(data.session.id)
+          else {
+            active = null
+            log.textContent = "Chưa có hội thoại. Chọn câu hỏi nhanh hoặc nhập câu hỏi để bắt đầu."
+          }
+          restored = true
+        } catch (error) {
+          log.replaceChildren()
+          throw error
+        }
+      })
+    }
+
+    async function submit(question, retryOf = null) {
+      if (!restored || (!retryOf && !question?.trim())) return
+      await run(async () => {
+        status.textContent = "Đang xử lý câu hỏi…"
+        const trimmed = question?.trim() ?? null
+        const requestId = resend?.sessionId === active && resend.question === trimmed && resend.retryOf === retryOf
+          ? resend.requestId : crypto.randomUUID()
+        const data = {sessionId: active, question: trimmed, retryOf, requestId}
+        resend = data
+        let response
+        try {
+          response = await api("", data)
+          for (let count = 0; response.answer.status === "pending" && count < 4; count++) {
+            await new Promise(resolve => setTimeout(resolve, 750))
+            response = await api("", data)
+          }
+        } catch (error) {
+          if (error.status && error.status < 500) resend = null
+          throw error
+        }
+        if (response.answer.status !== "pending") resend = null
+        if (!retryOf) input.value = ""
+        await thread(response.session.id)
+        status.textContent = response.answer.status === "pending" ? "Lượt này đang xử lý. Mở lại phiên để cập nhật." : ""
+        if (!panel.hidden) input.focus({preventScroll: true})
+      })
+    }
+
+    async function setOpen(shown) {
       panel.hidden = !shown
       bubble.setAttribute("aria-expanded", String(shown))
       adjustDock()
-      if (shown) chatForm.elements.message.focus({ preventScroll: true })
-      else if (!bubble.hidden) bubble.focus({ preventScroll: true })
-    }
-    const respond = (question) => {
-      const message = question.trim().slice(0, 500)
-      if (!message) return
-      const user = document.createElement("p")
-      user.className = "concierge-question"
-      user.textContent = message
-      messages.append(user)
-      const query = message.toLocaleLowerCase("vi").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d")
-      let reply = "An Nhiên có các liệu trình thư giãn, chăm sóc da, cơ thể và tóc. Chuyên viên sẽ tư vấn sự phù hợp trước cuộc hẹn.", href = "services.html", label = "Xem dịch vụ phù hợp"
-      if (window.spaAuth.isAuthenticated() && read("spa-auth", {}).role === "User") href = "services.html#recommendations"
-      if (/khuyen mai|uu dai/.test(query)) {
-        reply = "Mời bạn xem chương trình, thời gian và điều kiện tại trang Khuyến mãi. Mức giảm thực tế được Spa xác nhận."; href = "promotions.html"; label = "Xem khuyến mãi"
-      } else if (/cham soc da|da kho|da nhay cam|da mat/.test(query)) {
-        reply = "Bạn có thể tham khảo chăm sóc da mặt và cấp ẩm. Hãy trao đổi tình trạng da, dị ứng với chuyên viên; đây không phải tư vấn y khoa."
-      } else if (/gio mo|dia chi|lien he/.test(query)) {
-        reply = "Spa mở cửa 09:00–21:00, Thứ Hai–Chủ Nhật, tại 12 Dương Thưởng, Hòa Cường, Đà Nẵng. Bạn có thể gọi 090 123 4567."; href = "tel:0901234567"; label = "Liên hệ An Nhiên"
-      } else if (/dat lich|lich hen/.test(query)) {
-        reply = "Bạn có thể chọn dịch vụ, chuyên viên và giờ trống trên trang đặt lịch. Trợ lý mẫu không tự tạo hoặc xác nhận lịch hẹn."; href = window.spaAuth.urlFor("booking.html"); label = "Đến trang đặt lịch"
+      if (!shown) {
+        if (!bubble.hidden) bubble.focus()
+        return
       }
-      const answer = document.createElement("p"), link = document.createElement("a")
-      answer.textContent = reply
-      link.href = href
-      link.textContent = `${label} →`
-      answer.append(document.createElement("br"), link)
-      messages.append(answer)
-      while (messages.children.length > 31) messages.firstElementChild.remove()
-      messages.scrollTop = messages.scrollHeight
+      await restore()
+      if (!panel.hidden && restored) input.focus({preventScroll: true})
     }
+
+    window.addEventListener("pagehide", () => {
+      // A cached document can be restored after another account signs in.
+      log.replaceChildren()
+      status.textContent = ""
+      input.value = ""
+      active = resend = null
+      restored = false
+      panel.hidden = true
+    })
+    window.addEventListener("pageshow", event => { if (event.persisted) location.reload() })
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && !panel.hidden) restore()
+    })
     bubble.addEventListener("click", () => setOpen(panel.hidden))
-    concierge.querySelector("[data-chat-close]").addEventListener("click", () => setOpen(false))
-    concierge.addEventListener("keydown", (event) => {
+    find("[data-chat-close]").addEventListener("click", () => setOpen(false))
+    concierge.addEventListener("keydown", event => {
       if (event.key === "Escape") { event.stopPropagation(); setOpen(false) }
     })
-    document.addEventListener("click", (event) => { if (!panel.hidden && !concierge.contains(event.target)) setOpen(false) })
-    concierge.querySelectorAll(".concierge-suggestions button").forEach((button) => button.addEventListener("click", () => respond(button.textContent)))
-    chatForm.addEventListener("submit", (event) => { event.preventDefault(); respond(chatForm.elements.message.value); chatForm.reset() })
-    window.addEventListener("scroll", adjustDock, { passive: true })
+    document.addEventListener("click", event => {
+      if (!panel.hidden && !concierge.contains(event.target)) setOpen(false)
+    })
+    concierge.querySelectorAll(".concierge-suggestions button").forEach(button => {
+      button.addEventListener("click", () => submit(button.textContent))
+    })
+    form.addEventListener("submit", event => { event.preventDefault(); submit(input.value) })
+    window.addEventListener("scroll", adjustDock, {passive: true})
     window.addEventListener("resize", adjustDock)
+    window.visualViewport?.addEventListener("resize", adjustDock)
     adjustDock()
   }
 })()
