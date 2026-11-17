@@ -15,6 +15,8 @@ from accounts.models import User
 
 from .models import ChatMessage, ChatSession
 from .providers import CatalogRetriever, get_provider
+from .config import enabled, time_budget
+from .integration import ProviderUnavailable
 
 FALLBACK = "Chưa có đủ thông tin để trả lời. Bạn có thể liên hệ An Nhiên Spa để được hướng dẫn thêm."
 UNAVAILABLE = "Trợ lý tạm thời chưa thể trả lời. Bạn có thể thử lại hoặc liên hệ An Nhiên Spa."
@@ -129,18 +131,27 @@ def send_question(user_id, session_id, question, retry_id, request_id):
     started = monotonic()
     model_name = ""
     try:
-        sources = CatalogRetriever().retrieve(attempt.reply_to.content, limit=3)
-        if sources:
-            provider = get_provider()
-            model_name = provider.name
-            answer = provider.answer(attempt.reply_to.content, sources)
-        else:
-            answer = ""
+        with time_budget():
+            retriever = CatalogRetriever()
+            if enabled("AI_RAG_ENABLED"):
+                from .rag import RAGRetriever
+                retriever = RAGRetriever()
+            sources = retriever.retrieve(attempt.reply_to.content, limit=5)
+            if sources:
+                provider = get_provider()
+                model_name = provider.name
+                answer = provider.answer(attempt.reply_to.content, sources)
+                if enabled("AI_RAG_ENABLED"):
+                    from .rag import sources_current
+                    if not sources_current(sources):
+                        answer = ""
+            else:
+                answer = ""
         if isinstance(answer, str) and answer.strip():
             status, content = ChatMessage.Status.SUCCESS, answer.strip()[:2000]
         else:
             status, content = ChatMessage.Status.FALLBACK, FALLBACK
-    except TimeoutError:
+    except (TimeoutError, ProviderUnavailable):
         status, content = ChatMessage.Status.FALLBACK, UNAVAILABLE
     except Exception:
         # Never return or log exception text, which may contain a provider payload or secret.

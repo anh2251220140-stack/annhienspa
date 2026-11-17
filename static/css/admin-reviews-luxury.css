@@ -93,3 +93,68 @@
   #quality-dialog .review-reply { padding:10px; }
   #quality-dialog .reviews-reply-actions button { width:100%; }
 }
+
+/* FR-23: reuse the B2 intelligence layout, scoped to this page only. */
+[data-reviews-admin] .admin-analysis-controls { display:flex; align-items:end; gap:16px; flex-wrap:wrap; }
+[data-reviews-admin] .admin-analysis-controls label { min-width:180px; flex:1 1 240px; }
+[data-reviews-admin] .admin-analysis-controls select { width:100%; min-width:0; max-width:100%; }
+[data-reviews-admin] #analysis-status { padding:0 28px; overflow-wrap:anywhere; }
+[data-reviews-admin] #analysis-results { min-width:0; }
+[data-reviews-admin] #analysis-results :is(p,span,strong,h3,h4,summary,blockquote) { overflow-wrap:anywhere; }
+[data-reviews-admin] #analysis-results :is(.admin-analysis-grid,.admin-ai-plan) { margin-bottom:26px; }
+[data-reviews-admin] .fr23-distribution-row { display:grid; grid-template-columns:minmax(100px,140px) minmax(0,1fr) 24px; align-items:center; gap:12px; margin:12px 0; }
+[data-reviews-admin] .fr23-distribution-row meter { width:100%; height:14px; accent-color:var(--admin-sage); }
+[data-reviews-admin] .fr23-distribution-row strong { font-variant-numeric:tabular-nums; text-align:right; }
+[data-reviews-admin] .fr23-review-detail { margin:0 0 16px; border:1px solid var(--admin-line); border-radius:12px; background:var(--admin-surface); overflow:hidden; }
+[data-reviews-admin] .fr23-review-detail > summary { cursor:pointer; padding:20px 22px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; background:var(--admin-canvas); }
+[data-reviews-admin] .fr23-review-detail > summary::before { content:'+'; color:var(--admin-gold); }
+[data-reviews-admin] .fr23-review-detail[open] > summary::before { content:'−'; }
+[data-reviews-admin] .fr23-review-detail > summary > span:first-child { flex:1; }
+[data-reviews-admin] .fr23-review-body { padding:24px; }
+[data-reviews-admin] .fr23-review-body h3 { display:flex; align-items:center; gap:10px; font-size:24px; font-weight:400; margin:0 0 16px; }
+[data-reviews-admin] .fr23-review-body h3 .line-icon { color:var(--admin-gold); width:20px; flex-shrink:0; }
+[data-reviews-admin] .fr23-review-body blockquote { white-space:pre-wrap; }
+[data-reviews-admin] .fr23-saved-summary { padding:20px 0; border-block:1px solid var(--admin-line); }
+[data-reviews-admin] .fr23-priority { padding-top:22px; }
+[data-reviews-admin] .fr23-stale { padding:16px 18px; border-left:3px solid var(--admin-terracotta); background:#9a68570c; color:var(--admin-terracotta-deep); margin:0 0 22px; }
+[data-reviews-admin] .fr23-review-detail > summary:focus-visible { outline:2px solid var(--admin-gold); outline-offset:-4px; }
+@media(max-width:768px) {
+  [data-reviews-admin] #analysis-results .admin-analysis-grid { grid-template-columns:minmax(0,1fr); }
+  [data-reviews-admin] .admin-analysis-heading { padding:24px 20px; gap:14px; }
+  [data-reviews-admin] .admin-analysis-heading h2 { font-size:27px; }
+}
+@media(max-width:500px) {
+  [data-reviews-admin] .admin-analysis-controls { padding:20px 16px; }
+  [data-reviews-admin] .admin-analysis-controls label { flex-basis:100%; min-width:0; }
+  [data-reviews-admin] .admin-analysis-controls button { width:100%; }
+  [data-reviews-admin] :is(#analysis-results,.admin-analysis-method) { padding:20px 16px; }
+  [data-reviews-admin] #analysis-status { padding:0 16px; }
+  [data-reviews-admin] .admin-analysis-heading { align-items:start; }
+  [data-reviews-admin] .admin-analysis-symbol { width:42px; height:42px; }
+  [data-reviews-admin] .admin-analysis-heading h2 { font-size:24px; }
+  [data-reviews-admin] .fr23-review-body { padding:18px 14px; }
+  [data-reviews-admin] .fr23-review-detail > summary { padding:16px 14px; }
+  [data-reviews-admin] .fr23-distribution-row { grid-template-columns:minmax(75px,100px) minmax(0,1fr) 18px; gap:8px; }
+  [data-reviews-admin] #analysis-results .admin-analysis-grid > article { padding:18px 16px; }
+}
+
+/* Keep the wide table inside its own scroll region on tablet/phone. */
+@media(max-width:768px) {
+  [data-reviews-admin],
+  [data-reviews-admin] :is(#reviews-panel,#quality-table,#review-analysis) { min-width:0; max-width:100%; }
+  [data-reviews-admin] #quality-table { display:block; width:100%; overflow-x:auto; overscroll-behavior-x:contain; }
+  [data-reviews-admin] #quality-table .admin-data-table { width:100%; min-width:1000px; table-layout:auto; }
+  [data-reviews-admin] #quality-table .admin-quality-comment { display:block; max-height:none; overflow:visible; white-space:pre-wrap; -webkit-line-clamp:unset; }
+}
+/* Give the identity and long status label separate lines rather than letting
+   the badge consume the name's flex width (especially stale/empty reviews). */
+@media(max-width:600px) {
+  [data-reviews-admin] #analysis-results .fr23-review-detail > summary { display:grid; grid-template-columns:16px minmax(0,1fr); align-items:start; justify-content:normal; gap:8px 10px; }
+  [data-reviews-admin] #analysis-results .fr23-review-detail > summary::before { grid-column:1; grid-row:1; }
+  [data-reviews-admin] #analysis-results .fr23-review-detail > summary > span:first-child { grid-column:2; grid-row:1; min-width:0; line-height:1.6; word-break:normal; overflow-wrap:break-word; }
+  [data-reviews-admin] #analysis-results .fr23-review-detail > summary > .admin-quality-chip { grid-column:2; grid-row:2; justify-self:start; width:fit-content; max-width:100%; white-space:normal; word-break:normal; overflow-wrap:break-word; font-size:13px; line-height:1.6; }
+  [data-reviews-admin] #analysis-results .admin-analysis-grid,
+  [data-reviews-admin] #analysis-results .admin-ai-plan { grid-template-columns:minmax(0,1fr); }
+  [data-reviews-admin] .admin-analysis-controls :is(select,button) { box-sizing:border-box; max-width:100%; min-width:0; font-size:14px; }
+  [data-reviews-admin] .admin-analysis-controls button { white-space:normal; height:auto; min-height:44px; }
+}

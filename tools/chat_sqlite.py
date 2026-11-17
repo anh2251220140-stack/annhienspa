@@ -134,6 +134,11 @@ def configure(stack, directory):
 
     settings.DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": database}}
     settings.AI_CHAT_ENABLED = True
+    settings.AI_PROVIDER = "mock"
+    settings.AI_PAID_CALLS_APPROVED = False
+    settings.AI_RAG_ENABLED = False
+    settings.AI_RAG_DIRECTORY = directory / "vectors"
+    settings.AI_ASSISTANCE_ENABLED = True
     settings.AI_CHAT_SPA_INFORMATION = "Giờ mở cửa của Spa kiểm thử: 09:00–21:00."
     settings.SESSION_COOKIE_NAME = "annhien_chat_acceptance_session"
     settings.CSRF_COOKIE_NAME = "annhien_chat_acceptance_csrftoken"
@@ -161,6 +166,7 @@ def seed(password):
     Customer.objects.create(user=user, full_name="Khách kiểm thử Chatbot", phone="0000000000")
     admin = User.objects.create_user("chat_demo_admin", "chat-admin@example.test", password, role=User.Role.ADMIN)
     admin.user_permissions.add(Permission.objects.get(content_type__app_label="ai_features", codename="read_chat_history"))
+    admin.user_permissions.add(Permission.objects.get(content_type__app_label="ai_features", codename="change_aireviewanalysis"))
     User.objects.create_superuser("chat_demo_unassigned", "chat-unassigned@example.test", password)
     category = ServiceCategory.objects.create(name="Danh mục thử Chatbot")
     Service.objects.create(category=category, name="Massage thử Chatbot", description="Dữ liệu kiểm thử.",

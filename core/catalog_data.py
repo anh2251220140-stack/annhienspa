@@ -49,10 +49,7 @@ def promotions(*, promotion_page=False):
         if limit is not None:conditions.append(f'Mỗi khách hàng được sử dụng tối đa {limit} lần; hóa đơn chưa thanh toán giữ lượt cho đến khi xóa mã hoặc hủy hợp lệ.')
         if x.min_amount is not None:conditions.append("Giá trị tối thiểu: "+money(x.min_amount))
         if x.max_discount is not None:conditions.append("Giảm tối đa: "+money(x.max_discount))
-        if promotion_page:
-            discount = _promotion_discount_label(x.discount_type, x.discount_value)
-        else:
-            discount = "Giảm "+(f"{x.discount_value:g}%" if x.discount_type=="percent" else money(x.discount_value))
+        discount = _promotion_discount_label(x.discount_type, x.discount_value)
         item={"id":x.pk,"code":x.code,"aliases":lines(x.aliases),"active":True,"name":x.name,
             "discount":discount,
             "description":x.description or "","detail":x.detail or x.description or "","conditions":conditions,

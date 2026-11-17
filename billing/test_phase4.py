@@ -332,7 +332,10 @@ class ConcurrentPaymentTests(Fixtures,TransactionTestCase):
     @patch('billing.gateway.cancel')
     def test_cash_and_webhook_race_counts_revenue_once(self,cancel):
         cancel.side_effect=lambda payment:provider_state(payment,'CANCELLED')
-        p=Payment.objects.create(invoice=self.invoice,payment_method='online',amount=500000,order_code=424242,payment_link_id='test-link')
+        # The pending online attempt must predate the appointment; the race
+        # itself still runs at the start, when cash collection becomes legal.
+        with patch('billing.services.timezone.now',return_value=timezone.now()-timedelta(seconds=1)):
+            p=Payment.objects.create(invoice=self.invoice,payment_method='online',amount=500000,order_code=424242,payment_link_id='test-link')
         data=SimpleNamespace(order_code=p.order_code,amount=500000,currency='VND',payment_link_id='test-link',code='00',reference='race-reference',transaction_date_time=timezone.localtime().isoformat())
         barrier=Barrier(2)
         def attempt(kind):

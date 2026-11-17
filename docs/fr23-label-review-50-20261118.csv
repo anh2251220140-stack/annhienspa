@@ -1,0 +1,51 @@
+﻿id,comment,sentiment,label_status,review_note,expected_themes,expected_priority,gemini_sentiment,status
+R01,"Dịch vụ tốt, nhân viên tận tâm.",positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R02,Rất hài lòng với massage nhẹ nhàng.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R03,Không gian yên tĩnh và sạch sẽ.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R04,Mức giá hợp lý với trải nghiệm.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R05,"Tư vấn rõ ràng, tôi sẽ quay lại.",positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R06,Chuyên viên thao tác rất dịu nhẹ.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R07,Da được chăm sóc thoải mái hơn.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R08,"Nhân viên đúng giờ, phục vụ tốt.",positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R09,"Mùi hương dễ chịu, rất thư giãn.",positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R10,Lịch hẹn được chuẩn bị chu đáo.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R11,Tôi thích cách giải thích từng bước.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R12,Một trải nghiệm đáng nhớ và dễ chịu.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R13,"Tôi không có phàn nàn, rất hài lòng.",positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R14,Cảm ơn đội ngũ đã chăm sóc tận tình.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R15,"Chất lượng ổn định, xứng đáng quay lại.",positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R16,"Không gian ấm cúng, dịch vụ chuyên nghiệp.",positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R17,Thủ tục nhanh gọn và thân thiện.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R18,Massage đá nóng mang lại cảm giác thư thái.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R19,Chuyên viên lắng nghe và điều chỉnh lực phù hợp.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R20,Dịch vụ vượt mong đợi của tôi.,positive,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R21,Không hài lòng vì phải chờ quá lâu.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R22,"Phòng ồn, khó thư giãn.",negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R23,Giá không được thông báo rõ.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R24,Thao tác quá mạnh và khó chịu.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R25,Nhân viên thiếu lắng nghe.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R26,Không gian chưa sạch.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R27,Tôi thất vọng về cách tư vấn.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R28,Lịch hẹn bị trễ mà không được giải thích.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R29,Mùi hương quá nồng.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R30,Chất lượng không như mong đợi.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R31,Tôi sẽ không quay lại với trải nghiệm này.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R32,Dịch vụ chưa xứng với mức giá.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R33,Nhân viên thúc giục tôi chọn thêm liệu trình.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R34,Không vui vì phải nhắc nhiều lần.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R35,Phòng quá lạnh làm tôi khó chịu.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R36,Tôi cần được giải thích về khoản phí thêm.,negative,NEEDS_HUMAN_APPROVAL,Yêu cầu giải thích phí có thể là câu hỏi trung tính hoặc phàn nàn; cần quy ước nhãn.,,,,BLOCKED
+R37,Đã phản ánh nhưng không nhận được hỗ trợ.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R38,Khâu đón tiếp thiếu chu đáo.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R39,Không hề hài lòng dù được giới thiệu rất tốt.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R40,Nhận xét trước khen tốt nhưng trải nghiệm của tôi rất tệ.,negative,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R41,Trải nghiệm bình thường.,neutral,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R42,Tôi đã sử dụng liệu trình 60 phút.,neutral,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R43,Có điểm tốt và điểm cần cải thiện.,neutral,NEEDS_HUMAN_APPROVAL,Có cả điểm tốt và cần cải thiện; cần duyệt quy ước mixed -> neutral của bộ 3 nhãn.,,,,BLOCKED
+R44,Nhân viên nhẹ nhàng nhưng tôi phải chờ lâu.,neutral,NEEDS_HUMAN_APPROVAL,Khen nhân viên và phàn nàn chờ; cần duyệt cách gộp cảm xúc hỗn hợp.,,,,BLOCKED
+R45,Không gian đẹp nhưng giá chưa hợp lý.,neutral,NEEDS_HUMAN_APPROVAL,Khen không gian và chê giá; cần duyệt cách gộp cảm xúc hỗn hợp.,,,,BLOCKED
+R46,"Dịch vụ đúng như mô tả, chưa có gì nổi bật.",neutral,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R47,Tôi chưa thấy khác biệt rõ ràng.,neutral,NEEDS_HUMAN_APPROVAL,Chưa thấy khác biệt có thể trung tính hoặc thất vọng; cần duyệt.,,,,BLOCKED
+R48,Tôi đến vào buổi sáng và dùng dịch vụ chăm sóc da.,neutral,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R49,Cần trải nghiệm thêm để đánh giá.,neutral,NEEDS_HUMAN_APPROVAL,Nhãn nháp từ bộ chuẩn; chưa được người duyệt xác nhận.,,,,BLOCKED
+R50,"Chăm sóc tốt, tuy nhiên giờ hẹn cần chính xác hơn.",neutral,NEEDS_HUMAN_APPROVAL,Khen chăm sóc và góp ý giờ hẹn; cần duyệt cách gộp cảm xúc hỗn hợp.,,,,BLOCKED

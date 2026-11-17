@@ -25,6 +25,12 @@ class AIReviewAnalysis(ValidatedModel):
     sentiment = models.CharField(max_length=20, choices=Sentiment.choices)
     summary = models.TextField()
     analyzed_at = models.DateTimeField(auto_now_add=True)
+    themes = models.JSONField(default=list, blank=True)
+    priority = models.CharField(max_length=10, default="low", choices=[("low", "Thấp"), ("medium", "Vừa"), ("high", "Cao")])
+    actions = models.JSONField(default=list, blank=True)
+    mode = models.CharField(max_length=10, default="legacy", choices=[("legacy", "Chưa xác minh"), ("rule", "Theo quy tắc"), ("ai", "AI")])
+    model_name = models.CharField(max_length=80, blank=True, default="")
+    source_hash = models.CharField(max_length=64, blank=True, default="")
     class Meta:
         db_table = "ai_review_analysis"
         constraints = [models.CheckConstraint(condition=models.Q(sentiment__in=["positive", "neutral", "negative"]), name="analysis_valid_sentiment")]

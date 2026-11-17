@@ -15,7 +15,13 @@ from django.core.exceptions import ImproperlyConfigured
 DATABASE = "annhien_spa_fr14_tests"
 USER = "annhien_fr14_tests"
 HOST = "127.0.0.1"
-ACCOUNT = f"{USER}@localhost"
+TEST_PORT = 3311
+PRODUCTION_UUID = "7db82c55-cb03-11f1-b4b7-ea7eb5144315"
+RESTORE_UUID = "7408c069-e00d-11f1-930d-523b3040afb1"
+APPROVAL_ENV = "ANNHIEN_FR14_TEST_APPROVAL"
+APPROVAL_PHRASE = f"ALLOW {HOST}:{TEST_PORT} {DATABASE}"
+ACCOUNT_HOST = HOST
+ACCOUNT = f"{USER}@{ACCOUNT_HOST}"
 ENGINE = "django.db.backends.mysql"
 SETTINGS = "config.settings_fr14_tests"
 OPTIONS = {"charset": "utf8mb4", "connect_timeout": 5}
@@ -48,14 +54,22 @@ class Target:
     hostname: str
     server_uuid: str
     main_uuid: str
+    approved: bool = False
 
     def __post_init__(self):
-        if type(self.port) is not int or not 1024 <= self.port <= 65535 or self.port == 3306:
-            reject("Use an explicit isolated test port; port 3306 is forbidden.")
+        self.validate()
+
+    def validate(self):
+        # Reject before the driver is called, including a formerly valid target
+        # reused by a caller. No production/restore port is ever a fallback.
+        if type(self.port) is not int or self.port != TEST_PORT:
+            reject("Only the approved test port 3311 is allowed; ports 3306 and 3310 are forbidden.")
+        if self.approved is not True:
+            reject("Explicit approval for the dedicated 127.0.0.1:3311 test instance is required.")
         if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.-]{0,254}", self.hostname):
             reject("Set the MySQL test hostname obtained during provisioning.")
-        if uuid_text(self.server_uuid) == uuid_text(self.main_uuid):
-            reject("The test UUID must be different from the production UUID.")
+        if uuid_text(self.server_uuid) in {PRODUCTION_UUID, RESTORE_UUID, uuid_text(self.main_uuid)}:
+            reject("Production and restore UUIDs are forbidden for the test instance.")
 
     @classmethod
     def from_environment(cls):
@@ -67,13 +81,14 @@ class Target:
             os.environ.get("ANNHIEN_FR14_TEST_HOSTNAME", ""),
             os.environ.get("ANNHIEN_FR14_TEST_SERVER_UUID", ""),
             os.environ.get("ANNHIEN_FR14_MAIN_SERVER_UUID", ""),
+            approved=os.environ.get(APPROVAL_ENV) == APPROVAL_PHRASE,
         )
 
 
 def check_grants(rows, partial_revokes, *, database=DATABASE, user=USER, required=PRIVILEGES):
     # With partial_revokes=OFF, a bare underscore is a GRANT wildcard.
     scope = database if partial_revokes else database.replace("_", r"\_")
-    account = rf"[`']{re.escape(user)}[`']@[`']localhost[`']"
+    account = rf"[`']{re.escape(user)}[`']@[`']{re.escape(ACCOUNT_HOST)}[`']"
     allowed_scope = f"`{scope}`.*"
     saw_usage = False
     privileges = set()
@@ -104,6 +119,8 @@ class Guard:
     password: str = field(default="", repr=False)
 
     def database_settings(self):
+        if self.target:
+            self.target.validate()
         return {
             "ENGINE": ENGINE, "NAME": self.database, "USER": self.user,
             "PASSWORD": self.password, "HOST": HOST,
@@ -125,6 +142,7 @@ class Guard:
 
         if not self.target or not self.password:
             reject("Database access is disabled.")
+        self.target.validate()
         expected = dict(host=HOST, port=self.target.port, database=self.database, user=self.user,
                         password=self.password, client_flag=CLIENT.FOUND_ROWS, **OPTIONS)
         if (params.get("conv") is not django_conversions or
@@ -134,6 +152,7 @@ class Guard:
     def verify_session(self, raw):
         if not self.target:
             reject("Database access is disabled.")
+        self.target.validate()
         with raw.cursor() as cursor:
             cursor.execute(
                 "SELECT DATABASE(), CURRENT_USER(), @@hostname, @@port, @@server_uuid, "
@@ -143,7 +162,7 @@ class Guard:
             )
             (schema, account, hostname, port, server_uuid, version, version_comment,
              engine, role, mandatory_roles, partial_revokes) = cursor.fetchone()
-            if (schema != self.database or account != f"{self.user}@localhost" or
+            if (schema != self.database or account != f"{self.user}@{ACCOUNT_HOST}" or
                     hostname.casefold() != self.target.hostname.casefold() or
                     port != self.target.port or
                     uuid_text(server_uuid) != uuid_text(self.target.server_uuid) or

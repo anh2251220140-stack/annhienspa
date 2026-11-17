@@ -1,8 +1,12 @@
 from django.urls import path
 from . import views
+from . import assistance_views
 
 app_name = "ai_features"
 urlpatterns = [
+    path("recommendations/", assistance_views.recommendations, name="recommendations"),
+    path("reviews/analyze/", assistance_views.batch_analysis, name="review-analysis-batch"),
+    path("reviews/<int:review_id>/analyze/", assistance_views.analysis, name="review-analysis"),
     path("chat/", views.chat, name="chat"),
     path("chat/sessions/", views.sessions, name="sessions"),
     path("chat/sessions/<int:session_id>/", views.detail, name="detail"),

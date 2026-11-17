@@ -36,9 +36,10 @@ def contains_private_input(text):
 @dataclass(frozen=True)
 class Source:
     kind: str
-    object_id: int | None
+    object_id: int | str | None
     name: str
     text: str
+    fingerprint: str = ""
 
 
 class Retriever(Protocol):
@@ -103,4 +104,8 @@ class MockProvider:
 
 
 def get_provider() -> Provider:
+    from .config import option
+    if option("AI_PROVIDER", "mock") != "mock":
+        from .provider_factory import external_provider
+        return external_provider()
     return MockProvider()

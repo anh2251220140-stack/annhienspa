@@ -16,6 +16,7 @@ from accounts.models import User
 from .chat import ChatError, PENDING_TIMEOUT, UNAVAILABLE, can_read_history, send_question
 from .models import ChatMessage, ChatSession
 from .providers import contains_private_input
+from .config import enabled, option
 
 SESSION_PAGE_SIZE = 10
 MESSAGE_PAGE_SIZE = 30
@@ -130,7 +131,11 @@ def sessions(request):
         item = ChatSession.objects.create(user=request.user)
         return JsonResponse({"session": _session(item)}, status=201)
     items = ChatSession.objects.filter(user=request.user).order_by("-updated_at", "-pk")
-    limits = {"dailyLimit": settings.AI_CHAT_DAILY_LIMIT, "cooldown": settings.AI_CHAT_COOLDOWN_SECONDS}
+    provider = option("AI_PROVIDER", "mock")
+    configured = (provider == "gemini" and enabled("AI_GEMINI_REQUESTS_APPROVED") and enabled("AI_GEMINI_FREE_TIER_CONFIRMED")
+                   and str(option("AI_GEMINI_FREE_TIER_ONLY", "true")).lower() == "true" and not enabled("AI_PAID_CALLS_APPROVED"))
+    limits = {"dailyLimit": settings.AI_CHAT_DAILY_LIMIT, "cooldown": settings.AI_CHAT_COOLDOWN_SECONDS,
+              "providerMode": "ai" if configured else "mock"}
     if request.GET.get("resume") == "1":
         # Skip empty sessions left by the old "new session" button. If only
         # closed conversations exist, the most recent one can still be read.

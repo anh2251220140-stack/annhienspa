@@ -51,3 +51,8 @@
   .concierge { bottom: calc(18px + env(safe-area-inset-bottom) + var(--footer-lift, 0px) + var(--chat-keyboard, 0px)); }
   .concierge .concierge-heading { padding: 14px 18px; }
 }
+
+/* Processing belongs to the assistant message, never a separate alert box. */
+.concierge .concierge-entry.is-pending { border-style: dashed; background: #fbf4ec; }
+.concierge .concierge-entry.is-pending small { color: #856d5b; font-size: .72rem; }
+.concierge .concierge-note[data-chat-limit] { font-size: .68rem; line-height: 1.55; color: #856d5b; }

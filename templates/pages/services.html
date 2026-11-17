@@ -9,12 +9,12 @@
       Dịch vụ tại An Nhiên | An Nhiên Spa
     </title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=service-recommendation-1">
+    <link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=ai-loading-20261118">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
     <script src="{% static 'js/ui.js' %}"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
-    <script src="{% static 'js/app.js' %}?v=service-recommendation-1" defer>
+    <script src="{% static 'js/app.js' %}?v=ai-loading-20261118" defer>
     </script>
     <script src="{% static 'js/catalog-pages.js' %}" defer>
     </script>
@@ -121,7 +121,7 @@
                 <label>Thời lượng mong muốn<select name="duration"><option value="">Không quan trọng</option><option value="short">Dưới 60 phút</option><option value="medium">60–90 phút</option><option value="long">Trên 90 phút</option></select></label>
               </div>
               <button class="button filled" type="submit">Phân tích &amp; gợi ý cho tôi</button>
-              <p class="review-note">Gợi ý minh họa từ dữ liệu hiện có, chưa gọi AI thật.</p>
+              <p class="review-note">Gợi ý được kiểm tra từ dữ liệu hiện có; sử dụng quy tắc dự phòng khi AI chưa sẵn sàng.</p>
             </form>
           </div>
           <p class="review-note" data-recommendation-status role="status" aria-live="polite"></p>

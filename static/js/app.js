@@ -1010,13 +1010,39 @@
     const savedGroup = savedNeeds.filter((value) => typeof value === "string")
       .map((value) => needGroups.get(normalizeNeed(value))).find(Boolean)
     form.elements.needs.value = savedGroup || ""
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
       event.preventDefault()
       if (!form.reportValidity() || !window.spaAuth.isAuthenticated() || read("spa-auth", {}).role !== "User") return
       const skin = form.elements.skin.value, needs = form.elements.needs.value
       const budget = form.elements.budget.value === "" ? Infinity : form.elements.budget.valueAsNumber
       if (Number.isNaN(budget) || budget < 0) return
       const interests = form.elements.interests.value.trim(), duration = form.elements.duration.value
+      const status = recommendation.querySelector("[data-recommendation-status]")
+      const results = recommendation.querySelector("[data-recommendation-results]")
+      const button = form.querySelector('[type="submit"]')
+      if (button.disabled) return
+      button.disabled = true
+      results.replaceChildren()
+      status.textContent = ""
+      results.innerHTML = `<div class="recommendation-loading" role="status"><span class="recommendation-spinner" aria-hidden="true"></span><span>Đang phân tích...</span></div>`
+      recommendation.setAttribute("aria-busy", "true")
+      let suggested
+      try {
+        const csrf = document.querySelector('#spa-logout-form [name="csrfmiddlewaretoken"]')?.value
+        const response = await fetch("/api/ai/recommendations/", { method: "POST", credentials: "same-origin",
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrf || "" },
+          body: JSON.stringify({ skin, needs, budget: Number.isFinite(budget) ? String(budget) : null, interests, duration }) })
+        suggested = await response.json()
+        if (!response.ok) throw Error(suggested.error || "Chưa thể nhận gợi ý. Vui lòng thử lại.")
+        if (!Array.isArray(suggested.items)) throw Error("Kết quả gợi ý chưa hợp lệ.")
+      } catch (error) {
+        status.textContent = error.message
+        return
+      } finally {
+        results.replaceChildren()
+        button.disabled = false
+        recommendation.setAttribute("aria-busy", "false")
+      }
       const durationLabels = { short: "Dưới 60 phút", medium: "60–90 phút", long: "Trên 90 phút" }
       const money = (value) => `${value.toLocaleString("vi-VN")} VND`
       const durationMatch = (item) => !duration || (duration === "short" ? item.minutes < 60 : duration === "medium" ? item.minutes >= 60 && item.minutes <= 90 : item.minutes > 90)
@@ -1031,92 +1057,63 @@
       const preferenceHits = (item) => needsAdvice ? [] : preferenceTerms.filter((term) => normalize(`${item.name} ${item.category} ${item.description}`).includes(normalize(term)))
       const relevant = catalog.services.filter((item) => item.active === true && needMatch(item) > 0)
       const minimumPrice = Math.min(...relevant.map((item) => item.priceValue))
-      const ranked = relevant.filter((item) => item.priceValue <= budget).map((item) => {
-        const hits = preferenceHits(item)
-        // 35 needs + 25 linked skin-care evidence + 20 budget + 10 preferences + 10 duration.
-        // Unspecified criteria receive half weight, not an invented perfect match.
-        const score = Math.round((needs ? 35 * needMatch(item) : 17.5) + (skin ? skinServices.has(item.id) ? 25 : 0 : 12.5)
-          + (Number.isFinite(budget) ? 20 : 10) + (preferenceTerms.length && !needsAdvice ? 10 * hits.length / preferenceTerms.length : 5)
-          + (duration ? durationMatch(item) ? 10 : 0 : 5))
-        return { item, hits, score }
-      }).sort((a, b) => b.score - a.score || a.item.priceValue - b.item.priceValue || a.item.id - b.item.id)
-      const services = ranked.slice(0, 3), best = services[0]?.item
-      const relatedProducts = new Set(catalog.relations.filter((relation) => relation.serviceId === best?.id).map((relation) => relation.productId))
-      const care = products.filter((item) => relatedProducts.has(item.id) &&
-        (!skin || item.skins.includes("Không áp dụng") || matchesSkin(item, skin)))
-        .sort((a, b) => Number(matchesSkin(b, skin)) - Number(matchesSkin(a, skin)) ||
-          preferenceHits(b).length - preferenceHits(a).length || a.id - b.id).slice(0, 3)
+      const ranked = relevant.map((item) => ({ item, hits: preferenceHits(item) }))
+      const services = suggested.items.map((row) => {
+        const existing = ranked.find(({ item }) => item.id === row.id)
+        return { hits: [], ...existing, reason: row.reason, item: {
+          ...(catalog.services.find((item) => item.id === row.id) || { category: "Dịch vụ", description: "", careGroup: needs }),
+          id: row.id, name: row.name, priceValue: Number(row.price), price: money(Number(row.price)),
+          minutes: row.minutes, duration: `${row.minutes} phút`,
+        } }
+      }), best = services[0]?.item
+      const approvedProducts = new Map()
+      for (const row of suggested.items) for (const product of (row.products || [])) {
+        const known = products.find(p => p.id === product.id)
+        if (!known || !catalog.relations.some(r => r.serviceId === row.id && r.productId === product.id)) continue
+        const prior = approvedProducts.get(product.id)
+        approvedProducts.set(product.id, { ...known, ...product, linkedServiceIds: [...(prior?.linkedServiceIds || []), row.id] })
+      }
+      const care = [...approvedProducts.values()]
+      const displayLabel = suggested.mode === "ai" ? "Đề xuất bởi AI" : "Đề xuất theo quy tắc"
       const chips = [skin || "Chưa xác định loại da", needsLabels[needs] || "Khám phá liệu trình",
         Number.isFinite(budget) ? `≤ ${money(budget)}` : "Ngân sách linh hoạt", durationLabels[duration] || "Thời lượng không quan trọng"]
       if (interests) chips.push(interests)
-      const alternatives = [], used = new Set(best ? [best.id] : [])
-      const addAlternative = (label, choice) => {
-        if (choice && !used.has(choice.id)) { used.add(choice.id); alternatives.push({ label, item: choice }) }
-      }
-      if (best) {
-        addAlternative("Nếu muốn tiết kiệm hơn", ranked.find(({ item }) => item.id !== best.id && item.priceValue < best.priceValue)?.item)
-        if (!/massage|thu gian/.test(normalize(best.name))) {
-          addAlternative("Nếu ưu tiên thư giãn hơn", ranked.find(({ item }) => !used.has(item.id) && /massage|thu gian/.test(normalize(item.name)))?.item)
-        }
-        addAlternative("Nếu có thêm thời gian", ranked.find(({ item }) => !used.has(item.id) && item.minutes > best.minutes)?.item)
-      }
-      let priority = [needs ? `đúng nhu cầu ${needsLabels[needs].toLocaleLowerCase("vi")}` : "khám phá liệu trình",
-        Number.isFinite(budget) ? `trong ngân sách ${money(budget)}` : "đối chiếu các tiêu chí bạn đã cung cấp"].join(" và ")
-      if (services.length > 1) {
-        const runner = services[1]
-        const drivers = [
-          [needs ? 35 * (needMatch(best) - needMatch(runner.item)) : 0, "nhu cầu chăm sóc khớp hơn"],
-          [skin ? 25 * (Number(skinServices.has(best.id)) - Number(skinServices.has(runner.item.id))) : 0, `dữ liệu chăm sóc liên quan cho ${skin}`],
-          [preferenceTerms.length && !needsAdvice ? 10 * (services[0].hits.length - runner.hits.length) / preferenceTerms.length : 0, "từ khóa sở thích đối chiếu được"],
-          ...(duration ? [[10 * (Number(durationMatch(best)) - Number(durationMatch(runner.item))),
-            `thời lượng ${durationLabels[duration].toLocaleLowerCase("vi")}`]] : []),
-        ].filter(([difference]) => difference > 0).sort((a, b) => b[0] - a[0])
-        priority = services[0].score === runner.score
-          ? best.priceValue < runner.item.priceValue ? "mức giá thấp hơn khi các lựa chọn có điểm tương đương" : "thứ tự catalog ổn định khi điểm và giá tương đương, không khẳng định một lựa chọn vượt trội"
-          : drivers.length ? drivers.slice(0, 2).map(([, label]) => label).join(" và ") : priority
-      }
-      priority = `Hệ thống ưu tiên ${priority}.${best && duration && !durationMatch(best) ? " Thời lượng được xem là tiêu chí phụ trong trường hợp này." : ""}`
-      recommendation.querySelector("[data-recommendation-results]").innerHTML = `<section class="review-surface" data-recommendation-summary><h2>An Nhiên hiểu nhu cầu của bạn</h2>
+      const selectedIds = new Set(services.map(({item}) => item.id))
+      const alternativeIds = new Set()
+      const alternatives = (suggested.alternatives || []).filter(row => {
+        if (selectedIds.has(row.id) || alternativeIds.has(row.id) || !catalog.services.some(s => s.id === row.id && s.active)) return false
+        alternativeIds.add(row.id); return true
+      })
+      recommendation.querySelector("[data-recommendation-results]").innerHTML = `<section class="review-surface" data-recommendation-summary><span class="eyebrow">${escape(displayLabel)}</span><h2>An Nhiên hiểu nhu cầu của bạn</h2>
         <p>Bạn chọn ${escape(skin || "chưa xác định loại da")}, ưu tiên ${escape((needsLabels[needs] || "khám phá liệu trình").toLocaleLowerCase("vi"))},
           ${Number.isFinite(budget) ? `ngân sách tối đa ${money(budget)}` : "chưa đặt giới hạn ngân sách"} và ${escape(durationLabels[duration] || "không giới hạn thời lượng")}.</p>
-        <ul class="recommendation-chips">${chips.map((chip) => `<li title="${escape(chip)}">${escape(chip)}</li>`).join("")}</ul></section>
-        <section><h2>Liệu trình gợi ý</h2>${best ? `<p class="review-note"><strong>Ưu tiên của hệ thống:</strong> ${escape(priority)}</p>` : ""}<div class="catalog-grid">${services.map(({ item, hits, score }, index) => {
-          const reasons = [
-            needs ? needMatch(item) === 1 ? `Đúng nhóm nhu cầu ${needsLabels[needs].toLocaleLowerCase("vi")}.` : "Tên liệu trình có massage/thư giãn, cùng định hướng bạn chọn." : `Thuộc nhóm ${item.category.toLocaleLowerCase("vi")} để bạn khám phá.`,
-            Number.isFinite(budget) ? `Giá ${item.price} nằm trong ngân sách ${money(budget)}.` : `Giá gốc ${item.price} để bạn đối chiếu trước khi đặt lịch.`,
-          ]
-          if (skin && skinServices.has(item.id)) reasons.push(`Có sản phẩm chăm sóc liên kết dành cho ${skin.toLocaleLowerCase("vi")}.`)
-          if (duration && durationMatch(item)) reasons.push(`Thời lượng ${item.duration} khớp mong muốn ${durationLabels[duration].toLocaleLowerCase("vi")}.`)
-          if (hits.length) reasons.push(`Mô tả có ${hits.join(", ")}, khớp sở thích bạn nêu.`)
-          const tradeoffs = []
-          if (duration && !durationMatch(item)) tradeoffs.push(`thời lượng ${item.duration} chưa đúng mong muốn ${durationLabels[duration].toLocaleLowerCase("vi")}`)
-          if (needs && needMatch(item) < 1) tradeoffs.push("nhu cầu chỉ khớp theo định hướng thư giãn, chưa thuộc đúng nhóm chính")
-          if (hits.length && hits.length < preferenceTerms.length) tradeoffs.push("mới đối chiếu được một phần từ khóa sở thích")
+        <p>Ngân sách áp dụng cho từng liệu trình, không phải tổng giá của một gói nhiều dịch vụ.</p><ul class="recommendation-chips">${chips.map((chip) => `<li title="${escape(chip)}">${escape(chip)}</li>`).join("")}</ul></section>
+        <section><h2>Liệu trình gợi ý</h2><div class="catalog-grid">${services.map(({ item, hits, reason }, index) => {
           return `<article class="review-surface" data-recommended-service="${item.id}"><span class="eyebrow">#${index + 1} ${["Phù hợp nhất", "Lựa chọn thay thế", "Có thể cân nhắc"][index]}</span><h3>${escape(item.name)}</h3>
           <p class="recommendation-meta">${escape(item.price)} · ${escape(item.duration)}</p><p>${escape(item.description)}</p>
-          <p class="recommendation-meta">Mức phù hợp: ${score >= 85 ? "Rất cao" : score >= 65 ? "Cao" : "Có thể cân nhắc"} <span class="review-note">(ước tính ${score}/100)</span>${tradeoffs.length ? `<br><span class="review-note">Chưa đạt mức phù hợp tối đa vì ${escape(tradeoffs.join("; "))}.</span>` : ""}</p>
-          <p>Vì sao phù hợp với bạn</p><ul class="recommendation-reasons">${reasons.slice(0, 4).map((reason) => `<li>${escape(reason)}</li>`).join("")}</ul>
+          <p>Vì sao phù hợp với bạn</p><ul class="recommendation-reasons"><li>${escape(reason)}</li></ul>
           <p>Điểm khớp</p><dl class="recommendation-matches"><dt>Nhu cầu</dt><dd>${needs ? needMatch(item) === 1 ? "Đúng nhóm đã chọn" : "Cùng định hướng thư giãn" : "Chưa chọn cụ thể"}</dd>
             <dt>Loại da</dt><dd>${skin ? skinServices.has(item.id) ? "Có chăm sóc liên quan phù hợp" : "Chưa có dữ liệu đối chiếu" : "Chưa xác định"}</dd>
             <dt>Ngân sách</dt><dd>${escape(item.price)}${Number.isFinite(budget) ? ` / ${money(budget)}` : " · Chưa giới hạn"}</dd>
             <dt>Thời lượng</dt><dd>${escape(item.duration)}${duration ? durationMatch(item) ? " · Khớp mong muốn" : " · Khác mong muốn" : ""}</dd>
             <dt>Sở thích</dt><dd>${needsAdvice ? "Cần trao đổi với chuyên viên" : hits.length ? escape(hits.join(", ")) : interests ? "Chưa đủ dữ liệu đối chiếu" : "Chưa cung cấp"}${interests && !needsAdvice && !hits.length ? `<br>Chưa có đủ dữ liệu để đánh giá mức độ phù hợp với sở thích «${escape(interests)}».` : ""}</dd></dl>
-          <div class="review-actions"><a class="button small" href="service-detail.html?id=${item.id}">Xem chi tiết</a><a class="button filled small" href="booking.html?service=${item.id}">Đặt lịch</a></div></article>`
+          <p class="review-note">${escape(suggested.items.find(row => row.id === item.id)?.caution || "Chưa đủ thông tin xác nhận phù hợp y khoa; trao đổi với chuyên viên.")}</p><div class="review-actions"><a class="button small" href="service-detail.html?id=${item.id}">Xem chi tiết</a><a class="button filled small" href="booking.html?service=${item.id}">Đặt lịch</a></div></article>`
         }).join("")}</div>
         ${services.length ? "" : `<p>Chưa có liệu trình cùng nhu cầu trong ngân sách này.${Number.isFinite(minimumPrice) && Number.isFinite(budget) ? ` Giá thấp nhất cùng nhu cầu là ${money(minimumPrice)}, cao hơn ngân sách ${money(budget)}.` : ""} Bạn có thể điều chỉnh lựa chọn hoặc liên hệ Spa; hệ thống không tự thêm dịch vụ vượt ngân sách.</p>`}</section>
-        <section><h2>Bạn cũng có thể cân nhắc</h2>${alternatives.length ? `<ul class="recommendation-alternatives">${alternatives.map(({ label, item }) =>
-          `<li><span>${escape(label)}</span><a href="service-detail.html?id=${item.id}">${escape(item.name)}</a> · ${escape(item.price)} · ${escape(item.duration)}</li>`).join("")}</ul>`
-          : "<p>Hiện chưa có phương án khác cùng nhu cầu và ngân sách trong catalog.</p>"}</section>
-        <section><h2>Chăm sóc sau liệu trình</h2><div class="catalog-grid">${care.map((item) => `<article class="review-surface" data-recommended-product="${item.id}"><span class="eyebrow">${escape(item.category)}</span><h3>${escape(item.name)}</h3>
-          <p>${escape(item.description)}</p><p class="review-note">${escape((item.skins.includes("Không áp dụng") ? item.audiences : item.skins).join(" · "))}</p>
-          <p class="review-note">Vai trò trong chăm sóc tại nhà: ${escape(Array.isArray(item.benefits) ? item.benefits.join(" ") : item.benefits || item.usage || item.description)} Được liên kết với liệu trình ${escape(best?.name)}${skin && matchesSkin(item, skin) ? ` và có đối tượng chăm sóc ${escape(skin.toLocaleLowerCase("vi"))}` : ""}${preferenceHits(item).length ? `; mô tả khớp sở thích ${escape(preferenceHits(item).join(", "))}` : ""}.</p>
+        ${alternatives.length ? `<section><h2>Bạn cũng có thể cân nhắc</h2><p>Các phương án khác qua bộ lọc Django; không thuộc danh sách đề xuất chính.</p><ul class="recommendation-alternatives">${alternatives.map(item =>
+          `<li><a href="service-detail.html?id=${item.id}">${escape(item.name)}</a> · ${escape(money(Number(item.price)))} · ${escape(item.minutes)} phút</li>`).join("")}</ul></section>` : ""}
+        <section><h2>Chăm sóc sau liệu trình</h2><div class="catalog-grid">${care.map(item => `<article class="review-surface" data-recommended-product="${item.id}">
+          ${item.image ? `<img class="recommendation-product-image" src="${escape(item.image)}" alt="${escape(item.name)}" loading="lazy">` : ""}<span class="eyebrow">${escape(item.category)}</span><h3>${escape(item.name)}</h3>
+          <p class="recommendation-meta">Giá: theo thông tin trong mô tả; nếu chưa có, vui lòng hỏi Spa.</p><p>${escape(item.description)}</p>
+          <p><strong>Công dụng theo danh mục:</strong> ${escape(Array.isArray(item.benefits) ? item.benefits.join(" ") : item.benefits || "Chưa có thông tin.")}</p>
+          <p><strong>Thành phần:</strong> ${escape(item.ingredients || "Chưa có dữ liệu thành phần; không suy đoán.")}</p>
+          <p class="review-note">${escape(item.note || "Chỉ đối chiếu dịch vụ liên kết và loại da; không xác nhận phù hợp y khoa.")}</p>
           <div class="review-actions"><a class="button small" href="product-detail.html?id=${item.id}">Xem chi tiết</a></div></article>`).join("")}</div>
-        ${care.length ? "" : `<p>${best ? "Chưa có sản phẩm liên kết phù hợp với loại da đã chọn." : "Chọn được liệu trình trước để xem chăm sóc liên quan; không gợi ý sản phẩm ngẫu nhiên."}</p>`}</section>
+        ${care.length ? "" : "<p>Chưa có sản phẩm liên kết phù hợp với các liệu trình và loại da đã chọn.</p>"}</section>
         <section data-recommendation-basis><h2>Cơ sở đề xuất</h2><p>Gợi ý được tạo từ loại da, nhu cầu chăm sóc, ngân sách, sở thích, thời lượng mong muốn và dữ liệu dịch vụ/sản phẩm của An Nhiên.</p>
-          <p>Mức phù hợp được ước tính từ năm tiêu chí trên; loại da được đối chiếu qua sản phẩm liên kết, không phải chẩn đoán hoặc xác nhận phù hợp y khoa.</p>
-          <p>Ở phiên bản hệ thống hoàn chỉnh, kết quả có thể được cá nhân hóa thêm dựa trên hồ sơ và lịch sử sử dụng dịch vụ của khách hàng.</p>
-          <p>Gợi ý minh họa từ dữ liệu hiện có, chưa gọi AI thật. Thông tin trả lời không được lưu.</p></section>`
-      recommendation.querySelector("[data-recommendation-status]").textContent = `${services.length} liệu trình được xếp hạng và ${care.length} gợi ý chăm sóc liên kết.${duration && services.length && !services.some(({ item }) => durationMatch(item)) ? " Chưa có thời lượng đúng mong muốn; xem điểm khớp để cân nhắc." : ""}`
+          <p>Loại da được đối chiếu qua sản phẩm liên kết, không phải chẩn đoán hoặc xác nhận phù hợp y khoa.</p>
+          <p>${escape(displayLabel)}. ID, trạng thái, nhu cầu, ngân sách và thời lượng được Django kiểm tra trước khi hiển thị.</p></section>`
+      recommendation.querySelector("[data-recommendation-status]").textContent = suggested.message || `${displayLabel}: ${services.length} liệu trình phù hợp.`
     })
   }
 
@@ -1127,14 +1124,14 @@
   if (chatPages.has(pageName) && chatUser?.role === "User" && chatUser.chatEnabled) {
     const stylesheet = document.createElement("link")
     stylesheet.rel = "stylesheet"
-    stylesheet.href = new URL("../css/chat.css", document.currentScript.src)
+    stylesheet.href = new URL("../css/chat.css?v=ai-loading-20261118", document.currentScript.src)
     document.head.append(stylesheet)
 
     const concierge = document.createElement("aside")
     concierge.className = "concierge"
     concierge.innerHTML = `<button class="concierge-bubble" type="button" aria-label="Mở Trợ lý An Nhiên" aria-controls="concierge-panel" aria-expanded="false">${window.spaIcon("chat")}</button>
       <section class="concierge-panel" id="concierge-panel" role="dialog" aria-modal="false" aria-labelledby="concierge-title" hidden>
-        <div class="concierge-heading"><div><h2 id="concierge-title">Trợ lý An Nhiên</h2><p>Bản thử nghiệm · Nhà cung cấp mô phỏng</p></div>
+        <div class="concierge-heading"><div><h2 id="concierge-title">Trợ lý An Nhiên</h2><p data-chat-provider>Đang kết nối trợ lý…</p></div>
           <button type="button" data-chat-close aria-label="Đóng trò chuyện">${window.spaIcon("close")}</button></div>
         <div class="concierge-messages" role="log" aria-live="polite" aria-relevant="additions" aria-label="Cuộc trò chuyện"></div>
         <div class="concierge-suggestions"><button type="button">Dịch vụ</button><button type="button">Khuyến mãi hiện có</button><button type="button">Giờ mở cửa</button></div>
@@ -1221,9 +1218,13 @@
       speaker.textContent = item.role === "user" ? "Bạn" : "Trợ lý An Nhiên"
       const body = document.createElement("div")
       body.className = "concierge-message-body"
-      body.textContent = item.status === "pending" ? "Đang trả lời…" : item.content
+      body.textContent = item.status === "pending" ? "Đang trả lời..." : item.content
+      if (item.status === "pending") {
+        row.classList.add("is-pending")
+        row.setAttribute("aria-busy", "true")
+      }
       const meta = document.createElement("small")
-      meta.textContent = `${date.format(new Date(item.createdAt))} · ${statuses[item.status]}`
+      meta.textContent = item.status === "pending" ? "- Đang xử lý" : `${date.format(new Date(item.createdAt))} · ${statuses[item.status]}`
       row.append(speaker, body, meta)
       if (open && item.role === "assistant" && item.status === "error" && !retried.has(item.id)) {
         const retry = action("Thử lại", () => submit(null, item.id))
@@ -1254,6 +1255,7 @@
         log.textContent = "Đang tải hội thoại…"
         try {
           const data = await api("sessions/?resume=1")
+          find("[data-chat-provider]").textContent = data.providerMode === "ai" ? "Tư vấn AI · Dựa trên dữ liệu Spa" : "Bản thử nghiệm · Nhà cung cấp mô phỏng"
           find("[data-chat-limit]").textContent = `${data.dailyLimit} lượt/ngày (giờ Việt Nam), cách nhau ${data.cooldown} giây. Thử lại sau lỗi cũng tính lượt.`
           if (data.session) await thread(data.session.id)
           else {
@@ -1271,7 +1273,9 @@
     async function submit(question, retryOf = null) {
       if (!restored || (!retryOf && !question?.trim())) return
       await run(async () => {
-        status.textContent = "Đang xử lý câu hỏi…"
+        const pending = message({role: "assistant", status: "pending", createdAt: new Date().toISOString()}, new Set(), false)
+        log.append(pending)
+        log.scrollTop = log.scrollHeight
         const trimmed = question?.trim() ?? null
         const requestId = resend?.sessionId === active && resend.question === trimmed && resend.retryOf === retryOf
           ? resend.requestId : crypto.randomUUID()
@@ -1287,11 +1291,13 @@
         } catch (error) {
           if (error.status && error.status < 500) resend = null
           throw error
+        } finally {
+          pending.remove()
         }
         if (response.answer.status !== "pending") resend = null
         if (!retryOf) input.value = ""
         await thread(response.session.id)
-        status.textContent = response.answer.status === "pending" ? "Lượt này đang xử lý. Mở lại phiên để cập nhật." : ""
+        status.textContent = ""
         if (!panel.hidden) input.focus({preventScroll: true})
       })
     }
