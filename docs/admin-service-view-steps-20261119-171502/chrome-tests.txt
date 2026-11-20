@@ -1,0 +1,9 @@
+D:\Redesign An Nhi�n Spa Home\.venv\Lib\site-packages\django\template\defaulttags.py:87: UserWarning: A {% csrf_token %} was used in a template, but the context did not provide the value.  This is usually caused by not using RequestContext.
+  warnings.warn(
+services 1920x1080 PASS 79
+services 1440x1000 PASS 79
+services 1050x950 PASS 83
+services 768x950 PASS 83
+services 500x950 PASS 83
+services 390x950 PASS 83
+services 1440x560 PASS 79

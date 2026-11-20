@@ -1,0 +1,61 @@
+{
+  "before_ids": [
+    2,
+    6,
+    1,
+    3,
+    5,
+    4,
+    7
+  ],
+  "after_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "served_js_bytes": 12218,
+  "source_exact_match": true,
+  "browser_checks": {
+    "default": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "price_asc": [
+      7,
+      4,
+      3,
+      2,
+      1,
+      5,
+      6
+    ],
+    "category_face": [
+      2,
+      6
+    ],
+    "search_massage": [
+      1,
+      3
+    ],
+    "reset": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ]
+  },
+  "pagination": "Not applicable: no pagination in current services page",
+  "future_8_and_hidden": "Offline fixtures only; no production writes"
+}

@@ -481,3 +481,10 @@
 [data-recommendation] .recommendation-spinner { width:20px; height:20px; flex:0 0 20px; border:2px solid #c6a07e45; border-top-color:#956c48; border-radius:50%; animation:recommendation-spin .85s linear infinite; }
 @keyframes recommendation-spin { to { transform:rotate(360deg); } }
 @media (prefers-reduced-motion:reduce) { [data-recommendation] .recommendation-spinner { animation:none; } }
+
+/* Admin-authored service steps; preserve every word at all column counts. */
+.detail-premium .ritual-timeline li, .detail-premium .ritual-timeline li > div { min-width:0; }
+.detail-premium .ritual-timeline h3 { overflow-wrap:anywhere; word-break:normal; margin-bottom:0; }
+
+/* Let the adjacent service story shrink with the same mobile page container. */
+.detail-premium[data-catalog-detail="service"] .ritual-story > section { min-width:0; }

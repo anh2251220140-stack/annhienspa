@@ -1,0 +1,24 @@
+[
+  {
+    "http": 200,
+    "url": "http://127.0.0.1:8000/static/css/admin-services-luxury.css",
+    "bytes": 5079,
+    "sha256": "45650a278ee6673defb3e809befb4bb660c73914e02014aee8435254e18715a6",
+    "matches_source": true,
+    "matches_staticfiles": true,
+    "table_rules": [
+      "[data-admin-services] .admin-data-table td { word-break:normal; overflow-wrap:break-word; }"
+    ]
+  },
+  {
+    "http": 200,
+    "url": "http://127.0.0.1:8000/static/css/admin-services-luxury.css?v=table-wrap-20261119-2",
+    "bytes": 5079,
+    "sha256": "45650a278ee6673defb3e809befb4bb660c73914e02014aee8435254e18715a6",
+    "matches_source": true,
+    "matches_staticfiles": true,
+    "table_rules": [
+      "[data-admin-services] .admin-data-table td { word-break:normal; overflow-wrap:break-word; }"
+    ]
+  }
+]

@@ -24,6 +24,7 @@ from .config import enabled, option, remaining
 from .integration import ProviderUnavailable
 from .provider_factory import embedding_identity, embedding_provider
 from .providers import Source, normalize
+from .chat_intents import is_service_list_question, is_service_request_question, service_query_terms
 
 
 @dataclass(frozen=True)
@@ -226,6 +227,53 @@ class RAGRetriever:
         if any(x in q for x in (" dat lich ", " huy lich ", " thanh toan ", " chan doan ", " chua benh ", " dieu tri benh ")):
             return []
         documents = public_documents()
+        if is_service_list_question(question):
+            # Listing is an authoritative catalog read, not a similarity guess.
+            # Categories/products/promotions must never become bookable services.
+            services = [d for d in documents.values() if d.source_type == "service"]
+            return [Source(d.source_type, d.object_id, d.name, d.text[:2000], d.digest)
+                    for d in services[:min(5, max(3, limit))]]
+        if is_service_request_question(question):
+            terms = service_query_terms(question)
+            matched = [
+                d for d in documents.values()
+                if d.source_type == "service"
+                and bool(terms)
+                and terms.issubset(set(normalize(d.name).split()))
+            ]
+            return [
+                Source(d.source_type, d.object_id, d.name, d.text[:2000], d.digest)
+                for d in matched[:min(5, max(3, limit))]
+            ]
+
+        # Exact catalog matches avoid unnecessary remote query embeddings.
+        exact = []
+        query_tokens = set(q.split())
+        ignored = {
+            "ma", "giam", "bao", "nhieu", "co",
+            "dieu", "kien", "gi", "khuyen", "mai"
+        }
+        for d in documents.values():
+            keys = [
+                normalize(d.name),
+                normalize(d.name.split(" · ")[0])
+            ]
+            name_match = any(k and f" {k} " in q for k in keys)
+            code_match = (
+                d.source_type == "promotion"
+                and bool(
+                    (query_tokens - ignored)
+                    & set(normalize(d.text).split())
+                )
+            )
+            if name_match or code_match:
+                exact.append(Source(
+                    d.source_type, d.object_id,
+                    d.name, d.text[:2000], d.digest
+                ))
+        if exact:
+            return exact[:min(5, max(3, limit))]
+
         if not documents:
             return []
         index = VectorIndex()

@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-20",
+  "scope": "ONLY_THREE_REQUESTED_REGIONS",
+  "items": [
+    {
+      "item": 1,
+      "status": "PASS",
+      "change": "Mô tả Sản phẩm trên cả hai Home: 3 dòng, ellipsis, cùng chiều cao; khoảng trống linh hoạt trước mô tả để đường phân cách/nút thẳng hàng; không chỉnh card Dịch vụ, ảnh, palette hay font Home"
+    },
+    {
+      "item": 2,
+      "status": "PASS",
+      "change": "Cả 4 dt chung typography; cả 4 dd kể cả fact-description chung font, cỡ clamp 16–19px, weight 400, line-height 1.5; giữ 2×2 ở 4 kích thước; không đổi icon/màu nền/viền/nội dung"
+    },
+    {
+      "item": 3,
+      "status": "PASS",
+      "change": "Bỏ padding ảnh detail, dùng vùng ảnh hiện có và bộ fit ảnh theo khoảng trắng; giữ tỷ lệ, clip trong khung bo, chừa khoảng cho caption; không đổi ảnh nguồn hay bố cục 2 cột desktop",
+      "actual_image_linear_size_gain_tested": {
+        "minimum": 1.082191780821918,
+        "maximum": 1.503846153846154,
+        "basis": "So với vùng ảnh cũ có padding 32px desktop/24px mobile, với cùng nguồn ảnh và viewport; không phải tỷ lệ tăng kích thước khung"
+      }
+    }
+  ],
+  "changed_files": [
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\static\\css\\user-catalog-polish.css",
+      "reason": "Chỉ vùng mô tả Home, typography care-facts và phần ảnh detail; giữ CSS header/pager/card dịch vụ nguyên vẹn"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\static\\js\\product-image-fit.js",
+      "reason": "Tái sử dụng fit ảnh danh sách cho ảnh detail; cache theo nguồn ảnh; cách tính của danh sách giữ nguyên"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\index.html",
+      "reason": "Chỉ đổi query cache CSS"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\home.html",
+      "reason": "Chỉ đổi query cache CSS"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\product-detail.html",
+      "reason": "Đổi query cache CSS và nạp module fit ảnh hiện có"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\tools\\check_user_catalog_ui.py",
+      "reason": "Kiểm tra 3 vùng; dữ liệu danh mục đọc sẵn, 14 ảnh, 4 viewport, hồi quy các danh sách"
+    }
+  ],
+  "runtime_copies": [
+    "staticfiles/css/user-catalog-polish.css",
+    "staticfiles/js/product-image-fit.js"
+  ],
+  "tests": {
+    "chrome_scenarios": 24,
+    "pass": 24,
+    "fail": 0,
+    "assertions": 1514,
+    "viewports": [
+      1440,
+      768,
+      500,
+      390
+    ],
+    "images_per_detail_viewport": "12 ảnh sản phẩm hiện có và 2 ảnh fixture ngang/dọc",
+    "node_order_filter_pagination": {
+      "pass": 13,
+      "fail": 0
+    },
+    "links_forms_controls_unchanged": [
+      {
+        "template": "index.html",
+        "links_forms_controls": "UNCHANGED",
+        "count": 25
+      },
+      {
+        "template": "home.html",
+        "links_forms_controls": "UNCHANGED",
+        "count": 29
+      },
+      {
+        "template": "product-detail.html",
+        "links_forms_controls": "UNCHANGED",
+        "count": 20
+      }
+    ],
+    "syntax": "PASS",
+    "git_diff_check": "PASS, chỉ cảnh báo CRLF tại hai CSV AI ngoài phạm vi"
+  },
+  "served_assets": [
+    {
+      "path": "css/user-catalog-polish.css",
+      "status": 200,
+      "bytes": 4545,
+      "match": true
+    },
+    {
+      "path": "js/product-image-fit.js",
+      "status": 200,
+      "bytes": 4035,
+      "match": true
+    }
+  ],
+  "screenshots": {
+    "before": {
+      "source": "Ảnh người dùng cung cấp, được sao lưu nguyên bản",
+      "home": "before-user-1.png",
+      "list_reference": "before-user-2.png",
+      "product_detail": "before-user-3.png"
+    },
+    "after": {
+      "source": "Chrome thật ở chế độ headless với template/CSS/JS thật và danh mục công khai đọc sẵn; không phải tài khoản live 8000",
+      "home": "home-1440.png",
+      "guest_home": "index-1440.png",
+      "product_detail": "product-detail-1440.png",
+      "mobile": "product-detail-390.png"
+    }
+  },
+  "protection": {
+    "backend_api_database_admin_ai_payos_changes": false,
+    "header_footer_hours_changes": false,
+    "service_card_changes": false,
+    "pagination_search_filter_sort_changes": false,
+    "image_source_changes": false,
+    "business_test_writes": false,
+    "env_changes": false,
+    "commit_push_docker": false,
+    "offline": "Tất cả kết nối DB và API bị chặn trong runner; không migrate; chỉ HTTP đọc static 8000 sau khi người dùng tự restart"
+  },
+  "remaining": [
+    "Không có FAIL trong các kiểm thử đã chạy.",
+    "Chưa nghiệm thu thủ công bằng tài khoản User thật trên 8000; phần này dành cho người dùng.",
+    "Không thực hiện luồng nghiệp vụ ghi, thanh toán hoặc gọi AI thật trong lượt sửa UI.",
+    "Hai ảnh nguồn tbc.jpg và OIP_1.jpg chỉ 220×220 px: độ nét khi xem lớn vẫn bị giới hạn bởi ảnh gốc. Không chỉnh sửa/nâng cấp/thay file ảnh ngoài phạm vi."
+  ],
+  "source_image_quality_limits": [
+    {
+      "id": 5,
+      "file": "tbc.jpg",
+      "resolution": [
+        220,
+        220
+      ]
+    },
+    {
+      "id": 8,
+      "file": "OIP_1.jpg",
+      "resolution": [
+        220,
+        220
+      ]
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 """Shared grounding validation; external AI is Gemini-only."""
 from .numeric_grounding import numeric_claims_supported
+from .chat_intents import is_service_list_question
 
 
 class ProviderUnavailable(Exception):
@@ -13,16 +14,24 @@ class GroundedProvider:
         pass
 
     def answer(self, question, sources):
+        if is_service_list_question(question):
+            sources = [source for source in sources if source.kind == "service"]
+            if not sources:
+                return ""
         result = self.structured(
             "Answer in Vietnamese using ONLY the supplied sources. If insufficient return "
             '{"answer":"","sources":[]}. Otherwise return {"answer":str,"sources":[source IDs]}. '
+            "Each source has a kind: category is a grouping only, service is an actual service, "
+            "product is a care product and promotion is an offer. Never list a category, product "
+            "or promotion as a service. List only service records when asked for services; "
+            "for those service-list requests only, if no service records are supplied, return an empty answer. "
             "Cite sources for every fact. Do not promise eligibility for a promotion. "
             "Preserve all numeric values, prices, durations, dates and percentages "
             "exactly as written in the supplied sources. Do not convert units, "
             "round numbers, abbreviate amounts or invent percentages. "
             "If a numeric fact cannot be stated exactly as supplied, omit that fact.",
             {"question": question, "sources": [
-                {"id": f"{s.kind}:{s.object_id}", "name": s.name, "text": s.text} for s in sources]},
+                {"id": f"{s.kind}:{s.object_id}", "kind": s.kind, "name": s.name, "text": s.text} for s in sources]},
         )
         answer, refs = result.get("answer"), result.get("sources")
         valid = {f"{s.kind}:{s.object_id}" for s in sources}

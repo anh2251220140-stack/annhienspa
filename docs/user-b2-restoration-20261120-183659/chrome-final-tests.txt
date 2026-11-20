@@ -1,0 +1,26 @@
+D:\Redesign An Nhi�n Spa Home\.venv\Lib\site-packages\django\template\defaulttags.py:87: UserWarning: A {% csrf_token %} was used in a template, but the context did not provide the value.  This is usually caused by not using RequestContext.
+  warnings.warn(
+{"status": "PASS", "checks": 69, "page": "services", "width": 1440}
+{"status": "PASS", "checks": 69, "page": "services", "width": 768}
+{"status": "PASS", "checks": 69, "page": "services", "width": 500}
+{"status": "PASS", "checks": 69, "page": "services", "width": 390}
+{"status": "PASS", "checks": 100, "page": "products", "width": 1440, "imageAudit": [{"src": "TinhDau_Lavender_10ml_hop.jpg", "scale": 1}, {"src": "mongtay.jpg", "scale": 1.1494}, {"src": "body.jpg", "scale": 1.0178}, {"src": "kemtay2.jpg", "scale": 1.15}, {"src": "kemtay.jpg", "scale": 1}, {"src": "OIP_1.jpg", "scale": 1.15}, {"src": "daugoi.jpg", "scale": 1}, {"src": "oil.jpg", "scale": 1}, {"src": "tbc.jpg", "scale": 1.15}, {"src": "kemduong.jpg", "scale": 1.15}, {"src": "tt.jpg", "scale": 1.0724}, {"src": "97ae0bced6a94a5f570df550a3487fd3.jpg", "scale": 1}, {"src": "TinhDau_Lavender_10ml_hop.jpg", "scale": 1}]}
+{"status": "PASS", "checks": 100, "page": "products", "width": 768, "imageAudit": [{"src": "TinhDau_Lavender_10ml_hop.jpg", "scale": 1}, {"src": "mongtay.jpg", "scale": 1.1494}, {"src": "body.jpg", "scale": 1.0178}, {"src": "kemtay2.jpg", "scale": 1.15}, {"src": "kemtay.jpg", "scale": 1}, {"src": "OIP_1.jpg", "scale": 1.15}, {"src": "daugoi.jpg", "scale": 1}, {"src": "oil.jpg", "scale": 1}, {"src": "tbc.jpg", "scale": 1.15}, {"src": "kemduong.jpg", "scale": 1.15}, {"src": "tt.jpg", "scale": 1.0724}, {"src": "97ae0bced6a94a5f570df550a3487fd3.jpg", "scale": 1}, {"src": "TinhDau_Lavender_10ml_hop.jpg", "scale": 1}]}
+{"status": "PASS", "checks": 100, "page": "products", "width": 500, "imageAudit": [{"src": "TinhDau_Lavender_10ml_hop.jpg", "scale": 1}, {"src": "mongtay.jpg", "scale": 1.1494}, {"src": "body.jpg", "scale": 1.0178}, {"src": "kemtay2.jpg", "scale": 1.15}, {"src": "kemtay.jpg", "scale": 1}, {"src": "OIP_1.jpg", "scale": 1.15}, {"src": "daugoi.jpg", "scale": 1}, {"src": "oil.jpg", "scale": 1}, {"src": "tbc.jpg", "scale": 1.15}, {"src": "kemduong.jpg", "scale": 1.15}, {"src": "tt.jpg", "scale": 1.0724}, {"src": "97ae0bced6a94a5f570df550a3487fd3.jpg", "scale": 1}, {"src": "TinhDau_Lavender_10ml_hop.jpg", "scale": 1}]}
+{"status": "PASS", "checks": 100, "page": "products", "width": 390, "imageAudit": [{"src": "TinhDau_Lavender_10ml_hop.jpg", "scale": 1}, {"src": "mongtay.jpg", "scale": 1.1494}, {"src": "body.jpg", "scale": 1.0178}, {"src": "kemtay2.jpg", "scale": 1.15}, {"src": "kemtay.jpg", "scale": 1}, {"src": "OIP_1.jpg", "scale": 1.15}, {"src": "daugoi.jpg", "scale": 1}, {"src": "oil.jpg", "scale": 1}, {"src": "tbc.jpg", "scale": 1.15}, {"src": "kemduong.jpg", "scale": 1.15}, {"src": "tt.jpg", "scale": 1.0724}, {"src": "97ae0bced6a94a5f570df550a3487fd3.jpg", "scale": 1}, {"src": "TinhDau_Lavender_10ml_hop.jpg", "scale": 1}]}
+{"status": "PASS", "checks": 16, "page": "promotions", "width": 1440}
+{"status": "PASS", "checks": 16, "page": "promotions", "width": 768}
+{"status": "PASS", "checks": 16, "page": "promotions", "width": 500}
+{"status": "PASS", "checks": 16, "page": "promotions", "width": 390}
+{"status": "PASS", "checks": 58, "page": "index", "width": 1440}
+{"status": "PASS", "checks": 58, "page": "index", "width": 768}
+{"status": "PASS", "checks": 58, "page": "index", "width": 500}
+{"status": "PASS", "checks": 58, "page": "index", "width": 390}
+{"status": "PASS", "checks": 58, "page": "home", "width": 1440}
+{"status": "PASS", "checks": 58, "page": "home", "width": 768}
+{"status": "PASS", "checks": 58, "page": "home", "width": 500}
+{"status": "PASS", "checks": 58, "page": "home", "width": 390}
+{"status": "PASS", "checks": 10, "page": "product-detail", "width": 1440}
+{"status": "PASS", "checks": 10, "page": "product-detail", "width": 768}
+{"status": "PASS", "checks": 8, "page": "product-detail", "width": 500}
+{"status": "PASS", "checks": 8, "page": "product-detail", "width": 390}

@@ -47,21 +47,23 @@
     }
     const form = main.querySelector("[data-promotion-filters]");
     const grid = main.querySelector("[data-promotion-grid]");
+    const pager = window.spaCardPager(grid, "khuyến mãi", () => render());
     const render = () => {
       const query = normalize(form.elements.search.value);
       const status = form.elements.status.value;
       const items = data.items.filter((item) => eligible(item) &&
         (!query || normalize([item.name, item.code, ...item.aliases].join(" ")).includes(query)) &&
         (status === "all" || statusFor(item) === status));
-      grid.innerHTML = items.map(card).join("");
+      grid.innerHTML = pager.slice(items).map(card).join("");
       main.querySelector("[data-promotion-count]").textContent = `${items.length} ưu đãi đang hiệu lực`;
       main.querySelector("[data-empty]").hidden = items.length > 0;
     };
     form.addEventListener("submit", (event) => event.preventDefault());
-    form.addEventListener("input", render);
-    form.addEventListener("change", render);
+    const filterChanged = () => { pager.reset(); render(); };
+    form.addEventListener("input", filterChanged);
+    form.addEventListener("change", filterChanged);
     main.querySelectorAll("[data-reset-promotions]").forEach((button) => {
-      button.addEventListener("click", () => { form.reset(); render(); form.elements.search.focus(); });
+      button.addEventListener("click", () => { form.reset(); pager.reset(); render(); form.elements.search.focus(); });
     });
     render();
     return;

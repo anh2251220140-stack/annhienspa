@@ -13,10 +13,7 @@ from products.models import CareProduct
 from promotions.models import Promotion
 from services.models import Service
 
-
-def normalize(value):
-    value = unicodedata.normalize("NFD", value.lower().replace("đ", "d"))
-    return " ".join(re.findall(r"[a-z0-9]+", "".join(c for c in value if not unicodedata.combining(c))))
+from .chat_intents import is_service_list_question, normalize, is_service_request_question, service_query_terms
 
 
 # Reject obvious secrets and private identifiers before storage or retrieval.
@@ -73,13 +70,22 @@ class CatalogRetriever:
                 ranked.append((score, Source(kind, object_id, name, summary)))
 
         generic = query.strip()
-        service_overview = re.fullmatch(
-            r"dich vu|tu van dich vu|(?:(?:spa|an nhien spa|an nhien|ben minh) )?co (?:nhung |cac )?dich vu (?:nao|gi)(?: vay| a| khong a)?",
-            generic,
-        )
+        service_overview = is_service_list_question(question)
+        if not service_overview and is_service_request_question(question):
+            terms = service_query_terms(question)
+            for item in Service.objects.filter(
+                is_active=True, category__is_active=True
+            ).order_by("pk"):
+                if terms.intersection(set(normalize(item.name).split())):
+                    add("service", item.pk, item.name,
+                        f"{item.name}: {money(item.price)} · {item.duration_minutes} phút.",
+                        [item.name])
+            return [source for _, source in ranked[:limit]]
         for item in Service.objects.filter(is_active=True, category__is_active=True).order_by("pk"):
             add("service", item.pk, item.name, f"{item.name}: {money(item.price)} · {item.duration_minutes} phút.",
                 [item.name], bool(service_overview))
+        if service_overview:
+            return [source for _, source in ranked[:limit]]
         for item in CareProduct.objects.filter(is_active=True).order_by("pk"):
             add("product", item.pk, item.name, f"{item.name}: {item.description}", [item.name],
                 generic in {"san pham", "san pham cham soc", "spa co san pham nao"})

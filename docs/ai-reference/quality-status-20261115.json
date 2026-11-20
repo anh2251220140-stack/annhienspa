@@ -1,0 +1,19 @@
+{
+  "provider_mode": "not_run",
+  "human_reviewed": false,
+  "chat": {
+    "received": 0,
+    "required": 30,
+    "target": 0.8,
+    "accuracy": null,
+    "status": "NOT TESTED"
+  },
+  "reviews": {
+    "received": 0,
+    "required": 50,
+    "target": 0.75,
+    "accuracy": null,
+    "status": "NOT TESTED"
+  },
+  "note": "Mock outputs cannot establish real AI quality. Themes, summaries, priorities, actions and hallucinations require human review."
+}

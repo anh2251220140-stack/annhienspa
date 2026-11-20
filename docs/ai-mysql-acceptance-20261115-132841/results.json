@@ -1,0 +1,250 @@
+{
+  "status": "complete",
+  "tests": [
+    {
+      "test": "ai_features.tests.ChatTests.test_admin_paginates_sessions_and_user_paginates_messages",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_admin_requires_explicit_permission_and_history_is_read_only",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_cooldown_and_day_limit_in_vietnam_across_sessions",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_create_send_reload_relogin_and_resume",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_general_service_question_uses_only_public_service_facts",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_general_service_question_without_public_services_falls_back",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_inactive_catalog_item_and_business_actions_fall_back",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_insufficient_source_and_provider_timeout",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_login_csrf_feature_switch_and_invalid_payload",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_other_account_cannot_read_or_append",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_pending_retransmission_is_read_only_and_stale_attempt_recovers",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_resume_uses_most_recent_open_conversation_with_messages_without_writes",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_retransmission_and_retry_have_distinct_semantics",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_retrieval_uses_public_products_and_effective_promotions",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_sensitive_input_never_reaches_provider_database_or_logs",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.PublicCatalogTests.test_catalog_contains_only_public_active_fields",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.PublicCatalogTests.test_expired_and_inactive_promotions_never_indexed",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.PublicCatalogTests.test_invalidation_only_after_commit_no_paid_calls",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_assistance_cooldown_precedes_provider",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_bad_or_unavailable_ai_falls_back_as_a_whole",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_batch_limit_missing_review_and_explicit_trigger",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_changed_review_during_inference_rejected",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_csrf_enforced_and_post_only",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_invalid_inputs_are_rejected_without_provider",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_invalid_review_json_and_provider_errors_use_fallback",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_login_and_role_authorization",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_manual_overrides_still_work",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_needs_budget_duration_and_inactive_are_server_constraints",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_no_automatic_analysis_or_replies",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_only_owner_history_and_no_identity_sent",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_personal_data_not_exported_without_approval",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_private_review_is_not_exported",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_recommendation_fallback_respects_profile_and_persists",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_review_export_requires_explicit_approval",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_review_requires_admin_permission_and_post_csrf",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_review_structured_output_persists_without_modifying_review",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_rule_analysis_is_honest_and_read_back_is_stale_aware",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_valid_ai_json_contains_only_verified_ids",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_visibility_rechecked_after_inference",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_citations_and_ungrounded_numbers",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_embedding_output_validation",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_fixed_endpoint_no_redirects_proxies_or_sensitive_logs",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_generation_does_not_store_or_offer_tools",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_missing_key_cannot_call_network",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_paid_calls_disabled_before_client_creation",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_structured_json_validation",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_timeout_budget",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_transport_timeout_and_error_do_not_echo_provider_secret",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_chunk_overlap_and_limits",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_cosine",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_failed_embedding_does_not_publish_new_digest",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_incremental_upsert_delete_and_metadata",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_metadata_filter_happens_before_cosine",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_no_data_does_not_call_provider",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_semantic_synonym_and_dedup",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_unsupported_actions_do_not_call_retrieval",
+      "status": "PASS"
+    },
+    {
+      "test": "ai_features.test_assistance.ConcurrentMockPerformanceTests.test_twenty_distinct_users_mock_latency",
+      "status": "PASS"
+    }
+  ],
+  "identity": {
+    "port": 3311,
+    "uuid": "608f399a-e055-11f1-9e4d-d549ecc51722",
+    "datadir": "D:\\AnNhienSpa_MySQL84_Acceptance_Test\\data\\",
+    "schema": "annhien_spa_fr14_tests",
+    "account": "annhien_fr14_tests@127.0.0.1"
+  },
+  "plan": [
+    [
+      "ai_features",
+      "0003_review_analysis_details"
+    ]
+  ],
+  "tables_before": 30,
+  "failures": 0,
+  "empty_fixtures_after": true,
+  "pending_migrations": []
+}

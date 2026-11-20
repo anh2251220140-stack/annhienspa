@@ -1,3 +1,4 @@
+import json
 from django.templatetags.static import static
 from django.utils import timezone
 from services.models import Service, ServiceCategory
@@ -9,6 +10,23 @@ from promotions.models import Promotion
 def image(field,fallback,preset=""):return field.url if field else static("images/"+(preset or fallback))
 def money(value):return f"{value:,.0f}".replace(",",".")+" VND"
 def lines(value):return [s.strip() for s in (value or "").splitlines() if s.strip()]
+
+def service_steps(value):
+    """Read the existing TextField without converting or rewriting legacy data."""
+    try:
+        parsed = json.loads(value or "")
+    except (ValueError, TypeError):
+        return lines(value)
+    if isinstance(parsed, list) and all(
+        isinstance(step, dict) and set(step) == {"title", "description"}
+        and isinstance(step["title"], str) and step["title"].strip()
+        and isinstance(step["description"], str)
+        for step in parsed
+    ):
+        return [{"title": step["title"], "description": step["description"]} for step in parsed]
+    # Unknown/invalid JSON schemas retain the old text rendering, never lose data.
+    return lines(value)
+
 
 def _promotion_discount_label(discount_type, value):
     percent = discount_type == Promotion.DiscountType.PERCENT
@@ -23,11 +41,11 @@ def _promotion_discount_label(discount_type, value):
 
 def catalog():
     services=[]
-    for x in Service.objects.filter(is_active=True,category__is_active=True).select_related("category"):
+    for x in Service.objects.filter(is_active=True,category__is_active=True).select_related("category").order_by("pk"):
         services.append({"id":x.pk,"active":True,"name":x.name,"category":x.category.name,"description":x.description,
             "price":money(x.price),"priceValue":float(x.price),"minutes":x.duration_minutes,"duration":f"{x.duration_minutes} phút",
             "image":image(x.image,"facial.jpg",x.image_preset),"gallery":image(x.gallery,"facial.jpg",x.gallery_preset) if x.gallery or x.gallery_preset else image(x.image,"facial.jpg",x.image_preset),"introduction":x.introduction or x.description,
-            "benefits":lines(x.benefits),"steps":lines(x.steps),"suitable":x.suitable,"note":x.note,"careGroup":x.care_group})
+            "benefits":lines(x.benefits),"steps":service_steps(x.steps),"suitable":x.suitable,"note":x.note,"careGroup":x.care_group})
     products=[]
     for x in CareProduct.objects.filter(is_active=True):
         products.append({"id":x.pk,"active":True,"name":x.name,"category":x.product_type,"description":x.description,

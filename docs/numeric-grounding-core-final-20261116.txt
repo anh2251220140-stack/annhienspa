@@ -1,0 +1,20 @@
+test_ambiguous_source_is_not_silently_promoted (tools.test_numeric_grounding.NumericGroundingTests.test_ambiguous_source_is_not_silently_promoted) ... ok
+test_bare_integer_anchors_vietnamese_or_comma_grouping (tools.test_numeric_grounding.NumericGroundingTests.test_bare_integer_anchors_vietnamese_or_comma_grouping) ... ok
+test_changed_duration_rejected (tools.test_numeric_grounding.NumericGroundingTests.test_changed_duration_rejected) ... ok
+test_currency_grouping_is_symmetric (tools.test_numeric_grounding.NumericGroundingTests.test_currency_grouping_is_symmetric) ... ok
+test_dates_times_and_ranges_remain_literal (tools.test_numeric_grounding.NumericGroundingTests.test_dates_times_and_ranges_remain_literal) ... ok
+test_decimal_comma_or_dot_exact_value (tools.test_numeric_grounding.NumericGroundingTests.test_decimal_comma_or_dot_exact_value) ... ok
+test_explicit_decimal_context_is_not_thousands (tools.test_numeric_grounding.NumericGroundingTests.test_explicit_decimal_context_is_not_thousands) ... ok
+test_extra_number_rejected (tools.test_numeric_grounding.NumericGroundingTests.test_extra_number_rejected) ... ok
+test_fabricated_price_rejected (tools.test_numeric_grounding.NumericGroundingTests.test_fabricated_price_rejected) ... ok
+test_grounded_provider_accepts_equivalent_value_without_weakening_source_ids (tools.test_numeric_grounding.NumericGroundingTests.test_grounded_provider_accepts_equivalent_value_without_weakening_source_ids) ... ok
+test_long_values_are_not_rounded_into_equivalence (tools.test_numeric_grounding.NumericGroundingTests.test_long_values_are_not_rounded_into_equivalence) ... ok
+test_mixed_grouping_and_decimal_fraction (tools.test_numeric_grounding.NumericGroundingTests.test_mixed_grouping_and_decimal_fraction) ... ok
+test_multiple_sources_only_evidenced_prices_allowed (tools.test_numeric_grounding.NumericGroundingTests.test_multiple_sources_only_evidenced_prices_allowed) ... ok
+test_negative_values_are_not_positive_values (tools.test_numeric_grounding.NumericGroundingTests.test_negative_values_are_not_positive_values) ... ok
+test_percentages_cannot_be_promoted_to_integers_or_prices (tools.test_numeric_grounding.NumericGroundingTests.test_percentages_cannot_be_promoted_to_integers_or_prices) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.004s
+
+OK

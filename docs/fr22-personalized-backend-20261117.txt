@@ -1,0 +1,108 @@
+Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+System check identified no issues (0 silenced).
+No changes detected
+Found 43 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: messages, staticfiles
+  Apply all migrations: accounts, ai_features, appointments, auth, billing, contenttypes, employees, products, promotions, reviews, services, sessions
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying services.0001_initial... OK
+  Applying employees.0001_initial... OK
+  Applying appointments.0001_initial... OK
+  Applying reviews.0001_initial... OK
+  Applying ai_features.0001_initial... OK
+  Applying ai_features.0002_chat_history... OK
+  Applying ai_features.0003_review_analysis_details... OK
+  Applying employees.0002_employee_avatar_preset_employee_email_and_more... OK
+  Applying appointments.0002_appointment_cancel_reason_appointment_cancelled_at_and_more... OK
+  Applying promotions.0001_initial... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_invoice_promotion_code_snapshot_payment_checkout_url_and_more... OK
+  Applying billing.0003_invoice_historical_basis... OK
+  Applying billing.0004_invoice_payment_preference... OK
+  Applying billing.0005_remove_payment_payment_valid_status_and_more... OK
+  Applying billing.0006_invoicedetail_unique_detail_per_invoice... OK
+  Applying products.0001_initial... OK
+  Applying products.0002_careproduct_care_group_careproduct_image_preset_and_more... OK
+  Applying services.0002_service_benefits_service_care_group_service_gallery_and_more... OK
+  Applying promotions.0002_promotion_accent_promotion_aliases_promotion_badge_and_more... OK
+  Applying promotions.0003_promotion_per_customer_limit_and_more... OK
+  Applying promotions.0004_promotion_note_is_informational... OK
+test_approval_and_missing_key_cannot_pass (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_approval_and_missing_key_cannot_pass) ... ok
+test_auth_error_is_failure_not_rule_pass (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_auth_error_is_failure_not_rule_pass) ... ok
+test_authenticated_post_sdk_persistence_and_acceptance_get (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_authenticated_post_sdk_persistence_and_acceptance_get) ... ok
+test_csrf_and_unauthenticated_requests_stop_before_provider (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_csrf_and_unauthenticated_requests_stop_before_provider) ... ok
+test_get_and_other_account_cannot_read_or_infer (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_get_and_other_account_cannot_read_or_infer) ... ok
+test_history_count_cannot_ground_an_invented_price (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_history_count_cannot_ground_an_invented_price) ... ok
+test_invented_price_in_reason_is_rejected (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_invented_price_in_reason_is_rejected) ... ok
+test_malformed_json_is_failure (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_malformed_json_is_failure) ... ok
+test_medical_claim_is_rejected (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_medical_claim_is_rejected) ... ok
+test_mysql_and_raw_sockets_are_denied_before_connect (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_mysql_and_raw_sockets_are_denied_before_connect) ... ok
+test_one_wire_request_limit_and_alternate_origin_are_enforced (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_one_wire_request_limit_and_alternate_origin_are_enforced) ... ok
+test_out_of_budget_service_is_rejected_by_real_service (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_out_of_budget_service_is_rejected_by_real_service) ... ok
+test_quota_is_failure_not_rule_pass_and_no_retry (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_quota_is_failure_not_rule_pass_and_no_retry) ... ok
+test_timeout_is_failure_not_rule_pass (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_timeout_is_failure_not_rule_pass) ... ok
+test_wrong_need_hidden_and_duration_are_rejected (ai_features.test_recommendation_integration.RecommendationApplicationTests.test_wrong_need_hidden_and_duration_are_rejected) ... ok
+test_analysis_timestamp_creation_and_reanalysis_without_new_record (ai_features.test_assistance.AssistanceTests.test_analysis_timestamp_creation_and_reanalysis_without_new_record) ... ok
+test_assistance_cooldown_precedes_provider (ai_features.test_assistance.AssistanceTests.test_assistance_cooldown_precedes_provider) ... ok
+test_bad_or_unavailable_ai_falls_back_as_a_whole (ai_features.test_assistance.AssistanceTests.test_bad_or_unavailable_ai_falls_back_as_a_whole) ... ok
+test_batch_limit_missing_review_and_explicit_trigger (ai_features.test_assistance.AssistanceTests.test_batch_limit_missing_review_and_explicit_trigger) ... ok
+test_changed_review_during_inference_rejected (ai_features.test_assistance.AssistanceTests.test_changed_review_during_inference_rejected) ... FR23 fallback code=OUTPUT_VALIDATION_FAILED provider=openai
+ok
+test_csrf_enforced_and_post_only (ai_features.test_assistance.AssistanceTests.test_csrf_enforced_and_post_only) ... ok
+test_empty_analysis_get_does_not_create_or_infer (ai_features.test_assistance.AssistanceTests.test_empty_analysis_get_does_not_create_or_infer) ... ok
+test_existing_luxury_pages_render_with_new_controls (ai_features.test_assistance.AssistanceTests.test_existing_luxury_pages_render_with_new_controls) ... ok
+test_get_stale_analysis_keeps_saved_result_without_reanalysis (ai_features.test_assistance.AssistanceTests.test_get_stale_analysis_keeps_saved_result_without_reanalysis) ... ok
+test_invalid_inputs_are_rejected_without_provider (ai_features.test_assistance.AssistanceTests.test_invalid_inputs_are_rejected_without_provider) ... ok
+test_invalid_review_json_and_provider_errors_use_fallback (ai_features.test_assistance.AssistanceTests.test_invalid_review_json_and_provider_errors_use_fallback) ... FR23 fallback code=OUTPUT_VALIDATION_FAILED provider=openai
+FR23 fallback code=OUTPUT_VALIDATION_FAILED provider=openai
+FR23 fallback code=OUTPUT_VALIDATION_FAILED provider=openai
+FR23 fallback code=PROVIDER_TIMEOUT provider=openai
+ok
+test_login_and_role_authorization (ai_features.test_assistance.AssistanceTests.test_login_and_role_authorization) ... ok
+test_manual_overrides_still_work (ai_features.test_assistance.AssistanceTests.test_manual_overrides_still_work) ... ok
+test_needs_budget_duration_and_inactive_are_server_constraints (ai_features.test_assistance.AssistanceTests.test_needs_budget_duration_and_inactive_are_server_constraints) ... ok
+test_no_automatic_analysis_or_replies (ai_features.test_assistance.AssistanceTests.test_no_automatic_analysis_or_replies) ... ok
+test_only_owner_history_and_no_identity_sent (ai_features.test_assistance.AssistanceTests.test_only_owner_history_and_no_identity_sent) ... ok
+test_personal_data_not_exported_without_approval (ai_features.test_assistance.AssistanceTests.test_personal_data_not_exported_without_approval) ... ok
+test_private_review_is_not_exported (ai_features.test_assistance.AssistanceTests.test_private_review_is_not_exported) ... ok
+test_recommendation_fallback_respects_profile_and_persists (ai_features.test_assistance.AssistanceTests.test_recommendation_fallback_respects_profile_and_persists) ... ok
+test_review_export_requires_explicit_approval (ai_features.test_assistance.AssistanceTests.test_review_export_requires_explicit_approval) ... ok
+test_review_requires_admin_permission_and_post_csrf (ai_features.test_assistance.AssistanceTests.test_review_requires_admin_permission_and_post_csrf) ... ok
+test_review_structured_output_persists_without_modifying_review (ai_features.test_assistance.AssistanceTests.test_review_structured_output_persists_without_modifying_review) ... ok
+test_rule_analysis_is_honest_and_read_back_is_stale_aware (ai_features.test_assistance.AssistanceTests.test_rule_analysis_is_honest_and_read_back_is_stale_aware) ... ok
+test_saved_analysis_get_and_reload_never_invoke_provider_or_write (ai_features.test_assistance.AssistanceTests.test_saved_analysis_get_and_reload_never_invoke_provider_or_write) ... ok
+test_saved_profile_newline_needs_preserve_first_valid_order (ai_features.test_assistance.AssistanceTests.test_saved_profile_newline_needs_preserve_first_valid_order) ... ok
+test_valid_ai_json_contains_only_verified_ids (ai_features.test_assistance.AssistanceTests.test_valid_ai_json_contains_only_verified_ids) ... ok
+test_visibility_rechecked_after_inference (ai_features.test_assistance.AssistanceTests.test_visibility_rechecked_after_inference) ... ok
+test_fr22_and_fr23_short_budget_keep_rule_fallback (ai_features.test_gemini.GeminiDeadlineTests.test_fr22_and_fr23_short_budget_keep_rule_fallback) ... FR23 fallback code=PROVIDER_TIMEOUT provider=gemini
+ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 15.821s
+
+OK
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+  Applying sessions.0001_initial... OK
+System check identified no issues (0 silenced).
+Evidence: D:\Redesign An Nhi�n Spa Home\docs\ai-regression-results-20261115-224821924966.json

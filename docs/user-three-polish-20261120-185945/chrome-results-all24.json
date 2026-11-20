@@ -1,0 +1,650 @@
+[
+  {
+    "status": "PASS",
+    "checks": 69,
+    "page": "services",
+    "width": 1440
+  },
+  {
+    "status": "PASS",
+    "checks": 69,
+    "page": "services",
+    "width": 768
+  },
+  {
+    "status": "PASS",
+    "checks": 69,
+    "page": "services",
+    "width": 500
+  },
+  {
+    "status": "PASS",
+    "checks": 69,
+    "page": "services",
+    "width": 390
+  },
+  {
+    "status": "PASS",
+    "checks": 100,
+    "page": "products",
+    "width": 1440,
+    "imageAudit": [
+      {
+        "src": "TinhDau_Lavender_10ml_hop.jpg",
+        "scale": 1
+      },
+      {
+        "src": "mongtay.jpg",
+        "scale": 1.1494
+      },
+      {
+        "src": "body.jpg",
+        "scale": 1.0178
+      },
+      {
+        "src": "kemtay2.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "kemtay.jpg",
+        "scale": 1
+      },
+      {
+        "src": "OIP_1.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "daugoi.jpg",
+        "scale": 1
+      },
+      {
+        "src": "oil.jpg",
+        "scale": 1
+      },
+      {
+        "src": "tbc.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "kemduong.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "tt.jpg",
+        "scale": 1.0724
+      },
+      {
+        "src": "97ae0bced6a94a5f570df550a3487fd3.jpg",
+        "scale": 1
+      },
+      {
+        "src": "TinhDau_Lavender_10ml_hop.jpg",
+        "scale": 1
+      }
+    ]
+  },
+  {
+    "status": "PASS",
+    "checks": 100,
+    "page": "products",
+    "width": 768,
+    "imageAudit": [
+      {
+        "src": "TinhDau_Lavender_10ml_hop.jpg",
+        "scale": 1
+      },
+      {
+        "src": "mongtay.jpg",
+        "scale": 1.1494
+      },
+      {
+        "src": "body.jpg",
+        "scale": 1.0178
+      },
+      {
+        "src": "kemtay2.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "kemtay.jpg",
+        "scale": 1
+      },
+      {
+        "src": "OIP_1.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "daugoi.jpg",
+        "scale": 1
+      },
+      {
+        "src": "oil.jpg",
+        "scale": 1
+      },
+      {
+        "src": "tbc.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "kemduong.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "tt.jpg",
+        "scale": 1.0724
+      },
+      {
+        "src": "97ae0bced6a94a5f570df550a3487fd3.jpg",
+        "scale": 1
+      },
+      {
+        "src": "TinhDau_Lavender_10ml_hop.jpg",
+        "scale": 1
+      }
+    ]
+  },
+  {
+    "status": "PASS",
+    "checks": 100,
+    "page": "products",
+    "width": 500,
+    "imageAudit": [
+      {
+        "src": "TinhDau_Lavender_10ml_hop.jpg",
+        "scale": 1
+      },
+      {
+        "src": "mongtay.jpg",
+        "scale": 1.1494
+      },
+      {
+        "src": "body.jpg",
+        "scale": 1.0178
+      },
+      {
+        "src": "kemtay2.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "kemtay.jpg",
+        "scale": 1
+      },
+      {
+        "src": "OIP_1.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "daugoi.jpg",
+        "scale": 1
+      },
+      {
+        "src": "oil.jpg",
+        "scale": 1
+      },
+      {
+        "src": "tbc.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "kemduong.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "tt.jpg",
+        "scale": 1.0724
+      },
+      {
+        "src": "97ae0bced6a94a5f570df550a3487fd3.jpg",
+        "scale": 1
+      },
+      {
+        "src": "TinhDau_Lavender_10ml_hop.jpg",
+        "scale": 1
+      }
+    ]
+  },
+  {
+    "status": "PASS",
+    "checks": 100,
+    "page": "products",
+    "width": 390,
+    "imageAudit": [
+      {
+        "src": "TinhDau_Lavender_10ml_hop.jpg",
+        "scale": 1
+      },
+      {
+        "src": "mongtay.jpg",
+        "scale": 1.1494
+      },
+      {
+        "src": "body.jpg",
+        "scale": 1.0178
+      },
+      {
+        "src": "kemtay2.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "kemtay.jpg",
+        "scale": 1
+      },
+      {
+        "src": "OIP_1.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "daugoi.jpg",
+        "scale": 1
+      },
+      {
+        "src": "oil.jpg",
+        "scale": 1
+      },
+      {
+        "src": "tbc.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "kemduong.jpg",
+        "scale": 1.15
+      },
+      {
+        "src": "tt.jpg",
+        "scale": 1.0724
+      },
+      {
+        "src": "97ae0bced6a94a5f570df550a3487fd3.jpg",
+        "scale": 1
+      },
+      {
+        "src": "TinhDau_Lavender_10ml_hop.jpg",
+        "scale": 1
+      }
+    ]
+  },
+  {
+    "status": "PASS",
+    "checks": 16,
+    "page": "promotions",
+    "width": 1440
+  },
+  {
+    "status": "PASS",
+    "checks": 16,
+    "page": "promotions",
+    "width": 768
+  },
+  {
+    "status": "PASS",
+    "checks": 16,
+    "page": "promotions",
+    "width": 500
+  },
+  {
+    "status": "PASS",
+    "checks": 16,
+    "page": "promotions",
+    "width": 390
+  },
+  {
+    "status": "PASS",
+    "checks": 62,
+    "page": "index",
+    "width": 1440
+  },
+  {
+    "status": "PASS",
+    "checks": 63,
+    "page": "index",
+    "width": 768
+  },
+  {
+    "status": "PASS",
+    "checks": 63,
+    "page": "index",
+    "width": 500
+  },
+  {
+    "status": "PASS",
+    "checks": 63,
+    "page": "index",
+    "width": 390
+  },
+  {
+    "status": "PASS",
+    "checks": 62,
+    "page": "home",
+    "width": 1440
+  },
+  {
+    "status": "PASS",
+    "checks": 63,
+    "page": "home",
+    "width": 768
+  },
+  {
+    "status": "PASS",
+    "checks": 63,
+    "page": "home",
+    "width": 500
+  },
+  {
+    "status": "PASS",
+    "checks": 63,
+    "page": "home",
+    "width": 390
+  },
+  {
+    "status": "PASS",
+    "checks": 69,
+    "page": "product-detail",
+    "width": 1440,
+    "detailImageAudit": [
+      {
+        "src": "TinhDau_Lavender_10ml_hop.jpg",
+        "scale": 1,
+        "paintGain": 1.3076923076923077
+      },
+      {
+        "src": "97ae0bced6a94a5f570df550a3487fd3.jpg",
+        "scale": 1,
+        "paintGain": 1.307692307692308
+      },
+      {
+        "src": "tt.jpg",
+        "scale": 1.15,
+        "paintGain": 1.5038461538461536
+      },
+      {
+        "src": "kemduong.jpg",
+        "scale": 1.15,
+        "paintGain": 1.5038461538461536
+      },
+      {
+        "src": "tbc.jpg",
+        "scale": 1.15,
+        "paintGain": 1.5038461538461536
+      },
+      {
+        "src": "oil.jpg",
+        "scale": 1.1415,
+        "paintGain": 1.4927307692307692
+      },
+      {
+        "src": "daugoi.jpg",
+        "scale": 1,
+        "paintGain": 1.3076923076923077
+      },
+      {
+        "src": "OIP_1.jpg",
+        "scale": 1.15,
+        "paintGain": 1.5038461538461536
+      },
+      {
+        "src": "kemtay.jpg",
+        "scale": 1.1415,
+        "paintGain": 1.492730769230769
+      },
+      {
+        "src": "kemtay2.jpg",
+        "scale": 1.15,
+        "paintGain": 1.503846153846154
+      },
+      {
+        "src": "body.jpg",
+        "scale": 1.15,
+        "paintGain": 1.5038461538461536
+      },
+      {
+        "src": "mongtay.jpg",
+        "scale": 1.15,
+        "paintGain": 1.5038461538461536
+      },
+      {
+        "src": "portrait.png",
+        "scale": 1.0808,
+        "paintGain": 1.6134057692307693
+      },
+      {
+        "src": "landscape.png",
+        "scale": 1.15,
+        "paintGain": 1.3033333333333335
+      }
+    ]
+  },
+  {
+    "status": "PASS",
+    "checks": 69,
+    "page": "product-detail",
+    "width": 768,
+    "detailImageAudit": [
+      {
+        "src": "TinhDau_Lavender_10ml_hop.jpg",
+        "scale": 1,
+        "paintGain": 1.2442748091603053
+      },
+      {
+        "src": "97ae0bced6a94a5f570df550a3487fd3.jpg",
+        "scale": 1,
+        "paintGain": 1.2442748091603053
+      },
+      {
+        "src": "tt.jpg",
+        "scale": 1.15,
+        "paintGain": 1.4309160305343511
+      },
+      {
+        "src": "kemduong.jpg",
+        "scale": 1.15,
+        "paintGain": 1.4309160305343511
+      },
+      {
+        "src": "tbc.jpg",
+        "scale": 1.15,
+        "paintGain": 1.4309160305343511
+      },
+      {
+        "src": "oil.jpg",
+        "scale": 1.15,
+        "paintGain": 1.4309160305343511
+      },
+      {
+        "src": "daugoi.jpg",
+        "scale": 1,
+        "paintGain": 1.2442748091603053
+      },
+      {
+        "src": "OIP_1.jpg",
+        "scale": 1.15,
+        "paintGain": 1.4309160305343511
+      },
+      {
+        "src": "kemtay.jpg",
+        "scale": 1.15,
+        "paintGain": 1.4309160305343513
+      },
+      {
+        "src": "kemtay2.jpg",
+        "scale": 1.15,
+        "paintGain": 1.4309160305343511
+      },
+      {
+        "src": "body.jpg",
+        "scale": 1.15,
+        "paintGain": 1.4309160305343511
+      },
+      {
+        "src": "mongtay.jpg",
+        "scale": 1.15,
+        "paintGain": 1.4309160305343511
+      },
+      {
+        "src": "portrait.png",
+        "scale": 1.15,
+        "paintGain": 1.502003205128205
+      },
+      {
+        "src": "landscape.png",
+        "scale": 1.15,
+        "paintGain": 1.430916030534351
+      }
+    ]
+  },
+  {
+    "status": "PASS",
+    "checks": 67,
+    "page": "product-detail",
+    "width": 500,
+    "detailImageAudit": [
+      {
+        "src": "TinhDau_Lavender_10ml_hop.jpg",
+        "scale": 1,
+        "paintGain": 1.082191780821918
+      },
+      {
+        "src": "97ae0bced6a94a5f570df550a3487fd3.jpg",
+        "scale": 1,
+        "paintGain": 1.082191780821918
+      },
+      {
+        "src": "tt.jpg",
+        "scale": 1.0724,
+        "paintGain": 1.1605424657534247
+      },
+      {
+        "src": "kemduong.jpg",
+        "scale": 1.15,
+        "paintGain": 1.2445205479452055
+      },
+      {
+        "src": "tbc.jpg",
+        "scale": 1.15,
+        "paintGain": 1.2445205479452053
+      },
+      {
+        "src": "oil.jpg",
+        "scale": 1,
+        "paintGain": 1.082191780821918
+      },
+      {
+        "src": "daugoi.jpg",
+        "scale": 1,
+        "paintGain": 1.082191780821918
+      },
+      {
+        "src": "OIP_1.jpg",
+        "scale": 1.15,
+        "paintGain": 1.2445205479452053
+      },
+      {
+        "src": "kemtay.jpg",
+        "scale": 1,
+        "paintGain": 1.082191780821918
+      },
+      {
+        "src": "kemtay2.jpg",
+        "scale": 1.15,
+        "paintGain": 1.2445205479452055
+      },
+      {
+        "src": "body.jpg",
+        "scale": 1.0178,
+        "paintGain": 1.101454794520548
+      },
+      {
+        "src": "mongtay.jpg",
+        "scale": 1.1494,
+        "paintGain": 1.2438712328767123
+      },
+      {
+        "src": "portrait.png",
+        "scale": 1.0808,
+        "paintGain": 1.1696328767123287
+      },
+      {
+        "src": "landscape.png",
+        "scale": 1.15,
+        "paintGain": 1.2876558603491273
+      }
+    ]
+  },
+  {
+    "status": "PASS",
+    "checks": 67,
+    "page": "product-detail",
+    "width": 390,
+    "detailImageAudit": [
+      {
+        "src": "TinhDau_Lavender_10ml_hop.jpg",
+        "scale": 1,
+        "paintGain": 1.0859106529209621
+      },
+      {
+        "src": "97ae0bced6a94a5f570df550a3487fd3.jpg",
+        "scale": 1,
+        "paintGain": 1.0859106529209621
+      },
+      {
+        "src": "tt.jpg",
+        "scale": 1.0724,
+        "paintGain": 1.1645305841924398
+      },
+      {
+        "src": "kemduong.jpg",
+        "scale": 1.15,
+        "paintGain": 1.2487972508591065
+      },
+      {
+        "src": "tbc.jpg",
+        "scale": 1.15,
+        "paintGain": 1.2487972508591063
+      },
+      {
+        "src": "oil.jpg",
+        "scale": 1,
+        "paintGain": 1.0859106529209623
+      },
+      {
+        "src": "daugoi.jpg",
+        "scale": 1,
+        "paintGain": 1.0859106529209623
+      },
+      {
+        "src": "OIP_1.jpg",
+        "scale": 1.15,
+        "paintGain": 1.2487972508591063
+      },
+      {
+        "src": "kemtay.jpg",
+        "scale": 1,
+        "paintGain": 1.0859106529209621
+      },
+      {
+        "src": "kemtay2.jpg",
+        "scale": 1.15,
+        "paintGain": 1.2487972508591065
+      },
+      {
+        "src": "body.jpg",
+        "scale": 1.0178,
+        "paintGain": 1.1052398625429554
+      },
+      {
+        "src": "mongtay.jpg",
+        "scale": 1.1494,
+        "paintGain": 1.248145704467354
+      },
+      {
+        "src": "portrait.png",
+        "scale": 1.0808,
+        "paintGain": 1.1696328767123287
+      },
+      {
+        "src": "landscape.png",
+        "scale": 1.15,
+        "paintGain": 1.3396907216494844
+      }
+    ]
+  }
+]

@@ -1,0 +1,40 @@
+test_10000_and_12000_allocations (ai_features.test_gemini.GeminiDeadlineTests.test_10000_and_12000_allocations) ... ok
+test_8000_is_rejected_before_client_creation (ai_features.test_gemini.GeminiDeadlineTests.test_8000_is_rejected_before_client_creation) ... ok
+test_actual_fr21_mock_wire_sequence_has_legal_deadlines_within_total (ai_features.test_gemini.GeminiDeadlineTests.test_actual_fr21_mock_wire_sequence_has_legal_deadlines_within_total) ... ok
+test_fr22_and_fr23_short_budget_keep_rule_fallback (ai_features.test_gemini.GeminiDeadlineTests.test_fr22_and_fr23_short_budget_keep_rule_fallback) ... ok
+test_launcher_observes_sdk_error_before_public_boundary_sanitizes_it (ai_features.test_gemini.GeminiDeadlineTests.test_launcher_observes_sdk_error_before_public_boundary_sanitizes_it) ... ok
+test_low_remainder_falls_back_without_rounding_up (ai_features.test_gemini.GeminiDeadlineTests.test_low_remainder_falls_back_without_rounding_up) ... ok
+test_nested_budget_never_extends_parent_and_openai_stays_8s (ai_features.test_gemini.GeminiDeadlineTests.test_nested_budget_never_extends_parent_and_openai_stays_8s) ... ok
+test_pre_send_hook_rejects_8s_or_deadline_exceeding_remainder (ai_features.test_gemini.GeminiDeadlineTests.test_pre_send_hook_rejects_8s_or_deadline_exceeding_remainder) ... ok
+test_sdk_error_crosses_yield_but_public_structured_error_is_safe (ai_features.test_gemini.GeminiDeadlineTests.test_sdk_error_crosses_yield_but_public_structured_error_is_safe) ... ok
+test_shared_40s_budget_covers_three_12s_operations_then_stops (ai_features.test_gemini.GeminiDeadlineTests.test_shared_40s_budget_covers_three_12s_operations_then_stops) ... ok
+test_slow_setup_and_serialization_stop_before_transport (ai_features.test_gemini.GeminiDeadlineTests.test_slow_setup_and_serialization_stop_before_transport) ... ok
+test_embedding_timeout_and_invalid_input (ai_features.test_gemini.GeminiAdapterTests.test_embedding_timeout_and_invalid_input) ... ok
+test_embeddings_have_expected_dimensions_and_are_normalized (ai_features.test_gemini.GeminiAdapterTests.test_embeddings_have_expected_dimensions_and_are_normalized) ... ok
+test_factory_and_model_configuration (ai_features.test_gemini.GeminiAdapterTests.test_factory_and_model_configuration) ... ok
+test_generation_timeout_is_preserved (ai_features.test_gemini.GeminiAdapterTests.test_generation_timeout_is_preserved) ... ok
+test_invalid_empty_blocked_or_nonobject_json_falls_back (ai_features.test_gemini.GeminiAdapterTests.test_invalid_empty_blocked_or_nonobject_json_falls_back) ... ok
+test_malformed_embeddings_rejected (ai_features.test_gemini.GeminiAdapterTests.test_malformed_embeddings_rejected) ... ok
+test_missing_key_is_safe_before_sdk_initialization (ai_features.test_gemini.GeminiAdapterTests.test_missing_key_is_safe_before_sdk_initialization) ... ok
+test_paid_flag_or_unconfirmed_free_project_refuses_calls (ai_features.test_gemini.GeminiAdapterTests.test_paid_flag_or_unconfirmed_free_project_refuses_calls) ... ok
+test_query_embedding_uses_retrieval_query_task (ai_features.test_gemini.GeminiAdapterTests.test_query_embedding_uses_retrieval_query_task) ... ok
+test_sdk_auth_quota_and_server_errors_do_not_expose_messages (ai_features.test_gemini.GeminiAdapterTests.test_sdk_auth_quota_and_server_errors_do_not_expose_messages) ... ok
+test_sdk_developer_endpoint_timeout_no_retry_no_cloud_credentials (ai_features.test_gemini.GeminiAdapterTests.test_sdk_developer_endpoint_timeout_no_retry_no_cloud_credentials) ... ok
+test_shared_grounding_rejects_unknown_citations_or_amounts (ai_features.test_gemini.GeminiAdapterTests.test_shared_grounding_rejects_unknown_citations_or_amounts) ... ok
+test_structured_json_and_no_tools (ai_features.test_gemini.GeminiAdapterTests.test_structured_json_and_no_tools) ... ok
+test_unapproved_requests_do_not_read_key_or_construct_sdk (ai_features.test_gemini.GeminiAdapterTests.test_unapproved_requests_do_not_read_key_or_construct_sdk) ... ok
+test_unverified_models_and_dimensions_refuse_calls (ai_features.test_gemini.GeminiAdapterTests.test_unverified_models_and_dimensions_refuse_calls) ... ok
+test_citations_and_ungrounded_numbers (ai_features.test_rag.ProviderTests.test_citations_and_ungrounded_numbers) ... ok
+test_embedding_output_validation (ai_features.test_rag.ProviderTests.test_embedding_output_validation) ... ok
+test_fixed_endpoint_no_redirects_proxies_or_sensitive_logs (ai_features.test_rag.ProviderTests.test_fixed_endpoint_no_redirects_proxies_or_sensitive_logs) ... ok
+test_generation_does_not_store_or_offer_tools (ai_features.test_rag.ProviderTests.test_generation_does_not_store_or_offer_tools) ... ok
+test_missing_key_cannot_call_network (ai_features.test_rag.ProviderTests.test_missing_key_cannot_call_network) ... ok
+test_paid_calls_disabled_before_client_creation (ai_features.test_rag.ProviderTests.test_paid_calls_disabled_before_client_creation) ... ok
+test_structured_json_validation (ai_features.test_rag.ProviderTests.test_structured_json_validation) ... ok
+test_timeout_budget (ai_features.test_rag.ProviderTests.test_timeout_budget) ... ok
+test_transport_timeout_and_error_do_not_echo_provider_secret (ai_features.test_rag.ProviderTests.test_transport_timeout_and_error_do_not_echo_provider_secret) ... ok
+
+----------------------------------------------------------------------
+Ran 35 tests in 2.278s
+
+OK

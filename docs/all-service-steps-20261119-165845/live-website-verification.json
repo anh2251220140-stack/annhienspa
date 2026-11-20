@@ -1,0 +1,34 @@
+{
+  "method": "CUA read-only browser DOM on website 8000",
+  "services": [
+    {
+      "id": 1,
+      "visible": true,
+      "steps": 4,
+      "descriptions": 4,
+      "numbers": [
+        "01",
+        "02",
+        "03",
+        "04"
+      ]
+    },
+    {
+      "id": 2,
+      "visible": true,
+      "steps": 8,
+      "descriptions": 8,
+      "numbers": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08"
+      ]
+    }
+  ],
+  "production_test_service_created": false
+}

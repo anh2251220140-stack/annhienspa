@@ -1,0 +1,243 @@
+{
+  "date": "2026-11-20",
+  "status": "UI_IMPLEMENTED_AND_OFFLINE_VERIFIED",
+  "scope": [
+    {
+      "item": 1,
+      "status": "PASS",
+      "change": "Dịch vụ/Sản phẩm/Khuyến mãi dùng chung pager: tối đa 6 card, trang cuối giữ phần còn lại; lọc/sắp xếp toàn danh sách trước slice; tìm kiếm/lọc/reset đưa về trang 1; prev/next có disabled và thông báo trang/tổng số"
+    },
+    {
+      "item": 2,
+      "status": "PASS",
+      "change": "Ảnh sản phẩm ở danh sách và Home: contain + padding, giữ tỷ lệ, không zoom/crop"
+    },
+    {
+      "item": 3,
+      "status": "PASS",
+      "change": "Chi tiết sản phẩm: 2 cột cân bằng, khối thành phần/cách dùng/đối tượng/lưu ý căn đều; 1 cột mobile; không ẩn hoặc sửa nội dung"
+    },
+    {
+      "item": 4,
+      "status": "PASS",
+      "change": "Card Home khách/Home User/Dịch vụ tham chiếu card Sản phẩm: nền ivory, ảnh cao 255px, cùng khoảng cách/type/nút; 3/2/1 cột responsive; giữ nút Đặt lịch; Home vẫn lấy 4 bản ghi như trước"
+    },
+    {
+      "item": 5,
+      "status": "PASS",
+      "change": "16 template User dùng partial giờ 08:00–17:00 trong header và thay giờ cũ ở footer cho nhất quán; không sửa lịch làm việc hay giờ xác thực Booking"
+    }
+  ],
+  "tests": {
+    "chrome_cases": 24,
+    "chrome_pass": 24,
+    "chrome_fail": 0,
+    "chrome_assertions": 916,
+    "viewports": [
+      1440,
+      768,
+      500,
+      390
+    ],
+    "frontend_order_and_pager": {
+      "pass": 13,
+      "fail": 0
+    },
+    "python_targeted_regression": {
+      "pass": 15,
+      "fail": 0,
+      "error": 0
+    },
+    "template_render_hours": 16,
+    "template_navigation_form_contracts_unchanged": 16,
+    "syntax": "PASS",
+    "git_diff_check": "PASS; chỉ cảnh báo CRLF ở CSV AI đã có từ trước"
+  },
+  "production_http": [
+    {
+      "page": "index.html",
+      "status": 200,
+      "hours": "08:00–17:00",
+      "polish_css": true
+    },
+    {
+      "page": "services.html",
+      "status": 200,
+      "hours": "08:00–17:00",
+      "polish_css": true,
+      "pager_script_order": "PASS"
+    },
+    {
+      "page": "promotions.html",
+      "status": 200,
+      "hours": "08:00–17:00",
+      "polish_css": true,
+      "pager_script_order": "PASS"
+    }
+  ],
+  "served_assets": [
+    {
+      "path": "js/card-pagination.js",
+      "status": 200,
+      "bytes": 1546,
+      "match": true
+    },
+    {
+      "path": "js/catalog-pages.js",
+      "status": 200,
+      "bytes": 12429,
+      "match": true
+    },
+    {
+      "path": "js/promotions.js",
+      "status": 200,
+      "bytes": 9413,
+      "match": true
+    },
+    {
+      "path": "css/user-catalog-polish.css",
+      "status": 200,
+      "bytes": 5695,
+      "match": true
+    }
+  ],
+  "runtime_copies": [
+    "staticfiles/js/card-pagination.js",
+    "staticfiles/js/catalog-pages.js",
+    "staticfiles/js/promotions.js",
+    "staticfiles/css/user-catalog-polish.css"
+  ],
+  "safety": {
+    "database_model_migration_api_url_permissions_changes": false,
+    "mysql_configuration_changes": false,
+    "database_test_writes": false,
+    "business_data_changes": false,
+    "gemini_openai_payos_calls": false,
+    "env_changes": false,
+    "commit_push_docker": false,
+    "backend_business_changes": false,
+    "isolation": "SQLite configuration tạm trong runner nhưng mọi ensure_connection bị chặn; không tạo dữ liệu DB; mock fetch bị chặn; Chrome profile/thư mục tạm và proxy chặn network ngoài; fixtures không dùng dữ liệu khách hàng thật"
+  },
+  "limitations": [
+    "Kiểm thử Chrome dùng template/JS/CSS thật với dữ liệu giả lập, không đăng nhập tài khoản thật hoặc thực hiện nghiệp vụ ghi trên 8000.",
+    "Trên 8000 đã kiểm tra HTTP các trang công khai và cả 4 asset khớp source; các trang User cần đăng nhập chờ người dùng nghiệm thu trực tiếp.",
+    "Không chạy lại toàn bộ Booking/Billing/PayOS/AI regression và không chứng nhận thanh toán thật trong lượt chỉnh UI."
+  ],
+  "changed_files": [
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\static\\js\\catalog-pages.js",
+      "change": "modified",
+      "reason": "Phân trang 6 card sau lọc/sắp xếp, reset trang khi bộ lọc thay đổi"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\static\\js\\promotions.js",
+      "change": "modified",
+      "reason": "Phân trang 6 card sau lọc/sắp xếp, reset trang khi bộ lọc thay đổi"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\appointments.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\booking.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\home.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\index.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\invoice.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\login.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\product-detail.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\products.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header; nạp pager trước renderer và cache version"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\profile.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\promotion-detail.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\promotions.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header; nạp pager trước renderer và cache version"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\register.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\reviews.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\service-detail.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\pages\\services.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header; nạp pager trước renderer và cache version"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\accounts\\password_reset.html",
+      "change": "modified",
+      "reason": "Giờ 08:00–17:00 dùng partial chung và CSS giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\tools\\test_service_order.js",
+      "change": "modified",
+      "reason": "Hồi quy thứ tự toàn cục qua nhiều trang và reset bộ lọc"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\static\\js\\card-pagination.js",
+      "change": "new",
+      "reason": "Bộ phân trang trình bày dùng chung cho 3 danh sách"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\static\\css\\user-catalog-polish.css",
+      "change": "new",
+      "reason": "CSS giới hạn cho 5 yêu cầu: card, ảnh, chi tiết sản phẩm, pager và giờ header"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\templates\\partials\\user_hours.html",
+      "change": "new",
+      "reason": "Nguồn hiển thị giờ hoạt động dùng chung"
+    },
+    {
+      "path": "D:\\Redesign An Nhiên Spa Home\\tools\\check_user_catalog_ui.py",
+      "change": "new",
+      "reason": "Chrome offline: 6 trang × 4 viewport; dữ liệu giả lập; chặn DB/network/API"
+    }
+  ]
+}

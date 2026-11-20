@@ -1,0 +1,20 @@
+test_admin_textfield_preserves_structured_data (core.test_service_steps_json.ServiceStepsJSONTests.test_admin_textfield_preserves_structured_data) ... ok
+test_empty_steps (core.test_service_steps_json.ServiceStepsJSONTests.test_empty_steps) ... ok
+test_invalid_or_unknown_json_does_not_discard_legacy_text (core.test_service_steps_json.ServiceStepsJSONTests.test_invalid_or_unknown_json_does_not_discard_legacy_text) ... ok
+test_legacy_lines_keep_existing_values (core.test_service_steps_json.ServiceStepsJSONTests.test_legacy_lines_keep_existing_values) ... ok
+test_no_step_count_cap (core.test_service_steps_json.ServiceStepsJSONTests.test_no_step_count_cap) ... ok
+test_public_catalog_reads_json_and_legacy_without_mutating_models (core.test_service_steps_json.ServiceStepsJSONTests.test_public_catalog_reads_json_and_legacy_without_mutating_models) ... ok
+test_structured_title_description_and_order (core.test_service_steps_json.ServiceStepsJSONTests.test_structured_title_description_and_order) ... ok
+test_completion_title_only_at_end (core.test_service_steps_json.ServiceStepsAdminTests.test_completion_title_only_at_end) ... ok
+test_empty_steps_save_as_empty_array (core.test_service_steps_json.ServiceStepsAdminTests.test_empty_steps_save_as_empty_array) ... ok
+test_reject_partial_malformed_and_legacy_on_write (core.test_service_steps_json.ServiceStepsAdminTests.test_reject_partial_malformed_and_legacy_on_write) ... ok
+test_structured_steps_variable_counts (core.test_service_steps_json.ServiceStepsAdminTests.test_structured_steps_variable_counts) ... ok
+test_empty_and_invalid_json_safe_message (core.test_service_steps_json.ServiceStepsDetailTests.test_empty_and_invalid_json_safe_message) ... ok
+test_escaping_and_no_mutation (core.test_service_steps_json.ServiceStepsDetailTests.test_escaping_and_no_mutation) ... ok
+test_json_counts_titles_descriptions_and_order (core.test_service_steps_json.ServiceStepsDetailTests.test_json_counts_titles_descriptions_and_order) ... ok
+test_legacy_matches_edit_and_user_prefix_handling (core.test_service_steps_json.ServiceStepsDetailTests.test_legacy_matches_edit_and_user_prefix_handling) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.046s
+
+OK

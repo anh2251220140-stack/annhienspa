@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from django.conf import settings
 from django import forms
@@ -17,7 +18,7 @@ LABELS={"name":"Tên", "description":"Mô tả", "category":"Danh mục", "price
 "full_name":"Họ và tên", "email":"Email", "phone":"Số điện thoại", "specialty":"Chuyên môn", "services":"Dịch vụ liên kết",
 "code":"Mã khuyến mãi", "discount_type":"Hình thức ưu đãi", "discount_value":"Giá trị ưu đãi", "min_amount":"Giá trị tối thiểu", "max_discount":"Giảm tối đa",
 "start_date":"Ngày bắt đầu", "end_date":"Ngày kết thúc", "work_date":"Ngày làm việc", "start_time":"Giờ bắt đầu", "end_time":"Giờ kết thúc", "status":"Trạng thái", "note":"Lưu ý",
-"introduction":"Giới thiệu", "steps":"Các bước — mỗi dòng một bước", "suitable":"Đối tượng phù hợp", "care_group":"Nhóm chăm sóc (catalog)",
+"introduction":"Giới thiệu", "steps":"Quy trình thực hiện", "suitable":"Đối tượng phù hợp", "care_group":"Nhóm chăm sóc (catalog)",
 "detail":"Nội dung chi tiết", "conditions":"Điều kiện áp dụng — mỗi dòng một điều kiện", "badge":"Nhãn chương trình", "accent":"Màu nhấn theo catalog", "aliases":"Mã thay thế — mỗi dòng một mã", "scope_note":"Ghi chú phạm vi áp dụng"}
 
 class BaseForm(forms.ModelForm):
@@ -58,6 +59,25 @@ class ServiceForm(BaseForm):
         self.fields['care_group'].label="Nhóm hiển thị trên trang khách hàng"
         self.fields['name'].label='Tên dịch vụ';self.fields['benefits'].label='Lợi ích — mỗi dòng một ý'
         self.fields['price'].min_value=0;self.fields['duration_minutes'].min_value=1
+
+    def clean_steps(self):
+        raw = self.cleaned_data.get('steps', '')
+        if not raw.strip():
+            return '[]'
+        try:
+            steps = json.loads(raw)
+        except (ValueError, TypeError):
+            raise ValidationError('Nhập tên và mô tả riêng cho từng bước trong bộ nhập quy trình.')
+        if not isinstance(steps, list):
+            raise ValidationError('Quy trình phải là danh sách các bước.')
+        for step in steps:
+            if (not isinstance(step, dict) or set(step) != {'title', 'description'}
+                    or any(not isinstance(step[k], str) or not step[k].strip()
+                           for k in ('title', 'description'))):
+                raise ValidationError('Mỗi bước phải có tên và mô tả không để trống.')
+        if any(step['title'].strip().casefold() == 'hoàn thiện' for step in steps[:-1]):
+            raise ValidationError('Chỉ bước cuối cùng được mang tên Hoàn thiện.')
+        return json.dumps(steps, ensure_ascii=False)
 
 class ProductForm(BaseForm):
     services=NamedChoices(queryset=Service.objects.all(),required=False,widget=forms.CheckboxSelectMultiple)

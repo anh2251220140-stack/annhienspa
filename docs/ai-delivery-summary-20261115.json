@@ -1,0 +1,406 @@
+{
+  "date": "2026-11-15",
+  "unique_test_methods": 69,
+  "mysql_3311_pass": 57,
+  "additional_sqlite_offline_pass": 12,
+  "final_fail": 0,
+  "tests": [
+    {
+      "test": "ai_features.tests.ChatTests.test_admin_paginates_sessions_and_user_paginates_messages",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_admin_requires_explicit_permission_and_history_is_read_only",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_cooldown_and_day_limit_in_vietnam_across_sessions",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_create_send_reload_relogin_and_resume",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_general_service_question_uses_only_public_service_facts",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_general_service_question_without_public_services_falls_back",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_inactive_catalog_item_and_business_actions_fall_back",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_insufficient_source_and_provider_timeout",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_login_csrf_feature_switch_and_invalid_payload",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_other_account_cannot_read_or_append",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_pending_retransmission_is_read_only_and_stale_attempt_recovers",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_resume_uses_most_recent_open_conversation_with_messages_without_writes",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_retransmission_and_retry_have_distinct_semantics",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_retrieval_uses_public_products_and_effective_promotions",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.tests.ChatTests.test_sensitive_input_never_reaches_provider_database_or_logs",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.PublicCatalogTests.test_catalog_contains_only_public_active_fields",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.PublicCatalogTests.test_expired_and_inactive_promotions_never_indexed",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.PublicCatalogTests.test_invalidation_only_after_commit_no_paid_calls",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_assistance_cooldown_precedes_provider",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_bad_or_unavailable_ai_falls_back_as_a_whole",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_batch_limit_missing_review_and_explicit_trigger",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_changed_review_during_inference_rejected",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_csrf_enforced_and_post_only",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_invalid_inputs_are_rejected_without_provider",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_invalid_review_json_and_provider_errors_use_fallback",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_login_and_role_authorization",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_manual_overrides_still_work",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_needs_budget_duration_and_inactive_are_server_constraints",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_no_automatic_analysis_or_replies",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_only_owner_history_and_no_identity_sent",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_personal_data_not_exported_without_approval",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_private_review_is_not_exported",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_recommendation_fallback_respects_profile_and_persists",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_review_export_requires_explicit_approval",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_review_requires_admin_permission_and_post_csrf",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_review_structured_output_persists_without_modifying_review",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_rule_analysis_is_honest_and_read_back_is_stale_aware",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_valid_ai_json_contains_only_verified_ids",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_visibility_rechecked_after_inference",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_citations_and_ungrounded_numbers",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_embedding_output_validation",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_fixed_endpoint_no_redirects_proxies_or_sensitive_logs",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_generation_does_not_store_or_offer_tools",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_missing_key_cannot_call_network",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_paid_calls_disabled_before_client_creation",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_structured_json_validation",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_timeout_budget",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.ProviderTests.test_transport_timeout_and_error_do_not_echo_provider_secret",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_chunk_overlap_and_limits",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_cosine",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_failed_embedding_does_not_publish_new_digest",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_incremental_upsert_delete_and_metadata",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_metadata_filter_happens_before_cosine",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_no_data_does_not_call_provider",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_semantic_synonym_and_dedup",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_unsupported_actions_do_not_call_retrieval",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_assistance.ConcurrentMockPerformanceTests.test_twenty_distinct_users_mock_latency",
+      "status": "PASS",
+      "environment": "MySQL 3311"
+    },
+    {
+      "test": "ai_features.test_rag.RAGChatIntegrationTests.test_admin_change_during_answer_discards_stale_facts",
+      "status": "PASS",
+      "environment": "temporary SQLite/offline"
+    },
+    {
+      "test": "ai_features.test_rag.RAGChatIntegrationTests.test_cooldown_blocks_embeddings_and_generation",
+      "status": "PASS",
+      "environment": "temporary SQLite/offline"
+    },
+    {
+      "test": "ai_features.test_rag.RAGChatIntegrationTests.test_rag_chat_persists_grounded_sources",
+      "status": "PASS",
+      "environment": "temporary SQLite/offline"
+    },
+    {
+      "test": "ai_features.test_rag.RAGChatIntegrationTests.test_unapproved_provider_returns_safe_fallback_without_network",
+      "status": "PASS",
+      "environment": "temporary SQLite/offline"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_final_source_fingerprints_reject_changed_or_hidden_catalog",
+      "status": "PASS",
+      "environment": "temporary SQLite/offline"
+    },
+    {
+      "test": "ai_features.test_rag.VectorTests.test_catalog_changed_during_embedding_does_not_return_old_price",
+      "status": "PASS",
+      "environment": "temporary SQLite/offline"
+    },
+    {
+      "test": "ai_features.test_reference.EvaluationTests.test_duplicate_or_unknown_results_rejected",
+      "status": "PASS",
+      "environment": "temporary SQLite/offline"
+    },
+    {
+      "test": "ai_features.test_reference.EvaluationTests.test_mock_and_unreviewed_outputs_never_claim_quality_acceptance",
+      "status": "PASS",
+      "environment": "temporary SQLite/offline"
+    },
+    {
+      "test": "ai_features.test_reference.EvaluationTests.test_reference_inventory_is_synthetic_and_complete",
+      "status": "PASS",
+      "environment": "temporary SQLite/offline"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_existing_luxury_pages_render_with_new_controls",
+      "status": "PASS",
+      "environment": "temporary SQLite/offline"
+    },
+    {
+      "test": "core.test_models.ModelTests.test_review_requires_completed_owner_and_single_review",
+      "status": "PASS",
+      "environment": "temporary SQLite/offline"
+    },
+    {
+      "test": "ai_features.test_assistance.AssistanceTests.test_saved_profile_newline_needs_preserve_first_valid_order",
+      "status": "PASS",
+      "environment": "temporary SQLite/offline"
+    }
+  ],
+  "mysql_report": "D:\\Redesign An Nhiên Spa Home\\docs\\ai-mysql-acceptance-20261115-132841\\results.json",
+  "mysql_empty_fixtures_after": true,
+  "mysql_pending_migrations": [],
+  "migration_applied": "ai_features.0003_review_analysis_details",
+  "mysql_uuid": "608f399a-e055-11f1-9e4d-d549ecc51722",
+  "mysql_mock_service_20_users_p95_seconds": 0.3489,
+  "http_smoke": "GET /login.html 200; HEAD 405 by existing design; only temporary SQLite; server closed",
+  "real_provider_calls": 0,
+  "real_ai_quality": "NOT TESTED",
+  "real_provider_http_p95": "NOT TESTED",
+  "chrome_visual": "NOT TESTED",
+  "default_env_changed": false,
+  "ports_3306_3310_connected": false,
+  "payos_real_called": false,
+  "commit_push": false,
+  "changed_source_files": [
+    ".gitignore",
+    "ai_features/apps.py",
+    "ai_features/assistance.py",
+    "ai_features/assistance_views.py",
+    "ai_features/chat.py",
+    "ai_features/config.py",
+    "ai_features/integration.py",
+    "ai_features/management/__init__.py",
+    "ai_features/management/commands/__init__.py",
+    "ai_features/management/commands/index_spa.py",
+    "ai_features/migrations/0003_review_analysis_details.py",
+    "ai_features/models.py",
+    "ai_features/providers.py",
+    "ai_features/rag.py",
+    "ai_features/signals.py",
+    "ai_features/test_assistance.py",
+    "ai_features/test_rag.py",
+    "ai_features/test_reference.py",
+    "ai_features/urls.py",
+    "ai_features/views.py",
+    "docs/ai-reference/approved-spa-documents.example.json",
+    "docs/ai-reference/cases-20261115.json",
+    "requirements.txt",
+    "static/js/app.js",
+    "static/js/live-admin-reviews.js",
+    "templates/pages/admin-reviews.html",
+    "templates/pages/services.html",
+    "tools/ai_mysql_acceptance.py",
+    "tools/ai_tests.py",
+    "tools/chat_sqlite.py",
+    "tools/score_ai_reference.py"
+  ],
+  "patch": "D:\\Redesign An Nhiên Spa Home\\docs\\ai-source-changes-20261115.patch",
+  "srs_sha256": "a020eddb8d5a456c09ec7ac7857850fdfd93befab42889f27de582d356ebe963",
+  "git_diff_check": "PASS",
+  "source_patch_reverse_check": "PASS"
+}

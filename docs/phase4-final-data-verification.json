@@ -1,0 +1,136 @@
+{
+  "backup": "phase4-20261023-134148",
+  "tables": [
+    {
+      "table": "ai_recommendations",
+      "old_rows": 0,
+      "unchanged": true
+    },
+    {
+      "table": "ai_review_analysis",
+      "old_rows": 0,
+      "unchanged": true
+    },
+    {
+      "table": "appointments",
+      "old_rows": 1,
+      "unchanged": true
+    },
+    {
+      "table": "auth_group",
+      "old_rows": 0,
+      "unchanged": true
+    },
+    {
+      "table": "auth_group_permissions",
+      "old_rows": 0,
+      "unchanged": true
+    },
+    {
+      "table": "auth_permission",
+      "old_rows": 92,
+      "unchanged": true
+    },
+    {
+      "table": "care_products",
+      "old_rows": 1,
+      "unchanged": true
+    },
+    {
+      "table": "customers",
+      "old_rows": 1,
+      "unchanged": true
+    },
+    {
+      "table": "django_content_type",
+      "old_rows": 23,
+      "unchanged": true
+    },
+    {
+      "table": "django_session",
+      "old_rows": 2,
+      "unchanged": true
+    },
+    {
+      "table": "employee_schedules",
+      "old_rows": 12,
+      "unchanged": true
+    },
+    {
+      "table": "employee_services",
+      "old_rows": 1,
+      "unchanged": true
+    },
+    {
+      "table": "employees",
+      "old_rows": 1,
+      "unchanged": true
+    },
+    {
+      "table": "invoice_details",
+      "old_rows": 0,
+      "unchanged": true
+    },
+    {
+      "table": "invoices",
+      "old_rows": 0,
+      "unchanged": true
+    },
+    {
+      "table": "payments",
+      "old_rows": 0,
+      "unchanged": true
+    },
+    {
+      "table": "promotion_services",
+      "old_rows": 1,
+      "unchanged": true
+    },
+    {
+      "table": "promotions",
+      "old_rows": 1,
+      "unchanged": true
+    },
+    {
+      "table": "review_replies",
+      "old_rows": 0,
+      "unchanged": true
+    },
+    {
+      "table": "reviews",
+      "old_rows": 0,
+      "unchanged": true
+    },
+    {
+      "table": "service_categories",
+      "old_rows": 2,
+      "unchanged": true
+    },
+    {
+      "table": "service_products",
+      "old_rows": 1,
+      "unchanged": true
+    },
+    {
+      "table": "services",
+      "old_rows": 1,
+      "unchanged": true
+    },
+    {
+      "table": "users",
+      "old_rows": 2,
+      "unchanged": true
+    },
+    {
+      "table": "users_groups",
+      "old_rows": 0,
+      "unchanged": true
+    },
+    {
+      "table": "users_user_permissions",
+      "old_rows": 0,
+      "unchanged": true
+    }
+  ],
+  "old_columns_and_rows_unchanged": true
+}

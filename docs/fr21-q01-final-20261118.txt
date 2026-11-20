@@ -1,0 +1,94 @@
+Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+System check identified no issues (0 silenced).
+No changes detected
+Found 34 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: messages, staticfiles
+  Apply all migrations: accounts, ai_features, appointments, auth, billing, contenttypes, employees, products, promotions, reviews, services, sessions
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying services.0001_initial... OK
+  Applying employees.0001_initial... OK
+  Applying appointments.0001_initial... OK
+  Applying reviews.0001_initial... OK
+  Applying ai_features.0001_initial... OK
+  Applying ai_features.0002_chat_history... OK
+  Applying ai_features.0003_review_analysis_details... OK
+  Applying employees.0002_employee_avatar_preset_employee_email_and_more... OK
+  Applying appointments.0002_appointment_cancel_reason_appointment_cancelled_at_and_more... OK
+  Applying promotions.0001_initial... OK
+  Applying billing.0001_initial... OK
+  Applying billing.0002_invoice_promotion_code_snapshot_payment_checkout_url_and_more... OK
+  Applying billing.0003_invoice_historical_basis... OK
+  Applying billing.0004_invoice_payment_preference... OK
+  Applying billing.0005_remove_payment_payment_valid_status_and_more... OK
+  Applying billing.0006_invoicedetail_unique_detail_per_invoice... OK
+  Applying products.0001_initial... OK
+  Applying products.0002_careproduct_care_group_careproduct_image_preset_and_more... OK
+  Applying services.0002_service_benefits_service_care_group_service_gallery_and_more... OK
+  Applying promotions.0002_promotion_accent_promotion_aliases_promotion_badge_and_more... OK
+  Applying promotions.0003_promotion_per_customer_limit_and_more... OK
+  Applying promotions.0004_promotion_note_is_informational... OK
+test_category_only_chat_falls_back_without_provider (ai_features.test_service_listing.ServiceListingTests.test_category_only_chat_falls_back_without_provider) ... ok
+test_category_only_rag_returns_no_services (ai_features.test_service_listing.ServiceListingTests.test_category_only_rag_returns_no_services) ... ok
+test_non_listing_rag_can_still_retrieve_category (ai_features.test_service_listing.ServiceListingTests.test_non_listing_rag_can_still_retrieve_category) ... ok
+test_q01_chat_gemini_mock_receives_service_only_and_persists_answer (ai_features.test_service_listing.ServiceListingTests.test_q01_chat_gemini_mock_receives_service_only_and_persists_answer) ... ok
+test_q01_lexical_does_not_mix_products_into_service_list (ai_features.test_service_listing.ServiceListingTests.test_q01_lexical_does_not_mix_products_into_service_list) ... ok
+test_q01_rag_returns_only_active_service_records_without_index_access (ai_features.test_service_listing.ServiceListingTests.test_q01_rag_returns_only_active_service_records_without_index_access) ... ok
+test_admin_paginates_sessions_and_user_paginates_messages (ai_features.tests.ChatTests.test_admin_paginates_sessions_and_user_paginates_messages) ... ok
+test_admin_requires_explicit_permission_and_history_is_read_only (ai_features.tests.ChatTests.test_admin_requires_explicit_permission_and_history_is_read_only) ... ok
+test_cooldown_and_day_limit_in_vietnam_across_sessions (ai_features.tests.ChatTests.test_cooldown_and_day_limit_in_vietnam_across_sessions) ... ok
+test_create_send_reload_relogin_and_resume (ai_features.tests.ChatTests.test_create_send_reload_relogin_and_resume) ... ok
+test_general_service_question_uses_only_public_service_facts (ai_features.tests.ChatTests.test_general_service_question_uses_only_public_service_facts) ... ok
+test_general_service_question_without_public_services_falls_back (ai_features.tests.ChatTests.test_general_service_question_without_public_services_falls_back) ... ok
+test_inactive_catalog_item_and_business_actions_fall_back (ai_features.tests.ChatTests.test_inactive_catalog_item_and_business_actions_fall_back) ... ok
+test_insufficient_source_and_provider_timeout (ai_features.tests.ChatTests.test_insufficient_source_and_provider_timeout) ... ok
+test_login_csrf_feature_switch_and_invalid_payload (ai_features.tests.ChatTests.test_login_csrf_feature_switch_and_invalid_payload) ... ok
+test_other_account_cannot_read_or_append (ai_features.tests.ChatTests.test_other_account_cannot_read_or_append) ... ok
+test_pending_retransmission_is_read_only_and_stale_attempt_recovers (ai_features.tests.ChatTests.test_pending_retransmission_is_read_only_and_stale_attempt_recovers) ... ok
+test_resume_uses_most_recent_open_conversation_with_messages_without_writes (ai_features.tests.ChatTests.test_resume_uses_most_recent_open_conversation_with_messages_without_writes) ... ok
+test_retransmission_and_retry_have_distinct_semantics (ai_features.tests.ChatTests.test_retransmission_and_retry_have_distinct_semantics) ... ok
+test_retrieval_uses_public_products_and_effective_promotions (ai_features.tests.ChatTests.test_retrieval_uses_public_products_and_effective_promotions) ... ok
+test_sensitive_input_never_reaches_provider_database_or_logs (ai_features.tests.ChatTests.test_sensitive_input_never_reaches_provider_database_or_logs) ... ok
+test_fr21_fr22_fr23_fr24_reject_openai_even_with_legacy_approvals (ai_features.test_provider_lock.ApplicationProviderLockTests.test_fr21_fr22_fr23_fr24_reject_openai_even_with_legacy_approvals) ... ok
+test_gemini_failure_only_falls_back_internally (ai_features.test_provider_lock.ApplicationProviderLockTests.test_gemini_failure_only_falls_back_internally) ... FR23 fallback code=PROVIDER_UNAVAILABLE provider=gemini
+ok
+test_category_only_stops_before_generation (ai_features.test_service_listing.GrounderServiceListingTests.test_category_only_stops_before_generation) ... ok
+test_other_questions_keep_all_entity_types_explicit (ai_features.test_service_listing.GrounderServiceListingTests.test_other_questions_keep_all_entity_types_explicit) ... ok
+test_q01_filters_non_service_and_exposes_entity_kind (ai_features.test_service_listing.GrounderServiceListingTests.test_q01_filters_non_service_and_exposes_entity_kind) ... ok
+test_q01_rejects_category_citation_even_when_gemini_returns_it (ai_features.test_service_listing.GrounderServiceListingTests.test_q01_rejects_category_citation_even_when_gemini_returns_it) ... ok
+test_gemini_selected_for_both_generation_and_embedding (ai_features.test_provider_lock.ProviderLockTests.test_gemini_selected_for_both_generation_and_embedding) ... ok
+test_index_command_rejects_before_catalog_or_vector_access (ai_features.test_provider_lock.ProviderLockTests.test_index_command_rejects_before_catalog_or_vector_access) ... ok
+test_legacy_adapter_cannot_send_even_when_constructor_bypassed (ai_features.test_provider_lock.ProviderLockTests.test_legacy_adapter_cannot_send_even_when_constructor_bypassed) ... ok
+test_mock_embedding_is_local_deterministic_and_separate (ai_features.test_provider_lock.ProviderLockTests.test_mock_embedding_is_local_deterministic_and_separate) ... ok
+test_openai_rejected_at_all_factories_without_construction_or_http (ai_features.test_provider_lock.ProviderLockTests.test_openai_rejected_at_all_factories_without_construction_or_http) ... ok
+test_unknown_providers_fail_closed (ai_features.test_provider_lock.ProviderLockTests.test_unknown_providers_fail_closed) ... ok
+test_shared_grounding_rejects_unknown_citations_or_amounts (ai_features.test_gemini.GeminiAdapterTests.test_shared_grounding_rejects_unknown_citations_or_amounts) ... ok
+
+----------------------------------------------------------------------
+Ran 34 tests in 2.597s
+
+OK
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+  Applying sessions.0001_initial... OK
+System check identified no issues (0 silenced).
+Evidence: D:\Redesign An Nhi�n Spa Home\docs\ai-regression-results-20261115-145430130619.json

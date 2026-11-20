@@ -1,0 +1,6 @@
+test_fresh_settings_migrations_sdk_and_cleanup_without_env_or_network (tools.test_fr22_application_launcher.FreshApplicationLauncherTests.test_fresh_settings_migrations_sdk_and_cleanup_without_env_or_network) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 9.776s
+
+OK

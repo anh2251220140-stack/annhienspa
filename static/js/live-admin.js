@@ -37,11 +37,55 @@
     if (!dialog.open) dialog.showModal();
   }
   dialog.addEventListener("close", () => returnFocus?.isConnected && returnFocus.focus());
+  function mountSteps(form) {
+    const editor = form.querySelector('[data-steps-editor]');
+    if (!editor) return () => {};
+    const field = form.elements.namedItem('steps'), rows = editor.querySelector('[data-step-rows]');
+    let steps;
+    try {
+      steps = JSON.parse(field.value || '[]');
+      if (!Array.isArray(steps) || !steps.every(s => s && typeof s.title === 'string' && typeof s.description === 'string' && Object.keys(s).length === 2)) throw Error();
+    } catch (_) {
+      // Legacy text stays readable; descriptions must be supplied before saving.
+      steps = field.value.split(/\r\n?|\n/u).map(s => s.trim().replace(/^(?:bước\s*\d+\s*[:.)-]?\s*|\d+[.)]\s*(?!\d))/iu, '').trim()).filter(Boolean).map(title => ({title, description: ''}));
+    }
+    function renumber() {
+      [...rows.children].forEach((row, i) => {
+        row.querySelector('[data-step-number]').textContent = 'Bước ' + String(i + 1).padStart(2, '0');
+        row.querySelector('[data-step-up]').disabled = i === 0;
+        row.querySelector('[data-step-down]').disabled = i === rows.children.length - 1;
+      });
+    }
+    function add(step = {title: '', description: ''}) {
+      const row = document.createElement('fieldset'); row.className = 'service-step-editor-row';
+      row.innerHTML = '<legend data-step-number></legend><label>Tên bước<input type="text" data-step-title></label><label>Mô tả bước<textarea rows="3" data-step-description></textarea></label><div class="service-step-actions"><button type="button" class="admin-button" data-step-up>Lên</button><button type="button" class="admin-button" data-step-down>Xuống</button><button type="button" class="admin-button" data-step-delete>Xóa bước</button></div>';
+      row.querySelector('[data-step-title]').value = step.title;
+      row.querySelector('[data-step-description]').value = step.description;
+      row.querySelector('[data-step-up]').onclick = () => { if (row.previousElementSibling) rows.insertBefore(row, row.previousElementSibling); renumber(); };
+      row.querySelector('[data-step-down]').onclick = () => { if (row.nextElementSibling) rows.insertBefore(row.nextElementSibling, row); renumber(); };
+      row.querySelector('[data-step-delete]').onclick = () => { row.remove(); renumber(); };
+      rows.append(row); renumber();
+    }
+    steps.forEach(add); field.hidden = true;
+    const addButton = editor.querySelector('[data-step-add]'); addButton.hidden = false; addButton.onclick = () => { add(); rows.lastElementChild.querySelector('input').focus(); };
+    return () => {
+      const values = [...rows.children].map(row => ({title: row.querySelector('[data-step-title]').value.trim(), description: row.querySelector('[data-step-description]').value.trim()}));
+      const invalid = [...rows.children].find((row, i) => !values[i].title || !values[i].description);
+      if (invalid) {
+        editor.closest('details')?.setAttribute('open', '');
+        invalid.querySelector(!invalid.querySelector('input').value.trim() ? 'input' : 'textarea').focus();
+        throw Error('Mỗi bước phải có tên và mô tả không để trống.');
+      }
+      if (values.slice(0, -1).some(s => s.title.toLocaleLowerCase('vi') === 'hoàn thiện')) throw Error('Chỉ bước cuối cùng được mang tên Hoàn thiện.');
+      field.value = JSON.stringify(values);
+    };
+  }
   function bindForm(path, after) {
     const form = dialog.querySelector("form");
+    const serializeSteps = mountSteps(form);
     form.addEventListener("submit", async event => {
       event.preventDefault(); const submit = form.querySelector('[type="submit"]'); submit.disabled = true;
-      try { await api(path, new FormData(form)); dialog.close(); await after(); notify("Đã lưu thay đổi."); }
+      try { serializeSteps(); await api(path, new FormData(form)); dialog.close(); await after(); notify("Đã lưu thay đổi."); }
       catch (error) { const el = form.querySelector("[data-error]"); el.textContent = error.message; el.hidden = false;
         for(const [name,messages] of Object.entries(error.fields||{})){const field=form.elements.namedItem(name);if(field?.setAttribute){field.setAttribute("aria-invalid","true");const details=field.closest("details");if(details)details.open=true;}const label=form.querySelector(`[data-field-error="${name}"]`);if(label){label.textContent=messages.join(" ");label.hidden=false;}} el.focus(); }
       finally { submit.disabled = false; }
@@ -111,7 +155,41 @@
     const all=types.flatMap(t=>cache[t]);
     $(servicePage ? "#services-stats" : "#ops-stats").innerHTML = [["Tổng bản ghi",all.length],["Hoạt động",all.filter(x=>x.active).length],["Tạm ngừng",all.filter(x=>!x.active).length]].map(([label,n])=>`<article><span>${label}</span><strong>${n}</strong></article>`).join("");
   }
-  async function edit(type,id=0) { const data=await api(url(type,id)); open(`${id ? "Sửa" : "Thêm"} ${nouns[type]}${servicePage && id ? " · " + serviceCode(type,id) : ""}`,data.html); bindForm(url(type,id),refresh); }
+  function mountServiceImage() {
+    const upload = dialog.querySelector('input[type="file"][name="image"]');
+    if (!upload) return;
+    const field = upload.closest('label'), current = field.querySelector('img.live-image-preview');
+    const clear = field.querySelector('input[name="image-clear"]'), error = field.querySelector('[data-field-error="image"]');
+    const area = document.createElement('div'); area.className = 'service-upload';
+    const label = document.createElement('label'); label.htmlFor = upload.id; label.textContent = 'Tải ảnh đại diện';
+    const board = document.createElement('div'); board.className = 'service-upload-board' + (current ? '' : ' is-empty');
+    const visual = document.createElement('div'); visual.className = 'service-upload-visual';
+    if (current) visual.append(current);
+    else { const empty = document.createElement('span'); empty.textContent = 'Ảnh đại diện dịch vụ'; visual.append(empty); }
+    const preview = document.createElement('img'); preview.alt = 'Ảnh mới đã chọn'; preview.hidden = true; visual.append(preview);
+    const actions = document.createElement('div'); actions.className = 'service-upload-actions';
+    const picker = document.createElement('button'); picker.type = 'button'; picker.className = 'admin-button';
+    picker.innerHTML = serviceIcon('leaf') + (current ? 'Thay ảnh đại diện' : 'Tải ảnh từ máy'); picker.onclick = () => upload.click();
+    const filename = document.createElement('span'); filename.className = 'service-upload-name'; filename.setAttribute('role', 'status');
+    const message = current ? 'Ảnh hiện tại được giữ nếu bạn không thay đổi.' : 'Chọn ảnh dịch vụ để hiển thị trên trang khách hàng.';
+    filename.textContent = message;
+    const hint = document.createElement('small'); hint.textContent = 'JPEG, PNG hoặc WebP · tối đa 5 MB';
+    actions.append(picker, filename, hint);
+    if (clear) { const removal = document.createElement('label'); removal.className = 'service-upload-clear'; removal.append(clear, document.createTextNode('Xóa ảnh hiện tại khi lưu')); actions.append(removal); }
+    upload.classList.add('service-upload-native');
+    board.append(visual, actions); area.append(label, upload, board); if (error) area.append(error); field.replaceWith(area);
+    let objectURL;
+    upload.addEventListener('change', () => {
+      if (objectURL) URL.revokeObjectURL(objectURL);
+      const file = upload.files[0]; preview.hidden = !file;
+      if (current) current.hidden = Boolean(file);
+      else visual.querySelector('span').hidden = Boolean(file);
+      filename.textContent = file ? file.name : message;
+      if (file) { objectURL = URL.createObjectURL(file); preview.src = objectURL; }
+    });
+    dialog.addEventListener('close', () => { if (objectURL) URL.revokeObjectURL(objectURL); }, {once: true});
+  }
+  async function edit(type,id=0) { const data=await api(url(type,id)); open(`${id ? "Sửa" : "Thêm"} ${nouns[type]}${servicePage && id ? " · " + serviceCode(type,id) : ""}`,data.html); if(servicePage && type === 'services' && id) mountServiceImage(); bindForm(url(type,id),refresh); }
   async function schedule(employee) { await window.spaSchedule(employee,{open,api,dialog,notify}); }
   if (module === "appointments") {
     const toolbar=$(".admin-toolbar");

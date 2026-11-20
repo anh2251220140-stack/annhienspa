@@ -6,7 +6,7 @@
 [data-admin-services] .admin-table-scroll { overflow-x:auto; max-width:100%; }
 [data-admin-services] .admin-data-table { min-width:850px; width:100%; }
 [data-admin-services] #panel-services .admin-data-table { min-width:1080px; }
-[data-admin-services] .admin-data-table td { overflow-wrap:anywhere; }
+[data-admin-services] .admin-data-table td { word-break:normal; overflow-wrap:break-word; }
 [data-admin-services] .admin-data-table th:last-child { min-width:170px; }
 [data-admin-services] .admin-row-actions { display:flex; flex-wrap:nowrap; gap:8px; }
 [data-admin-services] .admin-row-actions .admin-button { white-space:nowrap; }
@@ -39,3 +39,63 @@
 [data-admin-services] .admin-data-table :is(th,td):last-child { min-width:300px; width:300px; }
 [data-admin-services] .admin-row-actions { flex-wrap:nowrap; width:max-content; }
 [data-admin-services] .admin-row-actions .admin-button { flex:0 0 auto; }
+
+/* Column budgets include the existing action group; only the table may scroll. */
+[data-admin-services] .admin-service-panel, [data-admin-services] .admin-table-scroll { min-width:0; max-width:100%; }
+[data-admin-services] .admin-table-scroll { width:100%; overscroll-behavior-x:contain; }
+[data-admin-services] .admin-data-table { table-layout:auto; }
+[data-admin-services] #panel-categories .admin-data-table { min-width:1000px; }
+[data-admin-services] #panel-services .admin-data-table { min-width:1240px; }
+[data-admin-services] .admin-data-table :is(th,td):first-child { min-width:110px; white-space:nowrap; }
+[data-admin-services] #panel-categories :is(th,td):nth-child(2) { min-width:230px; }
+[data-admin-services] #panel-categories :is(th,td):nth-child(3) { min-width:230px; }
+[data-admin-services] #panel-categories :is(th,td):nth-child(4) { min-width:130px; white-space:nowrap; }
+[data-admin-services] #panel-services :is(th,td):nth-child(2) { min-width:250px; }
+[data-admin-services] #panel-services :is(th,td):nth-child(3) { min-width:180px; white-space:normal; }
+[data-admin-services] #panel-services :is(th,td):nth-child(4) { min-width:140px; white-space:nowrap; }
+[data-admin-services] #panel-services :is(th,td):nth-child(5) { min-width:130px; white-space:nowrap; }
+[data-admin-services] #panel-services :is(th,td):nth-child(6) { min-width:130px; white-space:nowrap; }
+[data-admin-services] .admin-service-category-chip { max-width:100%; word-break:normal; overflow-wrap:break-word; }
+
+/* Override cell descendants in admin.css only on the Services screen. */
+[data-admin-services] .admin-data-table :is(.admin-service-name,.admin-service-description) { word-break:normal; overflow-wrap:break-word; }
+
+/* The existing service form owns the ordered procedure editor. */
+[data-steps-editor], [data-step-rows] { min-width: 0; }
+.service-step-editor-row { min-width: 0; margin: 1rem 0; padding: 1rem; border: 1px solid #E8D5C4; border-radius: 12px; }
+.service-step-editor-row label { display: grid; gap: .4rem; margin-bottom: .8rem; min-width: 0; }
+.service-step-editor-row input, .service-step-editor-row textarea { width: 100%; min-width: 0; box-sizing: border-box; }
+.service-step-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* Read-only procedure in the service View dialog. */
+.admin-service-procedure { list-style: none; margin: 0; padding: 0; min-width: 0; }
+.admin-service-procedure > li { display: flex; gap: .85rem; padding: 1rem 0; border-bottom: 1px solid #E8D5C4; }
+.admin-service-procedure > li:last-child { border-bottom: 0; }
+.admin-service-procedure-number { flex: 0 0 2rem; color: #A87845; font-variant-numeric: tabular-nums; }
+.admin-service-procedure li > div { min-width: 0; overflow-wrap: break-word; }
+.admin-service-procedure h5 { margin: 0 0 .4rem; font-size: 1rem; color: #3A2419; }
+.admin-service-procedure p { margin: 0; font-size: .9rem; line-height: 1.65; color: #756457; }
+.admin-service-procedure .admin-service-procedure-empty { color: #756457; }
+.admin-ops-facts > div:has(.admin-service-procedure) { grid-column: 1 / -1; }
+
+/* Image controls only in the service Edit dialog. */
+#service-dialog .service-upload { display:flex; flex-direction:column; gap:12px; min-width:0; }
+#service-dialog .service-upload-board { display:grid; grid-template-columns:110px minmax(0,1fr); gap:18px; align-items:center; padding:18px; border:1px solid #D9C7B2; border-radius:12px; background:#FAF7F2; }
+#service-dialog .service-upload-visual { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; min-height:130px; color:#9B7648; text-align:center; }
+#service-dialog .service-upload-visual img { width:110px; height:140px; max-width:100%; object-fit:cover; margin:0; border-radius:10px; }
+#service-dialog .service-upload [hidden] { display:none !important; }
+#service-dialog .service-upload-actions { display:flex; flex-direction:column; align-items:flex-start; gap:12px; min-width:0; }
+#service-dialog .service-upload-actions .admin-button { display:inline-flex; align-items:center; gap:8px; }
+#service-dialog .service-upload-actions svg { width:18px; height:18px; flex-shrink:0; }
+#service-dialog .service-upload-name { font-size:14px; color:#796856; overflow-wrap:anywhere; }
+#service-dialog .service-upload-actions small { color:#897768; font-size:12px; }
+#service-dialog .service-upload-clear { display:flex; align-items:center; gap:10px; font-size:14px; margin:0; }
+#service-dialog .service-upload-clear input { width:18px !important; height:18px; min-height:18px; padding:0; }
+#service-dialog input.service-upload-native { position:absolute; width:1px; height:1px; min-height:0; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); opacity:0; pointer-events:none; }
+#service-dialog .service-upload-board.is-empty { grid-template-columns:1fr; }
+@media (max-width:600px) {
+  #service-dialog .service-upload-board { grid-template-columns:90px minmax(0,1fr); gap:12px; padding:12px; }
+  #service-dialog .service-upload-visual img { height:115px; }
+  #service-dialog .service-upload-actions .admin-button { white-space:normal; text-align:left; }
+  #service-dialog .service-upload-board.is-empty { grid-template-columns:1fr; }
+}

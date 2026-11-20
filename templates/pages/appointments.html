@@ -19,10 +19,12 @@
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
 <script src="{% static 'js/live-booking.js' %}?v=appointment-review-1" defer></script>
-<link rel="stylesheet" href="{% static 'css/phase4.css' %}?v=appointment-review-1"></head>
+<link rel="stylesheet" href="{% static 'css/phase4.css' %}?v=appointment-review-1"><link rel="stylesheet" href="{% static 'css/user-catalog-polish.css' %}?v=b2-card-restore-20261120">
+</head>
   <body>
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
     <header class="site-header">
+      <span class="user-opening-hours">Giờ hoạt động: {% include "partials/user_hours.html" %}</span>
       <a class="brand" href="{% url 'core:index' as page_url %}{{ page_url|slice:'1:' }}" aria-label="An Nhiên Spa - Trang chủ">
         <img class="brand-logo" src="{% static 'images/an-nhien-logo.png' %}" alt="An Nhiên Spa" width="420" height="420"/>
       </img>
@@ -133,7 +135,7 @@
         Thứ Hai — Chủ Nhật
       </p>
       <p>
-        09:00 — 21:00
+        {% include "partials/user_hours.html" %}
       </p>
     </div>
   </div>

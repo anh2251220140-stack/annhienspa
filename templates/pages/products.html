@@ -14,17 +14,21 @@
     <script src="{% static 'js/ui.js' %}"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
+    <script src="{% static 'js/card-pagination.js' %}?v=user-five-20261120" defer></script>
     <script src="{% static 'js/app.js' %}" defer>
     </script>
-    <script src="{% static 'js/catalog-pages.js' %}" defer>
+    <script src="{% static 'js/catalog-pages.js' %}?v=user-five-20261120" defer>
     </script>
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/user-catalog-polish.css' %}?v=b2-card-restore-20261120">
+<script src="{% static 'js/product-image-fit.js' %}?v=b2-card-restore-20261120" defer></script>
 </head>
   <body>
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
     <header class="site-header">
+      <span class="user-opening-hours">Giờ hoạt động: {% include "partials/user_hours.html" %}</span>
       <a class="brand" href="{% url 'core:index' as page_url %}{{ page_url|slice:'1:' }}" aria-label="An Nhiên Spa - Trang chủ">
         <img class="brand-logo" src="{% static 'images/an-nhien-logo.png' %}" alt="An Nhiên Spa" width="420" height="420"/>
       </a>
@@ -376,7 +380,7 @@
             Thứ Hai — Chủ Nhật
           </p>
           <p>
-            09:00 — 21:00
+            {% include "partials/user_hours.html" %}
           </p>
         </div>
       </div>

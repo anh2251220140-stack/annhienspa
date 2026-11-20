@@ -9,7 +9,7 @@
       Massage đá nóng | An Nhiên Spa
     </title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+    <link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=service-steps-20261119">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
     <link rel="stylesheet" href="{% static 'css/service-reviews.css' %}?v=review-layout-1">
     <script src="{% static 'js/ui.js' %}?v=appointment-code-1">
@@ -19,15 +19,17 @@
     </script>
     <script src="{% static 'js/app.js' %}" defer>
     </script>
-    <script src="{% static 'js/catalog-pages.js' %}?v=review-editor-1" defer>
+    <script src="{% static 'js/catalog-pages.js' %}?v=service-steps-json-20261119" defer>
     </script>
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
-<script src="{% static 'js/phase4-api.js' %}" defer></script><script src="{% static 'js/live-service-reviews.js' %}?v=review-layout-1" defer></script></head>
+<script src="{% static 'js/phase4-api.js' %}" defer></script><script src="{% static 'js/live-service-reviews.js' %}?v=review-layout-1" defer></script><link rel="stylesheet" href="{% static 'css/user-catalog-polish.css' %}?v=b2-card-restore-20261120">
+</head>
   <body>
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
     <header class="site-header">
+      <span class="user-opening-hours">Giờ hoạt động: {% include "partials/user_hours.html" %}</span>
       <a class="brand" href="{% url 'core:index' as page_url %}{{ page_url|slice:'1:' }}" aria-label="An Nhiên Spa - Trang chủ">
         <img class="brand-logo" src="{% static 'images/an-nhien-logo.png' %}" alt="An Nhiên Spa" width="420" height="420"/>
       </a>
@@ -231,7 +233,7 @@
             </ul>
           </section>
         </div>
-        <section class="ritual-process">
+        <section class="ritual-process" hidden>
           <div class="ritual-heading">
             <span class="eyebrow">
               02 / MỘT NGHI THỨC CHĂM SÓC
@@ -239,64 +241,11 @@
             <h2>
               Quy trình thực hiện
               <em>
-                cơ bản
+                liệu trình
               </em>
             </h2>
           </div>
-          <ol class="ritual-timeline" data-list="steps">
-            <li>
-              <span class="step-number">
-                01
-              </span>
-              <div>
-                <h3>
-                  Lắng nghe nhu cầu
-                </h3>
-                <p>
-                  Lắng nghe nhu cầu và kiểm tra tình trạng da.
-                </p>
-              </div>
-            </li>
-            <li>
-              <span class="step-number">
-                02
-              </span>
-              <div>
-                <h3>
-                  Chuẩn bị
-                </h3>
-                <p>
-                  Làm sạch nhẹ nhàng trước liệu trình.
-                </p>
-              </div>
-            </li>
-            <li>
-              <span class="step-number">
-                03
-              </span>
-              <div>
-                <h3>
-                  Thực hiện liệu trình
-                </h3>
-                <p>
-                  Thực hiện chăm sóc và massage theo nhu cầu.
-                </p>
-              </div>
-            </li>
-            <li>
-              <span class="step-number">
-                04
-              </span>
-              <div>
-                <h3>
-                  Hoàn thiện
-                </h3>
-                <p>
-                  Hoàn thiện dưỡng ẩm và gợi ý chăm sóc tại nhà.
-                </p>
-              </div>
-            </li>
-          </ol>
+          <ol class="ritual-timeline" data-list="steps"></ol>
         </section>
         <div class="guidance-grid">
           <section class="guidance-card">
@@ -450,7 +399,7 @@
             Thứ Hai — Chủ Nhật
           </p>
           <p>
-            09:00 — 21:00
+            {% include "partials/user_hours.html" %}
           </p>
         </div>
       </div>

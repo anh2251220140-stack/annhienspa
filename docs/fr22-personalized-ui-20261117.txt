@@ -1,0 +1,10 @@
+PASS page load and fresh reload do not POST
+PASS AI mode uses actual UI renderer and product links
+PASS fallback label stays rule, not AI
+PASS cooldown API error is shown without fabricated results
+PASS empty eligible list is displayed without service or product fabrication
+PASS provider reason markup is escaped
+PASS alternatives exclude all main suggestions and duplicate alternatives
+PASS unrelated catalog product is not displayed without backend approval
+PASS product constituents and images are taken from approved catalog data
+9 PASS, 0 FAIL

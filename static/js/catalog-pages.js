@@ -52,6 +52,7 @@
         .flatMap((item) => [...item.skins, ...item.audiences])
         .filter((value) => value !== "Không áp dụng"));
     }
+    const pager = window.spaCardPager(grid, isService ? "dịch vụ" : "sản phẩm", () => render());
     const render = () => {
       const query = normalize(form.elements.search.value);
       const category = form.elements.category.value;
@@ -62,22 +63,24 @@
         (!suitable || [...item.skins, ...item.audiences].includes(suitable)));
       if (isService) {
         const sort = form.elements.sort.value;
+        if (sort === "default") items.sort((a, b) => a.id - b.id);
         if (sort === "price-asc") items.sort((a, b) => a.priceValue - b.priceValue);
         if (sort === "price-desc") items.sort((a, b) => b.priceValue - a.priceValue);
         if (sort === "duration") items.sort((a, b) => a.minutes - b.minutes);
       }
-      grid.innerHTML = items.map(isService ? serviceCard : productCard).join("");
+      grid.innerHTML = pager.slice(items).map(isService ? serviceCard : productCard).join("");
       empty.hidden = items.length > 0;
       main.querySelector("[data-result-count]").textContent =
         `${items.length} ${isService ? "liệu trình" : "gợi ý chăm sóc"} dành cho bạn`;
     };
     form.addEventListener("submit", (event) => event.preventDefault());
-    form.addEventListener("input", render);
-    form.addEventListener("change", render);
+    const filterChanged = () => { pager.reset(); render(); };
+    form.addEventListener("input", filterChanged);
+    form.addEventListener("change", filterChanged);
     main.querySelectorAll("[data-reset]").forEach((button) => {
       button.addEventListener("click", () => {
         form.reset();
-        render();
+        pager.reset(); render();
         form.elements.search.focus();
       });
     });
@@ -132,17 +135,31 @@
       : item.careGroup === "face"
         ? ["Làm sạch & cấp ẩm", "Nâng niu làn da", "Một khoảng nghỉ"]
         : ["Thư giãn cơ thể", "Nuôi dưỡng làn da", "Cân bằng cảm xúc"];
-    const stepTitles = item.careGroup === "hair"
-      ? ["Lắng nghe nhu cầu", "Làm sạch tóc", "Ủ dưỡng & thư giãn", "Hoàn thiện"]
-      : ["Lắng nghe nhu cầu", "Chuẩn bị", "Thực hiện liệu trình", "Hoàn thiện"];
+    const steps = (Array.isArray(item.steps) ? item.steps : [item.steps])
+      .flatMap((value) => {
+        if (typeof value === "string") {
+          return value.split(/\r\n?|\n/u)
+            .map((text) => text.trim().replace(/^(?:bước\s*\d+\s*[:.)-]?\s*|\d+[.)]\s*(?!\d))/iu, "").trim())
+            .filter(Boolean).map((title) => ({title, description: ""}));
+        }
+        if (value && typeof value.title === "string" && value.title.trim()
+            && typeof value.description === "string") {
+          return [{title: value.title.trim(), description: value.description.trim()}];
+        }
+        return [];
+      });
     main.querySelectorAll("[data-list]").forEach((node) => {
-      node.replaceChildren(...item[node.dataset.list].map((text, index) => {
+      const values = node.dataset.list === "steps" ? steps : item[node.dataset.list];
+      node.replaceChildren(...values.map((text, index) => {
         const li = document.createElement("li");
         li.innerHTML = node.dataset.list === "benefits"
           ? `${window.spaIcon(["leaf", "droplet", "heart"][index % 3])}<div><h3>${escape(benefitTitles[index] || "Chăm sóc tận tâm")}</h3><p>${escape(text)}</p></div>`
-          : `<span class="step-number">${String(index + 1).padStart(2, "0")}</span><div><h3>${escape(stepTitles[index] || "Chăm sóc")}</h3><p>${escape(text)}</p></div>`;
+          : `<span class="step-number">${String(index + 1).padStart(2, "0")}</span><div><h3>${escape(text.title)}</h3>${text.description ? `<p>${escape(text.description)}</p>` : ""}</div>`;
         return li;
       }));
+      if (node.dataset.list === "steps") {
+        node.closest(".ritual-process").toggleAttribute("hidden", node.childElementCount === 0);
+      }
     });
     const specialists = active(catalog.staff).filter((person) => person.serviceIds.includes(item.id));
     main.querySelector("[data-staff]").innerHTML = specialists.length

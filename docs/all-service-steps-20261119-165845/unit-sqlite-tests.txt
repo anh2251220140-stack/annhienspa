@@ -1,0 +1,17 @@
+test_completion_title_only_at_end (core.test_service_steps_json.ServiceStepsAdminTests.test_completion_title_only_at_end) ... ok
+test_empty_steps_save_as_empty_array (core.test_service_steps_json.ServiceStepsAdminTests.test_empty_steps_save_as_empty_array) ... ok
+test_reject_partial_malformed_and_legacy_on_write (core.test_service_steps_json.ServiceStepsAdminTests.test_reject_partial_malformed_and_legacy_on_write) ... ok
+test_structured_steps_variable_counts (core.test_service_steps_json.ServiceStepsAdminTests.test_structured_steps_variable_counts) ... ok
+test_admin_textfield_preserves_structured_data (core.test_service_steps_json.ServiceStepsJSONTests.test_admin_textfield_preserves_structured_data) ... ok
+test_empty_steps (core.test_service_steps_json.ServiceStepsJSONTests.test_empty_steps) ... ok
+test_invalid_or_unknown_json_does_not_discard_legacy_text (core.test_service_steps_json.ServiceStepsJSONTests.test_invalid_or_unknown_json_does_not_discard_legacy_text) ... ok
+test_legacy_lines_keep_existing_values (core.test_service_steps_json.ServiceStepsJSONTests.test_legacy_lines_keep_existing_values) ... ok
+test_no_step_count_cap (core.test_service_steps_json.ServiceStepsJSONTests.test_no_step_count_cap) ... ok
+test_public_catalog_reads_json_and_legacy_without_mutating_models (core.test_service_steps_json.ServiceStepsJSONTests.test_public_catalog_reads_json_and_legacy_without_mutating_models) ... ok
+test_structured_title_description_and_order (core.test_service_steps_json.ServiceStepsJSONTests.test_structured_title_description_and_order) ... ok
+test_admin_create_edit_roundtrip_and_invalid_post (core.test_service_steps_json.ServiceStepsSQLiteTests.test_admin_create_edit_roundtrip_and_invalid_post) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.527s
+
+OK

@@ -1,0 +1,15 @@
+test_launcher_observes_sdk_error_before_public_boundary_sanitizes_it (ai_features.test_gemini.GeminiDeadlineTests.test_launcher_observes_sdk_error_before_public_boundary_sanitizes_it) ... ERROR
+
+======================================================================
+ERROR: test_launcher_observes_sdk_error_before_public_boundary_sanitizes_it (ai_features.test_gemini.GeminiDeadlineTests.test_launcher_observes_sdk_error_before_public_boundary_sanitizes_it)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Redesign An Nhi�n Spa Home\ai_features\test_gemini.py", line 114, in test_launcher_observes_sdk_error_before_public_boundary_sanitizes_it
+    self.assertEqual(budget.diagnostics[0]["http_status"], 400)
+                     ~~~~~~~~~~~~~~~~~~^^^
+IndexError: list index out of range
+
+----------------------------------------------------------------------
+Ran 1 test in 0.579s
+
+FAILED (errors=1)

@@ -1,0 +1,47 @@
+/* User display only; selectors deliberately exclude Admin and AI results. */
+.site-header { position: relative; height: auto; min-height: 100px; padding-top: 8px; padding-bottom: 25px; }
+.user-opening-hours { position: absolute; right: 5%; bottom: 6px; color: #C6A07E; font-size: 10px; line-height: 1.5; white-space: nowrap; }
+.catalog-pagination { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; margin: 30px 0 0; }
+.catalog-pagination[hidden] { display: none; }
+.catalog-pagination span { font-size: 12px; color: #C6A07E; }
+.catalog-pagination button { min-height: 44px; }
+.catalog-pagination button:disabled { opacity: .4; cursor: default; }
+/* B2 card families remain separate: photo-overlay services and ivory products.
+   Their approved rules stay in style.css/catalog.css/home-*.css. */
+[data-catalog-list] [data-catalog-grid] { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: stretch; }
+[data-catalog-list="products"] .product-image { background: #fff; }
+[data-catalog-list="products"] .product-image img { width: 100%; height: 100%; padding: 0; object-fit: contain; object-position: center; transform: scale(var(--product-image-scale, 1)); transition: none; }
+[data-catalog-list="products"] .product-info { min-width: 0; }
+[data-catalog-list="products"] .product-info h3 { overflow-wrap: break-word; }
+.home-page .card-grid { align-items: stretch; }
+.home-page .product-card { display: flex; flex-direction: column; }
+.home-page .product-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+/* Three-line Home descriptions; flexible space stays above the summary. */
+.home-page .product-info > p:not(.product-suitable) { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; line-height: 1.85; height: 5.55em; min-height: 5.55em; max-height: 5.55em; flex: none; margin-top: auto; margin-bottom: 0; }
+.home-page .product-info .text-link { margin-top: 16px; }
+.home-page .product-image img { object-fit: contain; transform: none; }
+.home-page .service-card, .home-page .product-card { min-width: 0; }
+[data-catalog-detail="product"] .catalog-detail-hero { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; align-items: stretch; }
+[data-catalog-detail="product"] .detail-photo { display: flex; align-items: center; background: #eadacc; border-radius: 24px; min-width: 0; min-height: 480px; }
+[data-catalog-detail="product"] .detail-photo > img { position: absolute; inset: 0; width: 100%; height: calc(100% - 24px); padding: 0; box-sizing: border-box; object-fit: contain; object-position: center; transform: scale(var(--product-image-scale, 1)); }
+[data-catalog-detail="product"] .care-facts dt { font-size: 9px; font-weight: 400; line-height: 1.5; margin-bottom: 8px; }
+[data-catalog-detail="product"] .care-facts :is(dd, .fact-description) { font-family: var(--font-heading); font-size: clamp(16px, 1.35vw, 19px); font-weight: 400; line-height: 1.5; margin: 0; min-width: 0; white-space: normal; overflow-wrap: break-word; }
+[data-catalog-detail="product"] .detail-summary { min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+[data-catalog-detail="product"] :is(.care-facts, .guidance-grid, .product-ritual) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: stretch; }
+[data-catalog-detail="product"] :is(.ingredient-section, .usage-section, .guidance-card) { min-width: 0; padding: 28px; border: 1px solid #c6a07e38; border-radius: 22px; background: #32201655; }
+[data-catalog-detail="product"] .ritual-heading { margin-bottom: 24px; }
+[data-catalog-detail="product"] :is(.ingredient-grid, .usage-timeline) { margin: 0; gap: 20px; }
+[data-catalog-detail="product"] :is(p, dd, h1, h2, h3) { overflow-wrap: break-word; }
+@media (max-width: 900px) {
+  [data-catalog-list] [data-catalog-grid] { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .site-header .navigation { top: 100%; }
+}
+@media (max-width: 650px) {
+  [data-catalog-detail="product"] :is(.catalog-detail-hero, .guidance-grid, .product-ritual) { grid-template-columns: minmax(0, 1fr); }
+  [data-catalog-detail="product"] .detail-photo { min-height: 340px; }
+  [data-catalog-detail="product"] :is(.ingredient-section, .usage-section, .guidance-card) { padding: 24px; }
+  .catalog-pagination { gap: 10px; }
+}
+@media (max-width: 600px) {
+  [data-catalog-list] [data-catalog-grid] { grid-template-columns: minmax(0, 1fr); }
+}

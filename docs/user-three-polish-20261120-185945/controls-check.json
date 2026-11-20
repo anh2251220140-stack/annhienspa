@@ -1,0 +1,17 @@
+[
+  {
+    "template": "index.html",
+    "links_forms_controls": "UNCHANGED",
+    "count": 25
+  },
+  {
+    "template": "home.html",
+    "links_forms_controls": "UNCHANGED",
+    "count": 29
+  },
+  {
+    "template": "product-detail.html",
+    "links_forms_controls": "UNCHANGED",
+    "count": 20
+  }
+]

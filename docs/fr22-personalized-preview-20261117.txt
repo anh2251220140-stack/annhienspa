@@ -1,0 +1,19 @@
+test_alternatives_never_duplicate_selected_services (tools.test_fr22_browser.BrowserEnvironmentTests.test_alternatives_never_duplicate_selected_services) ... ok
+test_cookie_names_are_distinct_and_real_network_is_blocked (tools.test_fr22_browser.BrowserEnvironmentTests.test_cookie_names_are_distinct_and_real_network_is_blocked) ... ok
+test_csrf_and_cooldown_stay_active (tools.test_fr22_browser.BrowserEnvironmentTests.test_csrf_and_cooldown_stay_active) ... Forbidden (CSRF token missing.): /api/ai/recommendations/
+Too Many Requests: /api/ai/recommendations/
+ok
+test_no_matching_budget_does_not_call_sdk (tools.test_fr22_browser.BrowserEnvironmentTests.test_no_matching_budget_does_not_call_sdk) ... ok
+test_page_get_and_reload_do_not_call_sdk (tools.test_fr22_browser.BrowserEnvironmentTests.test_page_get_and_reload_do_not_call_sdk) ... ok
+test_real_template_and_api_ai_mode_persist (tools.test_fr22_browser.BrowserEnvironmentTests.test_real_template_and_api_ai_mode_persist) ... ok
+test_schema_is_sqlite_without_migration_history_and_catalog_is_seven (tools.test_fr22_browser.BrowserEnvironmentTests.test_schema_is_sqlite_without_migration_history_and_catalog_is_seven) ... ok
+test_sensitive_skin_blocks_known_caution_and_only_verified_product_links (tools.test_fr22_browser.BrowserEnvironmentTests.test_sensitive_skin_blocks_known_caution_and_only_verified_product_links) ... ok
+test_three_profiles_personalize_real_api_and_export_only_own_history (tools.test_fr22_browser.BrowserEnvironmentTests.test_three_profiles_personalize_real_api_and_export_only_own_history) ... ok
+test_timeout_and_quota_and_invalid_json_are_rule_not_ai (tools.test_fr22_browser.BrowserEnvironmentTests.test_timeout_and_quota_and_invalid_json_are_rule_not_ai) ... ok
+test_unknown_mock_target_cannot_reach_network (tools.test_fr22_browser.BrowserEnvironmentTests.test_unknown_mock_target_cannot_reach_network) ... ok
+test_unlinked_service_has_no_product_recommendation (tools.test_fr22_browser.BrowserEnvironmentTests.test_unlinked_service_has_no_product_recommendation) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 16.005s
+
+OK

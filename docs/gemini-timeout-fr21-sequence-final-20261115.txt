@@ -1,0 +1,6 @@
+test_actual_fr21_mock_wire_sequence_has_legal_deadlines_within_total (ai_features.test_gemini.GeminiDeadlineTests.test_actual_fr21_mock_wire_sequence_has_legal_deadlines_within_total) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.962s
+
+OK
