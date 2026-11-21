@@ -40,6 +40,11 @@ DATABASES = {"default": {
     "HOST": os.getenv("MYSQL_HOST", "127.0.0.1"), "PORT": os.getenv("MYSQL_PORT", "3306"),
     "OPTIONS": {"charset": "utf8mb4", "init_command": "SET sql_mode='STRICT_TRANS_TABLES'", "connect_timeout": 5},
 }}
+# Docker changes only the transport address. Preserve HOST from the Windows .env
+# so the same physical database retains its existing RAG namespace.
+docker_mysql_host = os.getenv("DOCKER_MYSQL_CONNECT_HOST")
+if docker_mysql_host:
+    DATABASES["default"]["OPTIONS"]["host"] = docker_mysql_host
 AUTH_PASSWORD_VALIDATORS = [{"NAME": "django.contrib.auth.password_validation." + name} for name in [
     "UserAttributeSimilarityValidator", "MinimumLengthValidator", "CommonPasswordValidator", "NumericPasswordValidator"]]
 LANGUAGE_CODE = "vi"
@@ -54,6 +59,8 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 # Explicitly opt in on the local development machine only.
 LOCAL_MEDIA_ENABLED = os.getenv("DJANGO_LOCAL_MEDIA_ENABLED", "false").lower() == "true"
+# Opt-in Docker route; direct Windows/local media behavior remains unchanged.
+DOCKER_MEDIA_ENABLED = os.getenv("DJANGO_DOCKER_MEDIA_ENABLED", "false").lower() == "true"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"

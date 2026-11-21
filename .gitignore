@@ -45,24 +45,21 @@ node_modules/
 .figaro/
 .figma/
 
-# Database exports
+# Database exports and local credential files
+*.cnf
+.rag-index/
+.openai-test/
+.gemini-test/
+!.env.docker.example
+*.sqlite3-*
+*.backup_*
+*.before_*
 *.sql
 *.sql.gz
 *.dump
 *.bak
 *.sqlite3
-
-# Private keys
 *.pem
 *.key
 *.p12
 *.pfx
-# Database exports and local credential files
-*.sql
-*.sql.gz
-*.cnf
-*.pem
-*.key
-.rag-index/
-.openai-test/
-.gemini-test/
