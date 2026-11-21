@@ -53,6 +53,22 @@ class CatalogRetriever:
     """Small lexical retrieval adapter. It reads only public fields from the live catalog."""
 
     def retrieve(self, question, *, limit=3):
+        from .catalog_queries import booking_guidance
+        q = f" {normalize(question)} "
+        if any(x in q for x in (" huy lich ", " thanh toan ", " chan doan ", " chua benh ", " dieu tri benh ")) or (
+                " dat lich " in q and not booking_guidance(question)):
+            return []
+        if is_service_list_question(question):
+            return [Source("service", s.pk, s.name,
+                           f"{s.name}: {money(s.price)} · {s.duration_minutes} phút.")
+                    for s in Service.objects.filter(is_active=True, category__is_active=True).order_by("pk")[:limit]]
+        from .rag import public_documents
+        from .catalog_queries import routed_documents
+        documents = public_documents()
+        routed = routed_documents(question, documents)
+        if routed is not None:
+            return [Source(d.source_type, d.object_id, d.name, d.text[:2000], d.digest)
+                    for d in routed[:limit]]
         query = f" {normalize(question)} "
         # This release only returns catalog facts for recognized questions.
         if any(term in query for term in (" dat lich ", " huy lich ", " thanh toan ", " chan doan ",

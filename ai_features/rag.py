@@ -24,7 +24,7 @@ from .config import enabled, option, remaining
 from .integration import ProviderUnavailable
 from .provider_factory import embedding_identity, embedding_provider
 from .providers import Source, normalize
-from .chat_intents import is_service_list_question, is_service_request_question, service_query_terms
+from .chat_intents import is_service_list_question
 
 
 @dataclass(frozen=True)
@@ -65,12 +65,19 @@ def public_documents():
                 f"Giảm tối đa: {money(p.max_discount) if p.max_discount is not None else 'không cấu hình'}. "
                 f"Lượt/khách: {p.per_customer_limit or 'không cấu hình'}. "
                 f"Dịch vụ: {', '.join(s.name for s in p.services.all()) or 'theo phạm vi chương trình'}. "
-                f"{p.description or ''} {p.conditions} {p.note} {p.scope_note}. "
+                f"{p.description or ''} {p.detail} {p.conditions} {p.note} {p.scope_note}. "
                 "Khả năng áp dụng thực tế phải được hệ thống hóa đơn kiểm tra; không bảo đảm đủ điều kiện.")
         result.append(Document("promotion", p.pk, f"{p.code} · {p.name}", text))
     info = str(option("AI_CHAT_SPA_INFORMATION", "")).strip()
     if info:
         result.append(Document("spa", "information", "Thông tin Spa", info))
+    else:
+        from .catalog_queries import website_information
+        result.append(Document("spa", "information", "Thông tin Spa trên website", website_information()))
+    result.append(Document("spa", "booking", "Hướng dẫn đặt lịch trên website",
+        "Đăng nhập tài khoản khách hàng, mở trang booking.html hoặc chọn Đặt lịch tại dịch vụ. "
+        "Chọn dịch vụ, nhân viên, ngày và khung giờ còn trống, kiểm tra thông tin rồi gửi yêu cầu đặt lịch. "
+        "Theo dõi trạng thái tại Lịch hẹn của tôi. Chatbot chỉ hướng dẫn, không tự đặt, hủy lịch hoặc thanh toán."))
     # Only an explicitly configured, reviewed local JSON file is imported, never arbitrary uploads/URLs.
     approved = option("AI_RAG_APPROVED_DOCUMENTS", "")
     if approved:
@@ -224,7 +231,9 @@ class VectorIndex:
 class RAGRetriever:
     def retrieve(self, question, *, limit=5):
         q = f" {normalize(question)} "
-        if any(x in q for x in (" dat lich ", " huy lich ", " thanh toan ", " chan doan ", " chua benh ", " dieu tri benh ")):
+        from .catalog_queries import booking_guidance
+        if any(x in q for x in (" huy lich ", " thanh toan ", " chan doan ", " chua benh ", " dieu tri benh ")) or (
+                " dat lich " in q and not booking_guidance(question)):
             return []
         documents = public_documents()
         if is_service_list_question(question):
@@ -233,26 +242,16 @@ class RAGRetriever:
             services = [d for d in documents.values() if d.source_type == "service"]
             return [Source(d.source_type, d.object_id, d.name, d.text[:2000], d.digest)
                     for d in services[:min(5, max(3, limit))]]
-        if is_service_request_question(question):
-            terms = service_query_terms(question)
-            matched = [
-                d for d in documents.values()
-                if d.source_type == "service"
-                and bool(terms)
-                and terms.issubset(set(normalize(d.name).split()))
-            ]
-            return [
-                Source(d.source_type, d.object_id, d.name, d.text[:2000], d.digest)
-                for d in matched[:min(5, max(3, limit))]
-            ]
+        from .catalog_queries import routed_documents
+        routed = routed_documents(question, documents)
+        if routed is not None:
+            # Dynamic facts never need query embeddings or an index rebuild.
+            return [Source(d.source_type, d.object_id, d.name, d.text[:2000], d.digest)
+                    for d in routed[:min(5, max(3, limit))]]
 
         # Exact catalog matches avoid unnecessary remote query embeddings.
         exact = []
         query_tokens = set(q.split())
-        ignored = {
-            "ma", "giam", "bao", "nhieu", "co",
-            "dieu", "kien", "gi", "khuyen", "mai"
-        }
         for d in documents.values():
             keys = [
                 normalize(d.name),
@@ -261,10 +260,7 @@ class RAGRetriever:
             name_match = any(k and f" {k} " in q for k in keys)
             code_match = (
                 d.source_type == "promotion"
-                and bool(
-                    (query_tokens - ignored)
-                    & set(normalize(d.text).split())
-                )
+                and normalize(d.name.split(" · ")[0]) in query_tokens
             )
             if name_match or code_match:
                 exact.append(Source(

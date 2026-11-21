@@ -86,21 +86,21 @@ class ServiceListingTests(TestCase):
         def add(name):
             return Service.objects.create(
                 category=self.category, name=name,
-                description="D?ch v? ki?m th?",
+                description="Dịch vụ kiểm thử",
                 price=200000, duration_minutes=60,
             )
 
-        basic = add("Ch?m s?c da m?t c? b?n")
-        deep = add("Ch?m s?c da m?t chuy?n s?u c?p ?m")
-        add("Ch?m s?c b?n ch?n th? gi?n")
-        add("Ch?m s?c da tay v? d??ng m?ng c? b?n")
-        add("Massage ?? n?ng th? gi?n to?n th?n")
+        basic = add("Chăm sóc da mặt cơ bản")
+        deep = add("Chăm sóc da mặt chuyên sâu cấp ẩm")
+        add("Chăm sóc bàn chân thư giãn")
+        add("Chăm sóc da tay và dưỡng móng cơ bản")
+        add("Massage đá nóng thư giãn toàn thân")
 
         cases = [
-            ("T?i mu?n t?m hi?u d?ch v? ch?m s?c da m?t t?i An Nhi?n Spa.",
+            ("Tôi muốn tìm hiểu dịch vụ chăm sóc da mặt tại An Nhiên Spa.",
              [basic.pk, deep.pk]),
-            ("T?i mu?n ch?m s?c da m?t.", [basic.pk, deep.pk]),
-            ("T?i mu?n c?p ?m da m?t.", [deep.pk]),
+            ("Tôi muốn chăm sóc da mặt.", [basic.pk, deep.pk]),
+            ("Tôi muốn cấp ẩm da mặt.", [deep.pk]),
         ]
 
         for question, expected_ids in cases:

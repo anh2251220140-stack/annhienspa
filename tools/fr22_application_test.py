@@ -136,7 +136,7 @@ def application_check(fixture, budget):
             raise SafetyStop("Recommendation violates synthetic policy")
     record = AIRecommendation.objects.get(customer=fixture.customer)
     saved = json.loads(record.reason)
-    if saved != {"mode": "ai", "items": rows} or record.recommended_services != [r["id"] for r in rows]:
+    if saved != {"mode": "ai", "items": rows, "diagnostics": {"code": "AI_RECOMMENDATION_VALIDATED"}} or record.recommended_services != [r["id"] for r in rows]:
         raise SafetyStop("Recommendation persistence mismatch")
     restored = client.get(f"{READ_URL}{record.pk}/")
     if restored.status_code != 200 or restored.json() != saved:

@@ -1088,11 +1088,11 @@
         <p>Bạn chọn ${escape(skin || "chưa xác định loại da")}, ưu tiên ${escape((needsLabels[needs] || "khám phá liệu trình").toLocaleLowerCase("vi"))},
           ${Number.isFinite(budget) ? `ngân sách tối đa ${money(budget)}` : "chưa đặt giới hạn ngân sách"} và ${escape(durationLabels[duration] || "không giới hạn thời lượng")}.</p>
         <p>Ngân sách áp dụng cho từng liệu trình, không phải tổng giá của một gói nhiều dịch vụ.</p><ul class="recommendation-chips">${chips.map((chip) => `<li title="${escape(chip)}">${escape(chip)}</li>`).join("")}</ul></section>
-        <section><h2>Liệu trình gợi ý</h2><div class="catalog-grid">${services.map(({ item, hits, reason }, index) => {
-          return `<article class="review-surface" data-recommended-service="${item.id}"><span class="eyebrow">#${index + 1} ${["Phù hợp nhất", "Lựa chọn thay thế", "Có thể cân nhắc"][index]}</span><h3>${escape(item.name)}</h3>
+        <section class="fr22-section"><h2>Liệu trình gợi ý</h2><div class="fr22-grid fr22-services">${services.map(({ item, hits, reason }, index) => {
+          return `<article class="review-surface fr22-service" data-recommended-service="${item.id}"><span class="eyebrow">#${index + 1} ${["Phù hợp nhất", "Lựa chọn thay thế", "Có thể cân nhắc"][index] || "Có thể cân nhắc"}</span><h3>${escape(item.name)}</h3>
           <p class="recommendation-meta">${escape(item.price)} · ${escape(item.duration)}</p><p>${escape(item.description)}</p>
-          <p>Vì sao phù hợp với bạn</p><ul class="recommendation-reasons"><li>${escape(reason)}</li></ul>
-          <p>Điểm khớp</p><dl class="recommendation-matches"><dt>Nhu cầu</dt><dd>${needs ? needMatch(item) === 1 ? "Đúng nhóm đã chọn" : "Cùng định hướng thư giãn" : "Chưa chọn cụ thể"}</dd>
+          <p class="fr22-label">Vì sao phù hợp với bạn</p><ul class="recommendation-reasons"><li>${escape(reason)}</li></ul>
+          <p class="fr22-label">Điểm khớp</p><dl class="recommendation-matches"><dt>Nhu cầu</dt><dd>${needs ? needMatch(item) === 1 ? "Đúng nhóm đã chọn" : "Cùng định hướng thư giãn" : "Chưa chọn cụ thể"}</dd>
             <dt>Loại da</dt><dd>${skin ? skinServices.has(item.id) ? "Có chăm sóc liên quan phù hợp" : "Chưa có dữ liệu đối chiếu" : "Chưa xác định"}</dd>
             <dt>Ngân sách</dt><dd>${escape(item.price)}${Number.isFinite(budget) ? ` / ${money(budget)}` : " · Chưa giới hạn"}</dd>
             <dt>Thời lượng</dt><dd>${escape(item.duration)}${duration ? durationMatch(item) ? " · Khớp mong muốn" : " · Khác mong muốn" : ""}</dd>
@@ -1100,15 +1100,19 @@
           <p class="review-note">${escape(suggested.items.find(row => row.id === item.id)?.caution || "Chưa đủ thông tin xác nhận phù hợp y khoa; trao đổi với chuyên viên.")}</p><div class="review-actions"><a class="button small" href="service-detail.html?id=${item.id}">Xem chi tiết</a><a class="button filled small" href="booking.html?service=${item.id}">Đặt lịch</a></div></article>`
         }).join("")}</div>
         ${services.length ? "" : `<p>Chưa có liệu trình cùng nhu cầu trong ngân sách này.${Number.isFinite(minimumPrice) && Number.isFinite(budget) ? ` Giá thấp nhất cùng nhu cầu là ${money(minimumPrice)}, cao hơn ngân sách ${money(budget)}.` : ""} Bạn có thể điều chỉnh lựa chọn hoặc liên hệ Spa; hệ thống không tự thêm dịch vụ vượt ngân sách.</p>`}</section>
-        ${alternatives.length ? `<section><h2>Bạn cũng có thể cân nhắc</h2><p>Các phương án khác qua bộ lọc Django; không thuộc danh sách đề xuất chính.</p><ul class="recommendation-alternatives">${alternatives.map(item =>
+        ${alternatives.length ? `<section class="fr22-section fr22-alternatives"><h2>Bạn cũng có thể cân nhắc</h2><p>Các phương án khác qua bộ lọc Django; không thuộc danh sách đề xuất chính.</p><ul class="recommendation-alternatives">${alternatives.map(item =>
           `<li><a href="service-detail.html?id=${item.id}">${escape(item.name)}</a> · ${escape(money(Number(item.price)))} · ${escape(item.minutes)} phút</li>`).join("")}</ul></section>` : ""}
-        <section><h2>Chăm sóc sau liệu trình</h2><div class="catalog-grid">${care.map(item => `<article class="review-surface" data-recommended-product="${item.id}">
-          ${item.image ? `<img class="recommendation-product-image" src="${escape(item.image)}" alt="${escape(item.name)}" loading="lazy">` : ""}<span class="eyebrow">${escape(item.category)}</span><h3>${escape(item.name)}</h3>
-          <p class="recommendation-meta">Giá: theo thông tin trong mô tả; nếu chưa có, vui lòng hỏi Spa.</p><p>${escape(item.description)}</p>
+        <section class="fr22-section"><h2>Chăm sóc sau liệu trình</h2><div class="fr22-grid fr22-products">${care.map(item => `<article class="review-surface fr22-product" data-recommended-product="${item.id}">
+          ${item.image ? `<div class="fr22-product-media"><img class="recommendation-product-image" src="${escape(item.image)}" alt="${escape(item.name)}" loading="lazy"></div>` : ""}<div class="fr22-product-body"><span class="eyebrow">${escape(item.category)}</span><h3>${escape(item.name)}</h3>
+          ${item.brand ? `<p class="fr22-label">${escape(item.brand)}</p>` : ""}
+          ${item.price !== null && item.price !== undefined && String(item.price).trim() !== "" && Number.isFinite(Number(item.price)) && Number(item.price) >= 0 ? `<p class="recommendation-meta">${escape(money(Number(item.price)))}</p>` : `<p class="review-note">Giá: theo thông tin trong mô tả; nếu chưa có, vui lòng hỏi Spa.</p>`}
+          <p class="fr22-product-intro">${escape(item.description)}</p>
+          <p class="fr22-product-intro"><strong>Công dụng theo danh mục:</strong> ${escape(Array.isArray(item.benefits) ? item.benefits.join(" ") : item.benefits || "Chưa có thông tin.")}</p>
+          <details class="fr22-product-details"><summary>Giới thiệu & thông tin chăm sóc</summary><p>${escape(item.description)}</p>
           <p><strong>Công dụng theo danh mục:</strong> ${escape(Array.isArray(item.benefits) ? item.benefits.join(" ") : item.benefits || "Chưa có thông tin.")}</p>
-          <p><strong>Thành phần:</strong> ${escape(item.ingredients || "Chưa có dữ liệu thành phần; không suy đoán.")}</p>
+          <p><strong>Thành phần:</strong> ${escape(item.ingredients || "Chưa có dữ liệu thành phần; không suy đoán.")}</p></details>
           <p class="review-note">${escape(item.note || "Chỉ đối chiếu dịch vụ liên kết và loại da; không xác nhận phù hợp y khoa.")}</p>
-          <div class="review-actions"><a class="button small" href="product-detail.html?id=${item.id}">Xem chi tiết</a></div></article>`).join("")}</div>
+          <div class="review-actions"><a class="button small" href="product-detail.html?id=${item.id}">Xem chi tiết</a></div></div></article>`).join("")}</div>
         ${care.length ? "" : "<p>Chưa có sản phẩm liên kết phù hợp với các liệu trình và loại da đã chọn.</p>"}</section>
         <section data-recommendation-basis><h2>Cơ sở đề xuất</h2><p>Gợi ý được tạo từ loại da, nhu cầu chăm sóc, ngân sách, sở thích, thời lượng mong muốn và dữ liệu dịch vụ/sản phẩm của An Nhiên.</p>
           <p>Loại da được đối chiếu qua sản phẩm liên kết, không phải chẩn đoán hoặc xác nhận phù hợp y khoa.</p>

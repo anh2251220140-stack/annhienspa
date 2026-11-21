@@ -114,7 +114,7 @@ def linked_care_products(service, skin):
 
 
 def recommend(customer, data):
-    from .numeric_grounding import claims, numeric_claims_supported
+    from .recommendation_grounding import check_recommendation_numbers
     inputs = profile_inputs(customer, data)
     choices = candidates(inputs)
     if inputs["skin"] == "Da nhạy cảm":
@@ -127,20 +127,6 @@ def recommend(customer, data):
                 "message": "Chưa có dịch vụ đáp ứng nhu cầu, ngân sách, thời lượng và lưu ý đã chọn."}
     own_history, history = service_history(customer)
     by_service = {row["serviceId"]: row for row in history}
-    def numeric_facts(service):
-        facts = f"{service.price} VND; {service.duration_minutes} phút; " + "; ".join(
-            f"{r['count']} lượt; {r['firstUsed']}; {r['lastUsed']}" for r in history)
-        return facts + (f"; {inputs['budget']} VND" if inputs["budget"] is not None else "")
-    def reason_numbers_valid(reason, service):
-        amounts = {service.price}
-        if inputs["budget"] is not None:
-            amounts.add(Decimal(inputs["budget"]))
-        # A visit count/ID must not become an invented currency amount.
-        money_claims = [c for c in claims(reason) if c.kind == "money"]
-        for raw in re.findall(r"\bgia\s+(?:(?:la|chi|tu|khoang)\s+)?([0-9][0-9.,]*)", normalize(reason)):
-            money_claims.extend(claims(raw + " VND"))
-        return (all(c.value in amounts for c in money_claims)
-                and numeric_claims_supported(reason, [numeric_facts(service)]))
     care = {s.pk: linked_care_products(s, inputs["skin"]) for s in choices}
     terms = set(normalize(inputs["interests"]).split())
     def score(s):
@@ -157,11 +143,24 @@ def recommend(customer, data):
         return basis
     picked = [{"id": s.pk, "reason": fallback_reason(s)} for s in choices[:3]]
     mode = "rule"
+    diagnostic = {"code": "PROVIDER_NOT_SELECTED"}
+    output_received = False
     try:
         if (option("AI_PROVIDER", "mock") == "gemini" and enabled("AI_PERSONALIZATION_EXPORT_APPROVED")):
+            diagnostic = {"code": "PROVIDER_UNAVAILABLE"}
             with time_budget():
-                proposed = external_provider().structured(
+                result = external_provider().structured(
                     'Select 1–3 supplied eligible services. Return {"items":[{"id":integer,"reason":string}]}. '
+                    "Each reason must be 1–400 characters, concise Vietnamese. "
+                    "Use only supplied service names, prices, minutes, descriptions, benefits, suitability and notes, "
+                    "together with the supplied preferences and history. Do not infer additional benefits or results. "
+                    "If mentioning numbers, copy only the selected service's price in VND and minutes, "
+                    "the supplied budget when non-null, or supplied history counts/dates exactly. "
+                    "Write VND amounts without thousands separators, preserving the supplied decimal value. "
+                    "Do not convert units, introduce percentages or infer a budget when it is null. "
+                    "Prefer a brief qualitative reason when numbers are unnecessary. "
+                    "Never write any of these phrases, even in a disclaimer or when present in source text: "
+                    "'chữa khỏi', 'điều trị', 'cam kết', 'bảo đảm', 'đảm bảo'. "
                     "Consider skin, needs, per-treatment budget, interests, duration, frequency and last usage together. "
                     "Do not automatically prefer repeats. Consider complementary eligible services. "
                     "Absence from limited history does not prove a service was never used. "
@@ -172,33 +171,52 @@ def recommend(customer, data):
                      "historyScope": "up to 20 most recently used services; counts include all completed visits",
                      "productUsageHistory": {"available": False},
                      "candidates": [{"id": s.pk, "name": s.name, "description": s.description[:500],
+                                     "benefits": s.benefits[:500],
                                      "price": str(s.price), "minutes": s.duration_minutes,
                                      "suitable": s.suitable[:300], "method": s.steps[:300], "note": s.note[:300],
                                      "skinCareMatch": bool(care[s.pk])} for s in choices]},
-                ).get("items")
+                )
+            output_received = True
+            diagnostic = {"code": "OUTPUT_SCHEMA_INVALID"}
+            proposed = result.get("items") if isinstance(result, dict) else None
             if not isinstance(proposed, list) or not 1 <= len(proposed) <= 3:
                 raise ValueError
             seen = set()
             for row in proposed:
                 if (not isinstance(row, dict) or set(row) != {"id", "reason"} or type(row.get("id")) is not int
                         or row["id"] not in available or row["id"] in seen or not isinstance(row.get("reason"), str)
-                        or not 1 <= len(row["reason"]) <= 400 or contains_private_input(row["reason"])):
+                        or not 1 <= len(row["reason"]) <= 400):
                     raise ValueError
                 service = available[row["id"]]
-                if (not reason_numbers_valid(row["reason"], service) or
-                        re.search(r"\b(chua khoi|dieu tri|cam ket|bao dam|dam bao)\b", normalize(row["reason"]))):
+                numeric = check_recommendation_numbers(row["reason"], service, inputs["budget"], history, choices)
+                if numeric.code:
+                    diagnostic = {"code": "OUTPUT_NUMERIC_GROUNDING_FAILED", "serviceId": service.pk,
+                                  "check": numeric.code}
+                    raise ValueError
+                if contains_private_input(numeric.privacy_text):
+                    raise ValueError
+                if re.search(r"\b(chua khoi|dieu tri|cam ket|bao dam|dam bao)\b", normalize(row["reason"])):
+                    diagnostic = {"code": "OUTPUT_FORBIDDEN_PHRASE", "serviceId": service.pk}
                     raise ValueError
                 seen.add(row["id"])
+                diagnostic = {"code": "OUTPUT_SCHEMA_INVALID"}
             picked, mode = proposed, "ai"
-    except Exception:
+            diagnostic = {"code": "AI_RECOMMENDATION_VALIDATED"}
+        elif option("AI_PROVIDER", "mock") == "gemini":
+            diagnostic = {"code": "PERSONALIZATION_EXPORT_NOT_APPROVED"}
+    except Exception as error:
         # Reject the entire invalid list. FR-22 fallback remains local, never paid retry.
-        pass
+        if not output_received:
+            diagnostic = review_failure_diagnostic(error)
+            if diagnostic["code"] == "ANALYSIS_FAILED":
+                diagnostic = {"code": "RECOMMENDATION_FAILED"}
     current = {s.pk: s for s in candidates(inputs)}
     if inputs["skin"] == "Da nhạy cảm":
         current = {pk: s for pk, s in current.items() if not_contraindicated(s)}
-    if mode == "ai" and any(r["id"] in current and not reason_numbers_valid(
-            r["reason"], current[r["id"]]) for r in picked):
+    if mode == "ai" and any(r["id"] in current and check_recommendation_numbers(
+            r["reason"], current[r["id"]], inputs["budget"], history, current.values()).code for r in picked):
         mode = "rule"
+        diagnostic = {"code": "CATALOG_CHANGED_DURING_INFERENCE"}
         picked = [{"id": s.pk, "reason": fallback_reason(s)} for s in current.values()][:3]
     picked = [r for r in picked if r["id"] in current]
     items = [{"id": r["id"], "name": current[r["id"]].name, "price": str(current[r["id"]].price),
@@ -209,8 +227,14 @@ def recommend(customer, data):
               "caution": "Đối chiếu danh mục, không xác nhận phù hợp y khoa. Trao đổi với chuyên viên khi da nhạy cảm hoặc có lưu ý."}
              for r in picked]
     if items:
+        # Fixed codes only: never log preferences, customer IDs or exception text.
+        logging.getLogger("ai_features.fr22").log(
+            logging.INFO if mode == "ai" else logging.WARNING,
+            "FR22 mode=%s code=%s provider=%s check=%s", mode, diagnostic["code"],
+            "gemini" if option("AI_PROVIDER", "mock") == "gemini" else "internal", diagnostic.get("check", "NONE"))
         AIRecommendation.objects.create(customer=customer, input_data=inputs,
-            recommended_services=[r["id"] for r in items], reason=json.dumps({"mode": mode, "items": items}, ensure_ascii=False))
+            recommended_services=[r["id"] for r in items], reason=json.dumps(
+                {"mode": mode, "items": items, "diagnostics": diagnostic}, ensure_ascii=False))
     else:
         return {"mode": "rule", "label": "Đề xuất theo quy tắc", "items": [], "alternatives": [],
                 "message": "Dữ liệu dịch vụ vừa thay đổi hoặc không còn lựa chọn hợp lệ. Vui lòng chọn lại."}
