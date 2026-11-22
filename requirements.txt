@@ -1,5 +1,7 @@
 Django>=5.2.13,<5.3
-mysqlclient>=2.2.1,<3
+# Windows uses the native driver; Linux builds need no MySQL development headers.
+mysqlclient>=2.2.1,<3; sys_platform == "win32"
+PyMySQL[rsa]==1.2.4; sys_platform != "win32"
 python-dotenv>=1,<2
 Pillow>=11,<13
 

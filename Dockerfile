@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt /app/requirements.txt
 COPY requirements-lock.txt /app/requirements-lock.txt
 
-RUN pip install --no-cache-dir -r requirements.txt -c requirements-lock.txt \
+RUN pip install --no-cache-dir -r requirements.txt -c requirements-lock.txt mysqlclient \
     && pip install --no-cache-dir "gunicorn>=22,<24"
 
 COPY . /app/
