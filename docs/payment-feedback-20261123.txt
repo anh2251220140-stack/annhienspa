@@ -1,0 +1,68 @@
+THÔNG BÁO THANH TOÁN USER — 23/11/2026
+
+Phản ánh: HD-6 / LH-000007, Vercel, 13:33:42 ngày 23/11/2026.
+Người dùng cho biết đã thanh toán nhưng thiếu thông báo.
+Chưa đọc được log Production hoặc trạng thái database online của giao dịch này.
+Không coi báo cáo dưới đây là bằng chứng xác nhận thu tiền cho HD-6.
+
+Lỗi đã tái hiện offline trước khi sửa
+- Thông báo lỗi tải ưu đãi cũ che dòng đã ghi nhận thanh toán, kể cả khi GET
+  hóa đơn trả status=paid. Mở lại hóa đơn paid nhưng endpoint ưu đãi lỗi cũng
+  gây hiện tượng này. Bốn regression assertions thất bại trước bản sửa.
+- Return URL dùng id cho mã hóa đơn, trùng tham số id của PayOS (payment link).
+  Tham số status=PAID/orderCode còn khiến luồng mở trực tiếp không lọc đúng HD.
+  Hóa đơn nằm ngoài trang đầu có thể không được chọn.
+
+File thay đổi
+- billing/gateway.py: dùng invoice_id riêng trong return/cancel URL, giữ query
+  và fragment có sẵn, không thay cách tạo số tiền/QR hoặc xác thực webhook.
+- static/js/live-invoice.js: mở đúng hóa đơn khi quay về; giữ URL id cũ hợp lệ;
+  bỏ marker quay về sau khi tải; ưu tiên thông báo backend đã xác nhận paid;
+  QR hết hạn không được ghi đè thông báo paid. Không xác nhận tiền từ URL.
+- templates/pages/invoice.html: đổi version JavaScript.
+- billing/test_qr.py: kiểm tra return/cancel URL và query/fragment.
+- tools/test_invoice_feedback.cjs: 13 regression cases, DOM/API giả lập.
+- tools/check_user_invoice_ui.py: bổ sung Chrome regression cho return URL
+  mới/cũ và lỗi tải ưu đãi trên hóa đơn đã thanh toán.
+- Báo cáo này.
+
+Kiểm thử
+- 25 backend tests PASS, 0 FAIL: InvoiceFlowTests, PayosFeedbackTests, QrTests.
+  SQLite tạm, network/MySQL bị chặn; SDK ký/kiểm tra chữ ký bằng key giả,
+  các request tạo/đọc/hủy thanh toán đều mock. Không gọi PayOS thật.
+- node tools/test_invoice_feedback.cjs: 13 PASS, 0 FAIL.
+- Chrome cô lập 1440px: list 143, direct 139, reload 138, missing 139,
+  payos-return 139, payos-legacy 139 assertions PASS. Đây là các lần chạy có
+  nhiều assertions trùng nhau, không cộng thành số test nghiệp vụ độc lập.
+- Chrome cô lập 390px: list 143 assertions PASS.
+- Chrome 1440px detail: 143 assertions PASS; đã xem ảnh chụp, thấy thông báo
+  Đã ghi nhận thanh toán và biên nhận payOS của dữ liệu giả lập.
+- Cú pháp JavaScript, Django check và git diff --check: PASS.
+- GET endpoint webhook Production trả 405, Allow: POST. Chỉ chứng minh route
+  tồn tại, KHÔNG chứng minh PayOS đã đăng ký hoặc gửi webhook thành công.
+
+Giới hạn/bảo toàn
+- Không sửa dữ liệu hóa đơn, thu tiền, MySQL, migration, .env, local storage,
+  cấu hình Docker, AI hoặc xử lý webhook/đối soát hiện có.
+- Backend chỉ ghi nhận thanh toán theo cơ chế kiểm tra chữ ký và đối chiếu
+  giao dịch hiện có. status=PAID trong URL không phải bằng chứng thanh toán.
+- Chưa xác minh live giao dịch HD-6, cấu hình webhook/return URL Production,
+  hoặc việc ngân hàng đã ghi có. Không tạo giao dịch mới để thử.
+- Phiên checkout cũ đã được PayOS lưu URL sẽ không được viết lại. Có thể mở
+  trực tiếp invoice.html?id=6 để xem đúng HD-6, không cần thanh toán lại.
+
+Nghiệm thu sau deployment mới Ready
+Mở https://annhienspa-sepia.vercel.app/invoice.html?id=6 bằng tài khoản sở hữu.
+Nếu backend đã ghi nhận paid, trang phải hiện Đã ghi nhận thanh toán cùng
+thông tin biên nhận. Nếu vẫn unpaid/review, cần kiểm tra log webhook đúng giờ
+giao dịch; không ép thành paid hoặc tạo thêm thanh toán.
+
+Đường dẫn cấu hình cần đối chiếu trên Production (không sửa trong đợt này):
+PAYOS_RETURN_URL và PAYOS_CANCEL_URL:
+https://annhienspa-sepia.vercel.app/invoice.html
+Webhook trên kênh PayOS:
+https://annhienspa-sepia.vercel.app/api/billing/webhook/payos/
+
+Tham khảo chính thức:
+https://payos.vn/docs/du-lieu-tra-ve/return-url/
+https://payos.vn/docs/du-lieu-tra-ve/webhook/

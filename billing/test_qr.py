@@ -1,4 +1,5 @@
 import binascii
+from urllib.parse import parse_qs, urlsplit
 from datetime import timedelta
 from unittest.mock import patch
 from django.test import TestCase,override_settings
@@ -47,6 +48,14 @@ class QrTests(FlowFixtures,TestCase):
             self.assertEqual(request.expired_at,int(p.expires_at.timestamp()))
             self.assertEqual(request.amount,int(self.i.total_amount))
             self.assertEqual(request.order_code,p.order_code)
+            self.assertEqual(parse_qs(urlsplit(str(request.return_url)).query), {'invoice_id':[str(self.i.pk)]})
+            self.assertEqual(parse_qs(urlsplit(str(request.cancel_url)).query), {'invoice_id':[str(self.i.pk)]})
+
+    def test_return_url_preserves_query_fragment_without_provider_id_collision(self):
+        target=gateway.invoice_return_url('https://spa.example/invoice.html?source=pay&id=old&invoice_id=2#detail',6)
+        parts=urlsplit(target)
+        self.assertEqual(parts.fragment,'detail')
+        self.assertEqual(parse_qs(parts.query),{'source':['pay'],'invoice_id':['6']})
 
     def test_old_expiry_unchanged_and_missing_or_invalid_payload_fallback(self):
         p=services.online(self.user,self.i.pk);old=timezone.now()+timedelta(minutes=15)

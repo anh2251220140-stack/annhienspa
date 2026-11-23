@@ -71,7 +71,10 @@ try{
 await document.fonts.ready;await ready();
 check(!document.querySelector('[data-invoice-select]'),'dropdown removed');
 const original=new URL(location.href);const initial=Number(original.searchParams.get('id'));
-if(location.hash==='#initial-empty'){
+if(location.hash==='#payos-return'){
+ check(selected()==='HD-2'&&all('[data-invoice-row]').length===1,'payOS return selects requested invoice outside first page');
+ check(fixtures[1].status==='unpaid'&&!$('[data-payment-message]').textContent.includes('Đã ghi nhận thanh toán'),'provider URL never confirms payment');
+}else if(location.hash==='#initial-empty'){
  check($('[data-invoice-content]').hidden&&!$('[data-invoice-empty]').hidden,'unauthorized/missing direct ID stays empty');check(posts.length===0,'no payment on missing ID');
 }else if(initial===2&&location.hash!=='#reload'){
  check(selected()==='HD-2'&&all('[data-invoice-row]').length===1,'direct ID outside first page selects correct card');
@@ -171,6 +174,8 @@ failPromotion=true;await choose(9);check($('[data-payment-message]').textContent
 await choose(8);Object.assign(fixtures[7],{status:'paid',statusLabel:'Đã thanh toán',paymentAllowed:false,payments:[{status:'success',requiresReview:false,method:'online',paidAt:'2026-11-09T08:00:00+07:00',reference:'MOCK-VERIFIED'}]});
 window.dispatchEvent(new Event('focus'));await wait(150);check($('[data-payment-options]').hidden&&!$('[data-payment-receipt]').hidden&&$('[data-invoice-row="8"]').textContent.includes('Đã thanh toán'),'verified backend paid refresh updates card and receipt');
 check(!$('[data-payment-refund]').hidden,'verified paid refresh shows refund guidance');
+failPromotion=true;await choose(8);
+check($('[data-payment-message]').textContent==='Đã ghi nhận thanh toán.','promotion request failure cannot mask confirmed paid message');
 check(unexpected===0&&uiErrors.length===0,'no external/unexpected endpoint or JS error: '+uiErrors.join(','));noOverflow();
 await choose(location.hash==='#spa-preview'?5:3);
 if(location.hash==='#spa-preview'){Object.assign(fixtures[4],{appointmentStatus:'completed',date:'2026-10-23',onlineEligible:false});await choose(5);}
@@ -211,7 +216,7 @@ def main():
             for width in (1440,768,500,390):
                 if any(a.startswith('--width=') for a in sys.argv) and '--width='+str(width) not in sys.argv:
                     continue
-                scenarios = [('list', ''), ('direct', '?id=2'), ('reload', '?page=2&id=2#reload'), ('missing', '?id=999#initial-empty')] if '--all-scenarios' in sys.argv else [('detail' if '--detail-preview' in sys.argv else 'list', '#detail-preview' if '--detail-preview' in sys.argv else '')]
+                scenarios = [('list', ''), ('direct', '?id=2'), ('reload', '?page=2&id=2#reload'), ('missing', '?id=999#initial-empty'), ('payos-return', '?invoice_id=2&id=provider-link&status=PAID&orderCode=9002#payos-return'), ('payos-legacy', '?id=2&status=PAID&orderCode=9002#payos-return')] if '--all-scenarios' in sys.argv else [('detail' if '--detail-preview' in sys.argv else 'list', '#detail-preview' if '--detail-preview' in sys.argv else '')]
                 if '--spa-preview' in sys.argv: scenarios=[('spa','#spa-preview')]
                 for scenario, suffix in scenarios:
                     dom = ROOT/'staticfiles/user-invoice-ui-last.html'

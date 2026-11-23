@@ -6,11 +6,16 @@
   let invoice=null, page=1, pages=1, busy=false, busyAction='', revision=0, timer, polling=false, notice='';
   let options=[], unavailable=[], promotionMessage='';
   const params=new URLSearchParams(location.search);
-  const initialId=/^[1-9]\d*$/.test(params.get('id')||'')?Number(params.get('id')):null;
+  const requestedId=params.get('invoice_id')||params.get('id')||'';
+  const initialId=/^[1-9]\d*$/.test(requestedId)&&Number.isSafeInteger(Number(requestedId))?Number(requestedId):null;
+  const paymentReturn=initialId&&(params.has('invoice_id')||params.has('orderCode'));
   let retryId=null,records=[],loading=false,total=0,appliedSearch=params.get('search')||'',appliedStatus=params.get('status')||'';
   if(!['','unpaid','paid','cancelled'].includes(appliedStatus))appliedStatus='';
   if(initialId&&!['search','status','page'].some(key=>params.has(key)))appliedSearch=`HD-${initialId}`;
   page=/^[1-9]\d*$/.test(params.get('page')||'')?Number(params.get('page')):1;
+  // Provider status is not a list filter or proof of payment. Open only the
+  // requested invoice and fetch its authenticated server state.
+  if(paymentReturn){appliedSearch=`HD-${initialId}`;appliedStatus='';page=1;}
   $('#invoice-search').value=appliedSearch;$('#invoice-status-filter').value=appliedStatus;
   const appointmentCode=id=>`LH-${String(id).padStart(6,'0')}`;
   const appointmentDate=i=>`${(i.date||'').split('-').reverse().join('/')} ${i.time||''}`.trim();
@@ -37,6 +42,8 @@
   }
   function updateUrl(){
     const url=new URL(location.href);url.searchParams.delete('id');
+    url.searchParams.delete('invoice_id');
+    if(paymentReturn)for(const key of ['code','cancel','orderCode'])url.searchParams.delete(key);
     if(invoice)url.searchParams.set('id',invoice.id);
     for(const [key,value] of Object.entries({search:appliedSearch,status:appliedStatus,page:page>1?String(page):''})){
       if(value)url.searchParams.set(key,value);else url.searchParams.delete(key);
@@ -62,7 +69,7 @@
     $('[data-payment-countdown]').textContent=current?`${String(Math.floor(left/60)).padStart(2,'0')}:${String(left%60).padStart(2,'0')}`:'';
     $('[data-payment-qr-status]').textContent=expired?'Mã QR đã hết hạn. Cần kiểm tra trạng thái phiên cũ trước khi tạo mã mới.':src?'Đang chờ thanh toán. Quét QR không tự xác nhận đã thanh toán.':url?'Không có dữ liệu QR hợp lệ của phiên này. Vui lòng mở trang thanh toán payOS.':'Phiên chưa sẵn sàng hoặc cần đối soát. Không thanh toán thêm trước khi kiểm tra trạng thái.';
     $('[data-payment-qr] h3').textContent=expired?'Mã QR đã hết hạn':'Đang chờ thanh toán';
-    if(expired&&!notice)$('[data-payment-message]').textContent='Mã QR đã hết hạn. Nhấn Kiểm tra trạng thái phiên để đối soát; hóa đơn chưa được ghi nhận thanh toán.';
+    if(expired&&!notice&&invoice.status==='unpaid'&&!invoice.needsReview)$('[data-payment-message]').textContent='Mã QR đã hết hạn. Nhấn Kiểm tra trạng thái phiên để đối soát; hóa đơn chưa được ghi nhận thanh toán.';
     const link=$('[data-payment-checkout]');link.hidden=!url;
     if(url)link.href=url;else link.removeAttribute('href');
     $('[data-payment-online]').disabled=busy||loading||!!expired||['PAID','PROCESSING','UNDERPAID','CANCELLED','EXPIRED','FAILED'].includes(current?.providerStatus);
@@ -75,6 +82,8 @@
   }
   function paint(i) {
     invoice=i;
+    // A previous request/promotion error must not mask a confirmed receipt.
+    if(i.status==='paid'&&!i.needsReview)notice='';
     $('[data-invoice-empty]').hidden=true; $('[data-invoice-content]').hidden=false;
     $('[data-invoice-content]').setAttribute('aria-busy',String(busy||loading));
     for(const [key,value] of Object.entries({service:i.service,code:`HD-${i.id}`,status:i.statusLabel,issued:timestamp(i.createdAt),appointment:`${appointmentCode(i.appointmentId)} · ${appointmentDate(i)}`,employee:i.employee,price:money(i.priceSnapshot),subtotal:money(i.subtotal),promotion:i.promotion||'Không áp dụng',discount:money(i.discount),total:money(i.total)})) $(`[data-invoice-${key}]`).textContent=value;
