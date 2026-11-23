@@ -30,7 +30,7 @@ async function fixture(search = '') {
   };
   vm.createContext(context);
   await vm.runInContext(source.replace('await load(initialId);', `window.test={
-    initialId, appliedSearch, appliedStatus, page, paint, poll, open, schedule, updateUrl,
+    initialId, appliedSearch, appliedStatus, page, paint, poll, open, schedule, updateUrl, action, drawQr,
     setNotice(value){notice=value;}, getInvoice(){return invoice;}
   };`), context);
   return {context, api:context.window.test, node, requests, timers};
@@ -92,6 +92,71 @@ function invoice(status='unpaid') {
       const {api,node}=await fixture(); api.paint({...invoice('paid'),currentOnline:{expired:true,remainingSeconds:0}});
       assert.equal(node('[data-payment-message]').textContent,'Đã ghi nhận thanh toán.');
       assert.equal(node('[data-payment-qr]').hidden,true);
+    }],
+    ['expired QR renews on the same invoice with a new order',async()=>{
+      const {api,context,node,requests}=await fixture();
+      const old={...invoice(),currentOnline:{orderCode:100,serverNow:'old',remainingSeconds:0,expired:true,providerStatus:'PENDING',checkoutUrl:'https://checkout.invalid/old'}};
+      const fresh={...invoice(),currentOnline:{orderCode:101,serverNow:'new',remainingSeconds:600,expired:false,providerStatus:'PENDING',checkoutUrl:'https://checkout.invalid/new',qrImage:'new-qr'}};
+      context.response=async path=>{
+        if(path.endsWith('/cancel-online/'))return {item:{...old,currentOnline:null}};
+        if(path.endsWith('/online/'))return {checkoutUrl:fresh.currentOnline.checkoutUrl};
+        if(path.endsWith('/promotions/'))return {items:[],unavailable:[]};
+        return {item:fresh};
+      };
+      api.paint(old);
+      assert.equal(node('[data-payment-online]').disabled,false);
+      assert.equal(node('[data-payment-online]').textContent,'Làm mới mã QR');
+      assert.equal(node('[data-payment-checkout]').getAttribute('href'),undefined);
+      await Promise.all([api.action('renew-online'),api.action('renew-online')]);
+      assert.deepEqual(requests.map(x=>x.path),['/api/billing/6/cancel-online/','/api/billing/6/online/','/api/billing/6/','/api/billing/6/promotions/']);
+      assert.equal(api.getInvoice().id,6);
+      assert.equal(api.getInvoice().currentOnline.orderCode,101);
+      assert.equal(node('[data-payment-online]').textContent,'Thanh toán online bằng payOS');
+    }],
+    ['provider refusal prevents renewal and preserves the old invoice',async()=>{
+      const {api,context,requests,node}=await fixture();
+      const old={...invoice(),currentOnline:{orderCode:100,serverNow:'old',remainingSeconds:0,expired:true,providerStatus:'PENDING'}};
+      context.response=async path=>{
+        if(path.endsWith('/cancel-online/'))throw Error('Phiên đã nhận tiền, cần đối soát.');
+        return {item:old};
+      };
+      api.paint(old);await api.action('renew-online');
+      assert.deepEqual(requests.map(x=>x.path),['/api/billing/6/cancel-online/','/api/billing/6/']);
+      assert.equal(api.getInvoice().id,6);
+      assert.match(node('[data-payment-message]').textContent,/đối soát/);
+    }],
+    ['failed new link leaves the same invoice ready for retry',async()=>{
+      const {api,context,requests,node}=await fixture();
+      const old={...invoice(),currentOnline:{orderCode:100,serverNow:'old',remainingSeconds:0,expired:true,providerStatus:'PENDING'}};
+      const closed={...old,currentOnline:null,paymentPreference:''};
+      context.response=async path=>{
+        if(path.endsWith('/cancel-online/'))return {item:closed};
+        if(path.endsWith('/online/'))throw Error('Chưa tạo được mã mới.');
+        return {item:closed};
+      };
+      api.paint(old);await api.action('renew-online');
+      assert.deepEqual(requests.map(x=>x.path),['/api/billing/6/cancel-online/','/api/billing/6/online/','/api/billing/6/']);
+      assert.equal(api.getInvoice().id,6);
+      assert.equal(node('[data-payment-qr]').hidden,true);
+      assert.equal(node('[data-payment-online]').disabled,false);
+      assert.match(node('[data-payment-message]').textContent,/Chưa tạo được mã mới/);
+    }],
+    ['paid or review invoice never offers QR renewal',async()=>{
+      const {api,node,requests}=await fixture();
+      for(const state of [{...invoice('paid'),currentOnline:{expired:true,remainingSeconds:0}},
+          {...invoice(),needsReview:true,currentOnline:{expired:true,remainingSeconds:0}}]){
+        api.paint(state);await api.action('renew-online');
+        assert.equal(node('[data-payment-online]').disabled,true);
+      }
+      assert.equal(requests.length,0);
+    }],
+    ['provider processing blocks expired QR renewal',async()=>{
+      const {api,node,requests}=await fixture();
+      api.paint({...invoice(),currentOnline:{expired:true,remainingSeconds:0,providerStatus:'PROCESSING'}});
+      assert.equal(node('[data-payment-online]').disabled,true);
+      assert.equal(node('[data-payment-checkout]').getAttribute('href'),undefined);
+      await api.action('renew-online');
+      assert.equal(requests.length,0);
     }],
     ['hidden browser tab does not query the provider',async()=>{
       const {api,context,requests,timers}=await fixture(); api.paint(invoice()); context.document.hidden=true;

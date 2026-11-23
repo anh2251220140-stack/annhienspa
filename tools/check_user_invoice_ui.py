@@ -20,9 +20,9 @@ window.spaAuth={allowed:true,isAuthenticated:()=>true,getSession:()=>({role:'Use
 const fixtures=Array.from({length:13},(_,n)=>{const id=n+1;return {id,appointmentId:id+40,service:'Dịch vụ chăm sóc '+id,employee:'Chuyên viên thử',date:'2026-12-23',time:'08:00',appointmentStatus:'confirmed',subtotal:'390000',priceSnapshot:'390000',discount:'0',total:'390000',promotion:'',status:id===3?'paid':id===4?'cancelled':'unpaid',statusLabel:id===3?'Đã thanh toán':id===4?'Đã hủy':'Chưa thanh toán',createdAt:'2026-10-23T17:05:00Z',paymentAllowed:![3,4].includes(id),onlineEligible:![3,4,5].includes(id),promotionEditable:![3,4].includes(id),payosConfigured:true,needsReview:id===6,paymentPreference:'',payments:[],currentOnline:null,promotionUsage:null};});
 Object.assign(fixtures[2],{appointmentId:4,discount:'39000',total:'351000',promotion:'HISTORY10',payments:[{status:'success',requiresReview:false,method:'online',paidAt:'2026-10-23T17:05:00Z',reference:'MOCK-ONLY'}]});
 fixtures[5].paymentAllowed=false;
-let failList=false,failDetail=false,failPromotion=false,failOnline=false,slowDetail=0,slowPoll=0,pollResolve=null,posts=[],unexpected=0,autoChecks=0;
+let failList=false,failDetail=false,failPromotion=false,failOnline=false,slowDetail=0,slowPoll=0,pollResolve=null,posts=[],unexpected=0,autoChecks=0,orderSequence=9000;
 const copy=x=>JSON.parse(JSON.stringify(x)),pause=ms=>new Promise(r=>setTimeout(r,ms));
-function onlineSession(id,remaining=75){return {orderCode:9000+id,amount:'351000',providerStatus:'PENDING',expiresAt:'2026-12-23T01:10:00Z',serverNow:'mock-'+id,remainingSeconds:remaining,expired:false,qrImage:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',checkoutUrl:'https://checkout.mock.invalid/'+id};}
+function onlineSession(id,remaining=75){const orderCode=++orderSequence;return {orderCode,amount:'351000',providerStatus:'PENDING',expiresAt:'2026-12-23T01:10:00Z',serverNow:'mock-'+orderCode,remainingSeconds:remaining,expired:false,qrImage:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',checkoutUrl:'https://checkout.mock.invalid/'+orderCode};}
 window.fetch=async(path,options={})=>{
  const respond=(body,status=200)=>({ok:status<400,status,json:async()=>copy(body)});
  if(!path.startsWith('/api/billing/')){unexpected++;throw Error('Non-mock network blocked');}
@@ -46,13 +46,14 @@ window.fetch=async(path,options={})=>{
   if(failDetail){failDetail=false;return respond({error:'Không tải được chi tiết thử nghiệm.'},503);}
   return respond({item:saved});
  }
- if(options.method!=='POST'||!['select-spa','promotion','remove-promotion','edit-promotion','online','refresh-online'].includes(name)){unexpected++;throw Error('Mutation not mocked');}
+ if(options.method!=='POST'||!['select-spa','promotion','remove-promotion','edit-promotion','online','refresh-online','cancel-online'].includes(name)){unexpected++;throw Error('Mutation not mocked');}
  posts.push({id,name,body:new URLSearchParams(options.body),csrf:options.headers['X-CSRFToken']});await pause(100);
  if(name==='online'&&failOnline){failOnline=false;return respond({error:'Thanh toán payOS chưa được cấu hình'},503);}
  if(name==='select-spa')invoice.paymentPreference='spa';
  if(name==='promotion'){invoice.promotion='TEST10';invoice.discount='39000';invoice.total='351000';invoice.promotionUsage={limit:1};}
  if(name==='remove-promotion'){invoice.promotion='';invoice.discount='0';invoice.total='390000';invoice.promotionUsage=null;}
  if(name==='edit-promotion')invoice.promotionEditable=true;
+ if(name==='cancel-online'){invoice.currentOnline=null;invoice.paymentPreference='';return respond({item:invoice});}
  if(name==='online'){invoice.currentOnline=onlineSession(id);invoice.promotionEditable=false;invoice.paymentPreference='online';return respond({checkoutUrl:invoice.currentOnline.checkoutUrl});}
  if(name==='refresh-online'){autoChecks++;invoice.currentOnline.providerStatus='EXPIRED';invoice.currentOnline.expired=true;invoice.currentOnline.remainingSeconds=0;}
  return respond({item:invoice});
@@ -157,8 +158,11 @@ check(/^01:1[0-5]$/.test($('[data-payment-countdown]').textContent),'server rema
 await choose(2);check($('[data-payment-qr]').hidden&&selected()==='HD-2','switch clears previous QR');
 await choose(1);check(!$('[data-payment-qr]').hidden,'existing QR reused on re-open');
 const before=posts.length;fixtures[0].currentOnline.remainingSeconds=0;fixtures[0].currentOnline.expired=true;await choose(1);await wait(280);
-check($('[data-payment-qr-image]').hidden&&!$('[data-payment-checkout]').hasAttribute('href')&&$('[data-payment-online]').disabled,'expired QR hidden, no second create');
+check($('[data-payment-qr-image]').hidden&&!$('[data-payment-checkout]').hasAttribute('href')&&!$('[data-payment-online]').disabled&&$('[data-payment-online]').textContent==='Làm mới mã QR','expired QR hidden, renewal offered on same invoice');
 check(posts.length===before,'read/reopen never creates QR or checks provider');
+const oldOrder=fixtures[0].currentOnline.orderCode;$('[data-payment-online]').click();$('[data-payment-online]').click();await wait(480);
+check(posts.slice(before).map(p=>p.name).join(',')==='cancel-online,online'&&fixtures[0].currentOnline.orderCode!==oldOrder,'one click closes old QR and creates one new order on the same invoice');
+check(selected()==='HD-1'&&!$('[data-payment-qr-image]').hidden&&$('[data-payment-online]').textContent==='Thanh toán online bằng payOS','new QR shown without another invoice');
 $('[data-payment-refresh]').click();await wait(250);check(autoChecks===1,'only explicit click refreshes provider via mock');
 failList=true;await filter('');check(!$('[data-invoice-empty]').hidden&&$('[data-invoice-content]').hidden&&!$('#invoice-retry').hidden,'list error no stale payment');
 $('#invoice-retry').click();await wait(20);await ready();check(all('[data-invoice-row]').length===10,'list retry');

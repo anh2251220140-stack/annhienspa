@@ -52,13 +52,14 @@
   }
   function clearDetail(){invoice=null;options=[];unavailable=[];promotionMessage='';$('[data-invoice-content]').hidden=true;}
 
-  let clockKey='',deadline=0;
+  let clockKey='',deadline=0,qrExpired=false;
   function drawQr() {
     const current=invoice?.currentOnline;
     const key=current?`${invoice.id}:${current.orderCode}:${current.serverNow}`:'';
     if(key!==clockKey){clockKey=key;deadline=(current?.receivedAt||performance.now())+Math.max(0,current?.remainingSeconds||0)*1000;}
     const left=current?Math.max(0,Math.ceil((deadline-performance.now())/1000)):0;
     const expired=current&&(current.expired||left===0);
+    qrExpired=!!expired;
     const url=!expired&&invoice?checkout(invoice):'';
     const image=$('[data-payment-qr-image]');
     const src=!expired&&url?current?.qrImage:'';
@@ -67,12 +68,16 @@
     if(src){if(image.getAttribute('src')!==src)image.src=src;}else image.removeAttribute('src');
     $('[data-payment-qr-help]').hidden=!src;
     $('[data-payment-countdown]').textContent=current?`${String(Math.floor(left/60)).padStart(2,'0')}:${String(left%60).padStart(2,'0')}`:'';
-    $('[data-payment-qr-status]').textContent=expired?'Mã QR đã hết hạn. Cần kiểm tra trạng thái phiên cũ trước khi tạo mã mới.':src?'Đang chờ thanh toán. Quét QR không tự xác nhận đã thanh toán.':url?'Không có dữ liệu QR hợp lệ của phiên này. Vui lòng mở trang thanh toán payOS.':'Phiên chưa sẵn sàng hoặc cần đối soát. Không thanh toán thêm trước khi kiểm tra trạng thái.';
+    $('[data-payment-qr-status]').textContent=expired?(invoice.onlineEligible?'Mã QR cũ đã hết hạn và không thể sử dụng lại. Bạn có thể làm mới mã QR trên hóa đơn này.':'Mã QR cũ đã hết hạn và không thể sử dụng lại. Vui lòng liên hệ Spa để thanh toán.'):src?'Đang chờ thanh toán. Quét QR không tự xác nhận đã thanh toán.':url?'Không có dữ liệu QR hợp lệ của phiên này. Vui lòng mở trang thanh toán payOS.':'Phiên chưa sẵn sàng hoặc cần đối soát. Không thanh toán thêm trước khi kiểm tra trạng thái.';
     $('[data-payment-qr] h3').textContent=expired?'Mã QR đã hết hạn':'Đang chờ thanh toán';
-    if(expired&&!notice&&invoice.status==='unpaid'&&!invoice.needsReview)$('[data-payment-message]').textContent='Mã QR đã hết hạn. Nhấn Kiểm tra trạng thái phiên để đối soát; hóa đơn chưa được ghi nhận thanh toán.';
+    if(expired&&!notice&&invoice.status==='unpaid'&&!invoice.needsReview)$('[data-payment-message]').textContent=invoice.onlineEligible?'Mã QR đã hết hạn. Nhấn Làm mới mã QR để thanh toán tiếp trên hóa đơn này.':'Mã QR đã hết hạn. Hóa đơn vẫn chưa thanh toán; vui lòng liên hệ Spa.';
     const link=$('[data-payment-checkout]');link.hidden=!url;
     if(url)link.href=url;else link.removeAttribute('href');
-    $('[data-payment-online]').disabled=busy||loading||!!expired||['PAID','PROCESSING','UNDERPAID','CANCELLED','EXPIRED','FAILED'].includes(current?.providerStatus);
+    const processing=['PAID','PROCESSING','UNDERPAID'].includes(current?.providerStatus);
+    const canRenew=!!expired&&invoice?.onlineEligible&&!invoice.needsReview&&!processing;
+    const onlineButton=$('[data-payment-online]');
+    onlineButton.disabled=busy||loading||processing||(!canRenew&&(!!expired||['CANCELLED','EXPIRED','FAILED'].includes(current?.providerStatus)));
+    onlineButton.textContent=busy&&busyAction==='renew-online'?'Đang làm mới mã QR…':busy&&busyAction==='online'?'Đang tạo phiên payOS…':canRenew?'Làm mới mã QR':'Thanh toán online bằng payOS';
     $('[data-payment-refresh]').disabled=busy||loading;
   }
   function checkout(i) {
@@ -131,7 +136,7 @@
       :i.onlineEligible?'Nhấn Thanh toán online bằng payOS để tạo phiên và mở trang QR thanh toán.':'Vui lòng thanh toán trực tiếp tại Spa.';
     const feedback=$('[data-payment-message]');
     feedback.setAttribute('role',notice?'alert':'status');
-    feedback.textContent=notice||(busy&&busyAction==='online'?'Đang tạo phiên payOS, vui lòng chờ. Chưa ghi nhận thanh toán.':message);
+    feedback.textContent=notice||(busy&&busyAction==='renew-online'?'Đang kiểm tra phiên cũ và tạo mã QR mới trên hóa đơn này…':busy&&busyAction==='online'?'Đang tạo phiên payOS, vui lòng chờ. Chưa ghi nhận thanh toán.':message);
     drawQr();
   }
   function paintPromotions() {
@@ -186,14 +191,17 @@
   function error(error){notice=error.message;if(!invoice)$('[data-invoice-count]').textContent='Không thể tải hóa đơn.';const feedback=$('[data-payment-message]');feedback.setAttribute('role','alert');feedback.textContent=notice;if(invoice)feedback.focus();else{const empty=$('[data-invoice-empty]');empty.hidden=false;empty.setAttribute('role','alert');empty.textContent=notice;empty.focus();}}
   async function action(name,data={}){
     if(busy||loading||!invoice)return;
+    if(name==='renew-online'&&(!qrExpired||!invoice.onlineEligible||invoice.needsReview||invoice.status!=='unpaid'||['PAID','PROCESSING','UNDERPAID'].includes(invoice.currentOnline?.providerStatus)))return;
     busy=true;busyAction=name;clearTimeout(timer);const id=invoice.id,version=++revision;notice='';paint(invoice);
     try{
-      const result=await api(`/api/billing/${id}/${name}/`,data);
+      if(name==='renew-online')await api(`/api/billing/${id}/cancel-online/`,{});
+      if(version!==revision)return;
+      const result=await api(`/api/billing/${id}/${name==='renew-online'?'online':name}/`,data);
       const fresh=result.item?result:await api(`/api/billing/${id}/`);
       if(version!==revision)return;
       paint(fresh.item);await loadPromotions(id,version);
       if(name==='edit-promotion')promo.focus();
-      if(name==='online'&&checkout(invoice))$('[data-payment-checkout]').focus();
+      if((name==='online'||name==='renew-online')&&checkout(invoice))$('[data-payment-checkout]').focus();
     }catch(e){
       // A failed create request can still reserve an order. Re-read local state
       // without calling the provider or submitting a second creation request.
@@ -227,7 +235,7 @@
   $('[data-invoice-promo]').addEventListener('submit',e=>{e.preventDefault();action('promotion',{code:promo.value});});
   $('[data-promo-remove]').onclick=()=>action('remove-promotion');
   $('[data-payment-edit]').onclick=()=>action('edit-promotion');
-  $('[data-payment-online]').onclick=()=>action('online');
+  $('[data-payment-online]').onclick=()=>action(qrExpired?'renew-online':'online');
   $('[data-payment-spa]').onclick=()=>action('select-spa');
   $('[data-payment-refresh]').onclick=()=>action('refresh-online');
   let countdown=setInterval(drawQr,250);

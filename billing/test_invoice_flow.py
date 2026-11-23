@@ -135,6 +135,30 @@ class InvoiceFlowTests(FlowFixtures,TestCase):
         self.assertEqual(self.post('edit-promotion').status_code,200);self.cancel.assert_not_called()
         self.assertEqual(self.post('promotion',{'code':''}).status_code,200)
 
+    def test_expired_qr_closes_old_order_and_renews_on_same_invoice(self):
+        self.assertEqual(self.post('online').status_code,200)
+        old=Payment.objects.get()
+        Payment.objects.filter(pk=old.pk).update(expires_at=timezone.now()-timedelta(seconds=1))
+        self.get.side_effect=lambda p:provider_state(p,'EXPIRED')
+        self.assertEqual(self.post('cancel-online').status_code,200)
+        old.refresh_from_db();self.assertEqual(old.status,'cancelled')
+        self.assertEqual(self.post('online').status_code,200)
+        new=Payment.objects.exclude(pk=old.pk).get()
+        self.assertNotEqual(new.order_code,old.order_code)
+        self.assertEqual(new.invoice_id,old.invoice_id)
+        self.assertEqual(Invoice.objects.filter(appointment=self.a).count(),1)
+        self.cancel.assert_not_called()
+
+    def test_renewal_refuses_provider_payment_in_progress(self):
+        self.assertEqual(self.post('online').status_code,200)
+        old=Payment.objects.get()
+        Payment.objects.filter(pk=old.pk).update(expires_at=timezone.now()-timedelta(seconds=1))
+        self.get.side_effect=lambda p:provider_state(p,'PROCESSING')
+        self.assertEqual(self.post('cancel-online').status_code,400)
+        old.refresh_from_db();self.assertEqual(old.status,'pending')
+        self.assertEqual(Payment.objects.count(),1)
+        self.cancel.assert_not_called()
+
     def test_online_to_spa_closes_provider_and_spa_to_online_creates_new_order(self):
         self.post('online');old=Payment.objects.get()
         self.assertEqual(self.post('select-spa').status_code,200)
