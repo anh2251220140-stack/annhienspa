@@ -20,7 +20,7 @@
   async function api(path, data) {
     const response = await fetch(path, data ? {method:"POST", body:data, headers:{"X-CSRFToken":token()}} : {});
     const payload = await response.json().catch(() => ({}));
-    if (!response.ok) { const error=Error(payload.error || Object.values(payload.errors || {}).flat().join(" ") || "Không thể thực hiện thao tác. Vui lòng tải lại và kiểm tra đăng nhập."); error.fields=payload.errors; throw error; }
+    if (!response.ok) { const error=Error(payload.error || Object.values(payload.errors || {}).flat().join(" ") || (response.status===401 ? 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' : response.status===403 ? 'Không có quyền hoặc phiên bảo mật đã hết hạn. Vui lòng tải lại trang.' : response.status===413 ? 'Ảnh vượt giới hạn tải lên của máy chủ. Vui lòng chọn ảnh nhỏ hơn.' : response.status>=500 ? 'Máy chủ không thể xử lý yêu cầu. Vui lòng thử lại sau.' : 'Không thể thực hiện thao tác. Vui lòng kiểm tra dữ liệu.')); error.fields=payload.errors; throw error; }
     return payload;
   }
   function open(title, body) {

@@ -66,6 +66,18 @@ MEDIA_ROOT = BASE_DIR / "media"
 LOCAL_MEDIA_ENABLED = os.getenv("DJANGO_LOCAL_MEDIA_ENABLED", "false").lower() == "true"
 # Opt-in Docker route; direct Windows/local media behavior remains unchanged.
 DOCKER_MEDIA_ENABLED = os.getenv("DJANGO_DOCKER_MEDIA_ENABLED", "false").lower() == "true"
+# Vercel alone uses the connected PRIVATE Blob store. Windows/Docker keep their
+# existing filesystem storage, even if a Blob token is present locally.
+BLOB_MEDIA_ENABLED = (
+    os.getenv("VERCEL") == "1"
+    and os.getenv("DJANGO_BLOB_MEDIA_ENABLED", "true").lower() == "true"
+)
+if BLOB_MEDIA_ENABLED:
+    STORAGES = {
+        "default": {"BACKEND": "config.blob_media.PrivateBlobStorage"},
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+    }
+    MIDDLEWARE += ["config.blob_media.BlobFailureMiddleware"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"

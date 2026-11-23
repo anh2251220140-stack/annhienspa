@@ -11,7 +11,10 @@ urlpatterns = [path("favicon.ico",LegacyImageView.as_view(),{"path":"an-nhien-lo
     path("api/ai/", include("ai_features.urls")),
     path("api/promotions/validate/",validate_code),path("api/admin/", include("core.business_urls")), path("api/appointments/", include("appointments.urls")), path("accounts/", include("accounts.urls")), path("", include("core.urls")),
     re_path(r"^images/(?P<path>.+)$", LegacyImageView.as_view())]
-if getattr(settings, "DOCKER_MEDIA_ENABLED", False):
+if getattr(settings, "BLOB_MEDIA_ENABLED", False):
+    from .blob_media import blob_image
+    urlpatterns += [path("media/<path:path>", blob_image, name="blob-media-image")]
+elif getattr(settings, "DOCKER_MEDIA_ENABLED", False):
     from .private_media import docker_image
     urlpatterns += [path("media/<path:path>", docker_image, name="docker-media-image")]
 elif settings.LOCAL_MEDIA_ENABLED:

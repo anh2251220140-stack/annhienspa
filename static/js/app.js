@@ -691,8 +691,12 @@
         }
         if (picker.files[0]) body.set("avatar",picker.files[0]);
         const response=await fetch("/api/profile/",{method:"POST",body,headers:{"X-CSRFToken":document.querySelector('[name="csrfmiddlewaretoken"]').value}});
-        const result=await response.json();
+        const result=await response.json().catch(()=>({}));
         if (!response.ok) {
+          if (response.status===413) throw Error("Ảnh vượt giới hạn tải lên của máy chủ. Vui lòng chọn ảnh nhỏ hơn.");
+          if (response.status===401) throw Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+          if (response.status===403) throw Error("Không có quyền hoặc phiên bảo mật đã hết hạn. Vui lòng tải lại trang.");
+          if (response.status>=500) throw Error(result.error || "Máy chủ không thể lưu hồ sơ lúc này. Vui lòng thử lại sau.");
           const {phone: phoneErrors, ...otherErrors} = result.errors || {}
           if (phoneErrors?.length) {
             setEditing(true)

@@ -1,0 +1,67 @@
+VERCEL PRIVATE BLOB — BẢN SỬA LƯU ẢNH, 23/11/2026
+
+Nguyên nhân đã xác minh
+- POST thay ảnh sản phẩm/dịch vụ thất bại vì Django ghi /var/task/media,
+  filesystem chỉ đọc trên Vercel. Đây là lỗi lưu trữ, không phải mất phiên.
+- Tạo Blob store chưa tự kết nối Django FileField với Blob.
+
+Phạm vi bản sửa
+- config/blob_media.py: backend lưu ảnh Private Blob và route đọc /media/.
+  Tên file mới ngẫu nhiên, không ghi đè ảnh cũ; kiểm tra định dạng/kích thước.
+  Avatar vẫn kiểm tra chủ sở hữu hoặc Admin bằng can_view_avatar hiện có.
+  Ảnh danh mục được đọc qua Django; không trả URL Blob/token cho trình duyệt.
+  Lỗi lưu trữ trả 503 an toàn sau khi transaction của view rollback.
+- config/settings.py, config/urls.py: chỉ bật khi VERCEL=1 và
+  DJANGO_BLOB_MEDIA_ENABLED không phải false. Windows/Docker giữ filesystem.
+- requirements.txt: vercel-blob==0.6.2 chỉ cài trên nền tảng ngoài Windows.
+  Không đổi môi trường .venv hiện có hoặc requirements-lock.txt của local.
+- static/js/app.js, live-admin.js, live-products.js, live-employees.js:
+  phân biệt lỗi phiên/quyền, ảnh quá lớn và lỗi máy chủ; giữ request/form/CSRF.
+- templates/pages/profile.html, admin-services.html, admin-products.html,
+  admin-employees.html: cập nhật version JavaScript.
+- config/test_blob_media.py, tools/test_blob_media.py: kiểm thử cô lập.
+
+Bằng chứng kiểm thử
+- 50/50 test PASS: storage, HTTP POST/GET thật qua Django Test Client,
+  SQLite tạm, mock Blob; đăng nhập/phân quyền/CSRF/profile/password reset;
+  SDK vercel-blob 0.6.2 thật với HTTP MockTransport và thông tin xác thực giả.
+- 21/21 test media local/Docker thực thi PASS; 2 test symlink SKIP do Windows
+  không cho phép tạo symlink. Không gọi database hoặc Blob thật.
+- 29/29 kiểm tra frontend PASS: mã 200/400/401/403/413/500/503,
+  lỗi không phải JSON, giữ nguyên body và CSRF; fetch giả lập trong Node VM.
+- Kiểm tra cú pháp 4 JavaScript và git diff --check: PASS.
+- pip dry-run Python 3.12/Linux với requirements.txt: giải quyết thư viện
+  thành công, không cài/chỉnh môi trường local.
+- Không sửa models/migrations, .env, Docker, AI, PayOS, dữ liệu hoặc media.
+
+Chạy lại kiểm thử
+  .venv\Scripts\python.exe tools/test_blob_media.py
+  .venv\Scripts\python.exe tools/test_blob_media.py config.test_private_media
+Test SDK tự bỏ qua nếu môi trường chưa cài vercel-blob. Lần kiểm tra 50/50
+ở trên dùng SDK cài riêng trong thư mục tạm; không cài thêm vào .venv local.
+
+Nghiệm thu sau deploy
+1. Vercel Production phải kết nối đúng PRIVATE Blob store. Thông tin kết nối
+   do Vercel cấp nằm trong environment server, không đưa vào code/Git/trình duyệt.
+   SDK dùng OIDC + BLOB_STORE_ID hoặc BLOB_READ_WRITE_TOKEN theo cấu hình store.
+2. Chờ deployment mới Ready, tải lại trang. Thử ảnh nhỏ dưới 4 MB trước để
+   nằm dưới giới hạn request mặc định của Vercel. Form vẫn giữ giới hạn 5 MB;
+   giới hạn nền tảng có thể từ chối sớm bằng 413. Không tự nâng gói/memory.
+3. Kiểm tra giữ ảnh, thay ảnh, xóa liên kết ảnh, hủy; User chỉ xem được avatar
+   của mình, Admin được xem theo quyền hiện tại.
+4. Chưa thực hiện upload/read Blob Production trong đợt test; không coi live
+   upload PASS trước nghiệm thu. Push không chứng minh deployment đã thành công.
+
+Ảnh cũ và lưu trữ
+- Ảnh local chưa có trên Blob vẫn 404. Bản sửa này KHÔNG chuyển media cũ,
+  KHÔNG đổi đường dẫn đã lưu trong database. Cần chuyển ảnh riêng sang đúng
+  PRIVATE store, giữ nguyên key như products/ten-anh.jpg hoặc services/ten-anh.jpg.
+- Không công khai thư mục avatars hoặc token. Không đưa media lên GitHub.
+- Thay/xóa liên kết ảnh giữ nguyên hành vi Django hiện có: file cũ không bị
+  tự xóa vật lý. Không bổ sung dọn file từ xa hoặc xóa dữ liệu người dùng.
+- Giao dịch database không bao trùm Blob: nếu upload thành công nhưng thao tác
+  database sau đó thất bại, có thể còn file chưa được tham chiếu trên Blob.
+  Bản sửa ưu tiên bảo toàn ảnh cũ, không tự dọn những file này.
+
+Tham khảo SDK chính thức:
+https://vercel.com/docs/vercel-blob/python-sdk-reference
