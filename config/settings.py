@@ -12,6 +12,11 @@ if not SECRET_KEY:
     from django.core.management.utils import get_random_secret_key
     SECRET_KEY = get_random_secret_key()
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,[::1]").split(",")
+# Explicit HTTPS origins for deployments behind a reverse proxy; token checks remain enabled.
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip() for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 INSTALLED_APPS = [
     "django.contrib.auth", "django.contrib.contenttypes", "django.contrib.sessions",
     "django.contrib.messages", "django.contrib.staticfiles",
