@@ -207,6 +207,7 @@
       // without calling the provider or submitting a second creation request.
       try{const fresh=await api(`/api/billing/${id}/`);if(version===revision)paint(fresh.item);}catch{}
       error(e);
+      if(name==='renew-online')$('[data-payment-message]').scrollIntoView({block:'center'});
     }
     finally{busy=false;busyAction='';if(invoice)paint(invoice);if(name==='edit-promotion'&&invoice?.promotionEditable)promo.focus();schedule();}
   }

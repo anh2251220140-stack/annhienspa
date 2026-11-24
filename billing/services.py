@@ -141,8 +141,14 @@ def stop_pending(invoice):
         try:
             current=gateway.get(p)
             validate_provider(p,current)
-            if current.amount_paid or current.status in ("PAID","PROCESSING","UNDERPAID"):
-                raise ValidationError("Phiên payOS đã nhận tiền hoặc đang xử lý; cần đối soát trước khi thay đổi.")
+            if current.amount_paid:
+                raise ValidationError("payOS đã ghi nhận tiền ở phiên cũ. Vui lòng liên hệ Spa để đối soát trước khi tạo mã QR mới.")
+            if current.status=="PAID":
+                raise ValidationError("payOS báo phiên cũ đã thanh toán. Vui lòng liên hệ Spa để đối soát trước khi tạo mã QR mới.")
+            if current.status=="PROCESSING":
+                raise ValidationError("payOS đang xử lý phiên cũ. Vui lòng kiểm tra lại trạng thái sau; chưa thể tạo mã QR mới.")
+            if current.status=="UNDERPAID":
+                raise ValidationError("payOS báo phiên cũ thanh toán chưa đủ. Vui lòng liên hệ Spa để đối soát trước khi tạo mã QR mới.")
             if current.status in ("CANCELLED","EXPIRED","FAILED"):
                 result=current
             elif current.status=="PENDING":
