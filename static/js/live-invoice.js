@@ -194,9 +194,7 @@
     if(name==='renew-online'&&(!qrExpired||!invoice.onlineEligible||invoice.needsReview||invoice.status!=='unpaid'||['PAID','PROCESSING','UNDERPAID'].includes(invoice.currentOnline?.providerStatus)))return;
     busy=true;busyAction=name;clearTimeout(timer);const id=invoice.id,version=++revision;notice='';paint(invoice);
     try{
-      if(name==='renew-online')await api(`/api/billing/${id}/cancel-online/`,{});
-      if(version!==revision)return;
-      const result=await api(`/api/billing/${id}/${name==='renew-online'?'online':name}/`,data);
+      const result=await api(`/api/billing/${id}/${name}/`,data);
       const fresh=result.item?result:await api(`/api/billing/${id}/`);
       if(version!==revision)return;
       paint(fresh.item);await loadPromotions(id,version);

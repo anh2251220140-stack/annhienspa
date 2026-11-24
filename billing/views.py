@@ -118,8 +118,8 @@ def action(request,pk,action):
     elif action=="select-spa":services.select_spa(request.user,pk)
     elif action=="cancel-online":services.cancel_online(request.user,pk)
     elif action=="refresh-online":services.refresh_online(request.user,pk)
-    elif action=="online":
-        p=services.online(request.user,pk)
+    elif action in ("online", "renew-online"):
+        p=services.online(request.user,pk,renew_expired=action=="renew-online")
         return JsonResponse({"checkoutUrl":p.checkout_url,"orderCode":p.order_code,"status":p.status})
     else:raise ValidationError("Thao tác không hợp lệ.")
     return JsonResponse({"item":invoice_row(invoices_for(request.user).get(pk=pk), include_cash_timing=request.user.role=="Admin")})

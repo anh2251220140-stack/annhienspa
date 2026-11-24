@@ -139,15 +139,30 @@ class InvoiceFlowTests(FlowFixtures,TestCase):
         self.assertEqual(self.post('online').status_code,200)
         old=Payment.objects.get()
         Payment.objects.filter(pk=old.pk).update(expires_at=timezone.now()-timedelta(seconds=1))
-        self.get.side_effect=lambda p:provider_state(p,'EXPIRED')
-        self.assertEqual(self.post('cancel-online').status_code,200)
+        from payos.types import PaymentLink
+        self.get.side_effect=lambda p:PaymentLink.model_validate({
+            'id':p.payment_link_id, 'orderCode':p.order_code, 'amount':int(p.amount),
+            'amountPaid':'0', 'amountRemaining':int(p.amount), 'status':'EXPIRED',
+            'transactions':[], 'createdAt':p.created_at.isoformat(),
+        })
+        self.assertEqual(self.post('renew-online').status_code,200)
         old.refresh_from_db();self.assertEqual(old.status,'cancelled')
-        self.assertEqual(self.post('online').status_code,200)
+        self.assertEqual(self.post('renew-online').status_code,200)
         new=Payment.objects.exclude(pk=old.pk).get()
         self.assertNotEqual(new.order_code,old.order_code)
         self.assertEqual(new.invoice_id,old.invoice_id)
         self.assertEqual(Invoice.objects.filter(appointment=self.a).count(),1)
         self.cancel.assert_not_called()
+
+    def test_idle_timer_expires_while_provider_link_still_pending(self):
+        self.post('online')
+        old=Payment.objects.get()
+        Payment.objects.filter(pk=old.pk).update(expires_at=timezone.now()-timedelta(seconds=1))
+        self.assertEqual(self.post('renew-online').status_code,200)
+        old.refresh_from_db()
+        self.assertEqual(old.status,'cancelled')
+        self.cancel.assert_called_once()
+        self.assertNotEqual(self.i.payments.get(status='pending').order_code,old.order_code)
 
     def test_renewal_refuses_provider_payment_in_progress(self):
         self.assertEqual(self.post('online').status_code,200)
@@ -158,10 +173,11 @@ class InvoiceFlowTests(FlowFixtures,TestCase):
             ('PAID',0,'đã thanh toán'),
             ('PROCESSING',0,'đang xử lý'),
             ('UNDERPAID',0,'thanh toán chưa đủ'),
+            ('EXPIRED',-1,'chưa nhất quán'),
         ]:
             with self.subTest(status=status,amount_paid=amount_paid):
                 self.get.side_effect=lambda p,s=status,a=amount_paid:provider_state(p,s,a)
-                response=self.post('cancel-online')
+                response=self.post('renew-online')
                 self.assertEqual(response.status_code,400)
                 self.assertIn(message,response.json()['error'])
         old.refresh_from_db();self.assertEqual(old.status,'pending')

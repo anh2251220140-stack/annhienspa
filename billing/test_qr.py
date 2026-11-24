@@ -51,6 +51,22 @@ class QrTests(FlowFixtures,TestCase):
             self.assertEqual(parse_qs(urlsplit(str(request.return_url)).query), {'invoice_id':[str(self.i.pk)]})
             self.assertEqual(parse_qs(urlsplit(str(request.cancel_url)).query), {'invoice_id':[str(self.i.pk)]})
 
+    def test_first_payment_after_ten_idle_minutes_shows_a_fresh_qr(self):
+        start = timezone.now()
+        with patch('billing.services.timezone.now', return_value=start):
+            self.assertEqual(self.post('online').status_code, 200)
+            first = self.row()['currentOnline']
+        with patch('billing.services.timezone.now', return_value=start + timedelta(seconds=601)):
+            self.assertTrue(self.row()['currentOnline']['expired'])
+            self.assertEqual(self.post('renew-online').status_code, 200)
+            invoice = self.row()
+            renewed = invoice['currentOnline']
+            self.assertEqual(invoice['status'], 'unpaid')
+            self.assertNotEqual(renewed['orderCode'], first['orderCode'])
+            self.assertNotEqual(renewed['checkoutUrl'], first['checkoutUrl'])
+            self.assertTrue(renewed['qrImage'].startswith('data:image/png;base64,'))
+            self.assertEqual(renewed['remainingSeconds'], 600)
+
     def test_return_url_preserves_query_fragment_without_provider_id_collision(self):
         target=gateway.invoice_return_url('https://spa.example/invoice.html?source=pay&id=old&invoice_id=2#detail',6)
         parts=urlsplit(target)

@@ -98,8 +98,7 @@ function invoice(status='unpaid') {
       const old={...invoice(),currentOnline:{orderCode:100,serverNow:'old',remainingSeconds:0,expired:true,providerStatus:'PENDING',checkoutUrl:'https://checkout.invalid/old'}};
       const fresh={...invoice(),currentOnline:{orderCode:101,serverNow:'new',remainingSeconds:600,expired:false,providerStatus:'PENDING',checkoutUrl:'https://checkout.invalid/new',qrImage:'new-qr'}};
       context.response=async path=>{
-        if(path.endsWith('/cancel-online/'))return {item:{...old,currentOnline:null}};
-        if(path.endsWith('/online/'))return {checkoutUrl:fresh.currentOnline.checkoutUrl};
+        if(path.endsWith('/renew-online/'))return {checkoutUrl:fresh.currentOnline.checkoutUrl};
         if(path.endsWith('/promotions/'))return {items:[],unavailable:[]};
         return {item:fresh};
       };
@@ -108,7 +107,7 @@ function invoice(status='unpaid') {
       assert.equal(node('[data-payment-online]').textContent,'Làm mới mã QR');
       assert.equal(node('[data-payment-checkout]').getAttribute('href'),undefined);
       await Promise.all([api.action('renew-online'),api.action('renew-online')]);
-      assert.deepEqual(requests.map(x=>x.path),['/api/billing/6/cancel-online/','/api/billing/6/online/','/api/billing/6/','/api/billing/6/promotions/']);
+      assert.deepEqual(requests.map(x=>x.path),['/api/billing/6/renew-online/','/api/billing/6/','/api/billing/6/promotions/']);
       assert.equal(api.getInvoice().id,6);
       assert.equal(api.getInvoice().currentOnline.orderCode,101);
       assert.equal(node('[data-payment-online]').textContent,'Thanh toán online bằng payOS');
@@ -117,11 +116,11 @@ function invoice(status='unpaid') {
       const {api,context,requests,node}=await fixture();
       const old={...invoice(),currentOnline:{orderCode:100,serverNow:'old',remainingSeconds:0,expired:true,providerStatus:'PENDING'}};
       context.response=async path=>{
-        if(path.endsWith('/cancel-online/'))throw Error('Phiên đã nhận tiền, cần đối soát.');
+        if(path.endsWith('/renew-online/'))throw Error('Phiên đã nhận tiền, cần đối soát.');
         return {item:old};
       };
       api.paint(old);await api.action('renew-online');
-      assert.deepEqual(requests.map(x=>x.path),['/api/billing/6/cancel-online/','/api/billing/6/']);
+      assert.deepEqual(requests.map(x=>x.path),['/api/billing/6/renew-online/','/api/billing/6/']);
       assert.equal(api.getInvoice().id,6);
       assert.match(node('[data-payment-message]').textContent,/đối soát/);
     }],
@@ -130,12 +129,11 @@ function invoice(status='unpaid') {
       const old={...invoice(),currentOnline:{orderCode:100,serverNow:'old',remainingSeconds:0,expired:true,providerStatus:'PENDING'}};
       const closed={...old,currentOnline:null,paymentPreference:''};
       context.response=async path=>{
-        if(path.endsWith('/cancel-online/'))return {item:closed};
-        if(path.endsWith('/online/'))throw Error('Chưa tạo được mã mới.');
+        if(path.endsWith('/renew-online/'))throw Error('Chưa tạo được mã mới.');
         return {item:closed};
       };
       api.paint(old);await api.action('renew-online');
-      assert.deepEqual(requests.map(x=>x.path),['/api/billing/6/cancel-online/','/api/billing/6/online/','/api/billing/6/']);
+      assert.deepEqual(requests.map(x=>x.path),['/api/billing/6/renew-online/','/api/billing/6/']);
       assert.equal(api.getInvoice().id,6);
       assert.equal(node('[data-payment-qr]').hidden,true);
       assert.equal(node('[data-payment-online]').disabled,false);

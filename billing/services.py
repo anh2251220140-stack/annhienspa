@@ -1,6 +1,7 @@
 from decimal import Decimal
 from datetime import timedelta, datetime
 import secrets
+import logging
 from zoneinfo import ZoneInfo
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.db import transaction
@@ -136,13 +137,33 @@ def apply_promotion(user,pk,code):
     return invoice
 
 
+def check_link_funds(invoice, link):
+    # payOS returns amounts in integer VND. A contradictory balance is
+    # insufficient evidence either to collect again or to tell the user they paid.
+    paid = link.amount_paid
+    remaining = getattr(link, "amount_remaining", None)
+    transactions = getattr(link, "transactions", ())
+    if (type(paid) is not int or paid < 0 or
+            (remaining is not None and remaining != link.amount - paid) or
+            (transactions and paid == 0)):
+        logging.getLogger(__name__).warning(
+            "payOS inconsistent balance invoice=%s status=%s", invoice.pk, link.status
+        )
+        raise ValidationError("Dữ liệu số dư của phiên QR chưa nhất quán. Vui lòng kiểm tra trạng thái phiên.")
+    if paid > 0:
+        logging.getLogger(__name__).warning(
+            "payOS renewal blocked invoice=%s status=%s has_transactions=%s",
+            invoice.pk, link.status, bool(transactions)
+        )
+        raise ValidationError("payOS đã ghi nhận tiền ở phiên cũ. Vui lòng liên hệ Spa để đối soát trước khi tạo mã QR mới.")
+
+
 def stop_pending(invoice):
     for p in invoice.payments.select_for_update().filter(status="pending",payment_method="online"):
         try:
             current=gateway.get(p)
             validate_provider(p,current)
-            if current.amount_paid:
-                raise ValidationError("payOS đã ghi nhận tiền ở phiên cũ. Vui lòng liên hệ Spa để đối soát trước khi tạo mã QR mới.")
+            check_link_funds(invoice, current)
             if current.status=="PAID":
                 raise ValidationError("payOS báo phiên cũ đã thanh toán. Vui lòng liên hệ Spa để đối soát trước khi tạo mã QR mới.")
             if current.status=="PROCESSING":
@@ -154,12 +175,12 @@ def stop_pending(invoice):
             elif current.status=="PENDING":
                 result=gateway.cancel(p)
                 validate_provider(p,result)
+                check_link_funds(invoice, result)
             else:
                 raise ValidationError("Không xác định được trạng thái payOS; cần đối soát.")
         except ValidationError:raise
         except Exception:raise ValidationError("Chưa xác minh được phiên payOS đã đóng. Thử lại hoặc liên hệ Spa; chưa ghi nhận thanh toán/hủy lịch.")
         if result.status not in ("CANCELLED","EXPIRED","FAILED"):raise ValidationError("payOS chưa xác nhận hủy; cần chờ webhook hoặc đối soát.")
-        if result.amount_paid:raise ValidationError("Phiên payOS đã nhận một phần tiền; cần đối soát thủ công trước khi thu thêm hoặc hủy lịch.")
         p.status="cancelled";p.provider_status=result.status;p.save()
 
 
@@ -205,7 +226,7 @@ def cash(user,pk,amount):
     invoice.payment_status="paid";invoice.payment_preference="spa";invoice.save();return invoice
 
 
-def online(user,pk):
+def online(user,pk, *, renew_expired=False):
     from promotions.services import validate_invoice_usage
     # Commit reservation before the network call: a timeout never loses orderCode.
     from appointments.services import start_datetime
@@ -217,6 +238,9 @@ def online(user,pk):
         if invoice.total_amount!=invoice.total_amount.to_integral_value():raise ValidationError("payOS yêu cầu số tiền nguyên VND. Vui lòng thanh toán tại Spa.")
         validate_invoice_usage(invoice)
         p=invoice.payments.filter(status="pending",payment_method="online").first()
+        if renew_expired and p and p.expires_at and p.expires_at <= timezone.now():
+            stop_pending(invoice)
+            p = None
         if not p:
             p=Payment.objects.create(invoice=invoice,payment_method="online",provider="payOS",amount=invoice.total_amount,order_code=secrets.randbelow(8_000_000_000_000_000)+1,
                 expires_at=min(timezone.now()+timedelta(seconds=600),start_datetime(invoice.appointment.appointment_date,invoice.appointment.start_time)))
