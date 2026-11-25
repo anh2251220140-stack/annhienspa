@@ -2,7 +2,10 @@
 
 Đồ án tốt nghiệp xây dựng hệ thống giới thiệu dịch vụ, đặt lịch và quản lý hoạt động Spa. Phiên bản **Bước 3** sử dụng **Django + MySQL**, kế thừa giao diện HTML/CSS/JavaScript của **Bước 2** và phong cách Luxury A với tông kem, nâu và champagne.
 
-Hệ thống hiện có xác thực, phân quyền, quản lý danh mục, lịch làm việc, đặt lịch, hóa đơn, thanh toán tại Spa/payOS, đánh giá, phản hồi và báo cáo.
+Hệ thống hiện có xác thực, phân quyền, quản lý danh mục, lịch làm việc, đặt lịch, hóa đơn, thanh toán tại Spa/payOS, đánh giá, phản hồi và báo cáo. Các chức năng AI gồm chatbot tư vấn Spa, đề xuất dịch vụ, phân tích đánh giá và lịch sử hội thoại.
+
+- **Mã nguồn Bước 3:** [GitHub · anh2251220140-stack/annhienspa](https://github.com/anh2251220140-stack/annhienspa).
+- **Website triển khai:** [An Nhiên Spa trên Vercel](https://annhienspa-sepia.vercel.app/).
 
 ## Công nghệ
 
@@ -10,10 +13,13 @@ Hệ thống hiện có xác thực, phân quyền, quản lý danh mục, lịc
 | --- | --- |
 | Giao diện | Django Templates, HTML, CSS, JavaScript thuần |
 | Backend | Python, Django 5.2 |
-| Cơ sở dữ liệu | MySQL, truy cập qua Django ORM và `mysqlclient` |
+| Cơ sở dữ liệu | MySQL qua Django ORM; `mysqlclient` trên Windows và PyMySQL tương thích MySQLdb trên Linux/Vercel |
 | Xác thực | Django Authentication + Session; custom User `accounts.User` |
 | Thanh toán | SDK payOS, QR nhúng trên hóa đơn, ghi nhận thanh toán tại Spa |
-| Tài nguyên | WhiteNoise cho static; ảnh upload lưu trong `media/` |
+| AI | Google Gemini qua Google Gen AI SDK; chỉ gọi Gemini thật khi cấu hình và quyền cho phép |
+| RAG | Dữ liệu Spa công khai; tra cứu trực tiếp hoặc tìm kiếm ngữ nghĩa bằng chỉ mục SQLite và hàm cosine trong Python |
+| Tài nguyên | Static từ `static/` và đầu ra `collectstatic`; upload vào Vercel Private Blob trên Vercel hoặc `media/` khi chạy local |
+| Triển khai | Django trên Vercel, kết nối MySQL bên ngoài; Docker Compose + Gunicorn + Nginx cho môi trường local |
 | Email | Django email backend, cấu hình SMTP qua biến môi trường |
 | Kiểm thử | Django TestCase/TransactionTestCase, runner MySQL cô lập; một số công cụ kiểm tra SQLite/Chrome riêng |
 
@@ -23,7 +29,7 @@ Không sử dụng React, Vue, TypeScript hoặc bước biên dịch frontend. 
 
 - **Bước 2 — giao diện tham chiếu:** các file HTML tại thư mục gốc cùng `css/`, `js/`, `images/` được giữ lại để bảo toàn thiết kế ban đầu. Các tương tác mẫu và dữ liệu trình duyệt ở bản này phục vụ minh họa giao diện.
 - **Bước 3 — hệ thống hoạt động:** Django render `templates/pages/`, phục vụ tài nguyên từ `static/`, sử dụng API và dữ liệu MySQL. Đăng nhập, phân quyền và dữ liệu nghiệp vụ được kiểm tra tại backend.
-- Cả 27 trang vẫn có URL `.html`: 15 trang phía khách hàng và 12 trang Admin. Mở HTML gốc bằng máy chủ tĩnh không tương đương chạy hệ thống Django; tài khoản hoặc dữ liệu demo không thay thế tài khoản và dữ liệu trong MySQL.
+- Các trang User/Admin có đường dẫn `.html` trên Django. Mở HTML gốc bằng máy chủ tĩnh chỉ chạy bản giao diện tham chiếu; tài khoản và dữ liệu của hệ thống Django nằm trong MySQL.
 
 Các ID hiển thị trên giao diện được định dạng từ ID thật. Không dùng chỉ số của danh sách demo làm khóa dữ liệu Django.
 
@@ -67,10 +73,17 @@ Các trang Admin được bảo vệ bằng xác thực và quyền phía Django
 - Trạng thái lịch hẹn tách biệt trạng thái thanh toán; thanh toán thành công không tự hoàn thành lịch hẹn.
 - Báo cáo cộng các khoản thanh toán thành công hợp lệ trên hóa đơn đã thanh toán, loại khoản cần đối soát; ngày thanh toán tính theo giờ Việt Nam. Lịch hẹn tính theo ngày hẹn; đánh giá tính theo ngày gửi. Bộ lọc trạng thái lịch không tự lọc lại doanh thu.
 
+### Chức năng AI
+
+- **FR-21 — Chatbot:** Tra cứu danh mục dịch vụ, sản phẩm, khuyến mãi và thông tin Spa. Khi bật RAG, chatbot ưu tiên các câu tra cứu trực tiếp; nhánh tìm kiếm ngữ nghĩa lưu embedding trong SQLite và tính độ tương đồng cosine trong Python. Khi thiếu dữ liệu phù hợp hoặc Gemini gặp lỗi, chatbot có phản hồi dự phòng.
+- **FR-22 — Đề xuất cá nhân hóa:** Đề xuất dịch vụ dựa trên nhu cầu, ngân sách, hồ sơ và lịch sử. Backend kiểm tra đề xuất theo danh mục và điều kiện của khách; có chế độ gợi ý theo quy tắc.
+- **FR-23 — Phân tích đánh giá:** Quản trị viên được cấp quyền có thể phân tích cảm xúc và tóm tắt đánh giá. Gửi dữ liệu sang Gemini là tùy chọn riêng.
+- **FR-24 — Lịch sử hội thoại:** Phiên và tin nhắn được lưu trong MySQL. User xem hội thoại của mình, Admin xem theo quyền. Chỉ mục SQLite của RAG lưu ngữ cảnh truy xuất.
+
 ## Cấu trúc repository
 
 ```text
-config/             Cấu hình Django, URL gốc, WSGI/ASGI và media local
+config/             Cấu hình Django, URL gốc, WSGI/ASGI và các backend lưu ảnh
 accounts/           Custom User, hồ sơ, xác thực, quyền và đặt lại mật khẩu
 services/           Danh mục và dịch vụ
 products/           Sản phẩm giới thiệu và quan hệ sản phẩm–dịch vụ
@@ -80,9 +93,9 @@ promotions/         Chương trình, điều kiện và giới hạn sử dụng
 billing/            Hóa đơn, thanh toán, QR và adapter payOS
 reviews/            Đánh giá và phản hồi
 dashboard/          API tổng hợp Dashboard và Reports
-ai_features/        Model chuẩn bị cho chức năng AI
+ai_features/        Chatbot, Gemini, RAG SQLite, đề xuất, phân tích đánh giá và lịch sử
 core/               Routing trang, dữ liệu catalog, form và API quản trị dùng chung
-templates/          Django Templates; 27 trang chính trong pages/
+templates/          Django Templates cho website; các trang trong pages/
 static/             CSS, JavaScript, font và ảnh dùng bởi Django
 staticfiles/        Đầu ra collectstatic, không phải nơi chỉnh sửa nguồn
 media/              Ảnh upload, không lưu vào Git
@@ -92,9 +105,10 @@ docs/               Tài liệu tiến độ và bằng chứng kiểm thử the
 manage.py           Điểm chạy lệnh Django
 requirements.txt    Dependency Python đang sử dụng
 .env.example        Tên biến môi trường và giá trị mẫu an toàn
+compose.yaml        Cấu hình Django/Gunicorn và Nginx để chạy Docker local
 ```
 
-Một số tài liệu giai đoạn trước mô tả trạng thái tại thời điểm đó; không dùng mô tả demo trong tài liệu cũ để suy ra rằng các API hiện tại chưa được triển khai.
+Các báo cáo theo giai đoạn trong `docs/` ghi trạng thái tại thời điểm kiểm thử. Hướng dẫn hiện tại nằm trong README này và [README-DJANGO.md](README-DJANGO.md).
 
 ## Chạy dự án Django trên máy local
 
@@ -126,11 +140,12 @@ if (-not (Test-Path -LiteralPath .env)) { Copy-Item -LiteralPath .env.example -D
 
 | Nhóm | Biến được source sử dụng |
 | --- | --- |
-| Django | `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS` |
+| Django | `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS` |
 | MySQL | `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_HOST`, `MYSQL_PORT` |
 | Media local | `DJANGO_LOCAL_MEDIA_ENABLED` |
 | Email | `EMAIL_BACKEND`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `EMAIL_USE_TLS`, `EMAIL_USE_SSL`, `DEFAULT_FROM_EMAIL`, `PASSWORD_RESET_TIMEOUT` |
 | payOS | `PAYOS_CLIENT_ID`, `PAYOS_API_KEY`, `PAYOS_CHECKSUM_KEY`, `PAYOS_RETURN_URL`, `PAYOS_CANCEL_URL` |
+| AI | Xem [biến môi trường AI](#biến-môi-trường-ai) để bật từng tính năng |
 
 Cấu hình mẫu dùng database `annhien_spa` tại `127.0.0.1:3306`. Dùng tài khoản MySQL riêng có quyền phù hợp, không dùng root làm tài khoản chạy website. Với bản cài đã có dữ liệu, giữ nguyên cấu hình kết nối và SECRET_KEY hiện có; không chạy lại công cụ thiết lập để tạo lại database.
 
@@ -174,11 +189,45 @@ Khi đặt `DJANGO_DEBUG=false` trong `.env` (`DEBUG=False`), chạy `collectsta
 
 Truy cập [Home](http://127.0.0.1:8000/), [Đăng nhập](http://127.0.0.1:8000/login.html), hoặc [Admin Dashboard](http://127.0.0.1:8000/admin-dashboard.html) sau khi đăng nhập đúng quyền. Website Django cần MySQL hoạt động; mở HTML gốc không kiểm chứng được backend.
 
-WhiteNoise phục vụ `/static/`. Để xem ảnh tải lên khi phát triển local, đặt `DJANGO_LOCAL_MEDIA_ENABLED=true` trong `.env` rồi khởi động lại Django. Tuyến `/media/` hoạt động cả khi `DEBUG=False`, chỉ nhận kết nối loopback trực tiếp và kiểm tra ảnh trong `services/`, `products/`, `employees/`, `avatars/` dưới `MEDIA_ROOT`. Avatar chỉ được trả cho chủ hồ sơ hoặc Admin đã đăng nhập. Khi triển khai, giữ biến này `false`, lưu media trên volume bền vững hoặc object storage và dùng máy chủ media riêng. Dùng truy cập có xác thực hoặc URL ký cho avatar để giữ quyền xem như trên local.
+WhiteNoise phục vụ `/static/` ở local. Để xem ảnh tải lên khi phát triển local, đặt `DJANGO_LOCAL_MEDIA_ENABLED=true` trong `.env` rồi khởi động lại Django. Tuyến `/media/` hoạt động cả khi `DEBUG=False`, chỉ nhận kết nối loopback trực tiếp. Avatar chỉ được trả cho chủ hồ sơ hoặc Admin đã đăng nhập. Docker local dùng tuyến media riêng qua Django. Trên Vercel, dùng Private Blob theo hướng dẫn ở dưới.
+
+## Biến môi trường AI
+
+Thêm các biến cần dùng vào `.env` riêng trên máy hoặc **Settings → Environment Variables** của dự án Vercel. Mặc định chatbot và RAG tắt. Khi bật chatbot với `AI_PROVIDER=mock`, ứng dụng dùng bộ phản hồi nội bộ mà không gọi Gemini.
+
+| Nhóm | Biến và ý nghĩa |
+| --- | --- |
+| Chatbot | `AI_CHAT_ENABLED=true` bật chatbot. `AI_CHAT_DAILY_LIMIT` và `AI_CHAT_COOLDOWN_SECONDS` mặc định là 30 lượt/ngày và 5 giây. `AI_CHAT_SPA_INFORMATION` là thông tin Spa đã duyệt để sử dụng làm nguồn. |
+| Nhà cung cấp | `AI_PROVIDER=gemini` chọn Gemini. `AI_GEMINI_API_KEY` đặt dưới dạng secret. Giá trị mặc định của `AI_PROVIDER` là `mock`. |
+| Quyền gọi Gemini | Sau khi xác minh dự án Google trên Free Tier và phạm vi sử dụng, đặt `AI_GEMINI_REQUESTS_APPROVED=true`, `AI_GEMINI_FREE_TIER_CONFIRMED=true`, `AI_GEMINI_FREE_TIER_ONLY=true` và `AI_PAID_CALLS_APPROVED=false`. Các cờ cấu hình ghi nhận quyền và xác nhận của người vận hành. Kiểm tra gói và quota tại Google. |
+| Model | `AI_GEMINI_MODEL` mặc định `gemini-3.5-flash-lite`. `AI_GEMINI_EMBEDDING_MODEL` mặc định `gemini-embedding-001`, với `AI_GEMINI_EMBEDDING_DIMENSIONS=768`. Adapter kiểm tra model và số chiều được hỗ trợ. |
+| Truy xuất RAG | `AI_RAG_ENABLED=true` bật RAG. `AI_RAG_DIRECTORY` chỉ thư mục chứa chỉ mục, mặc định `.rag-index/` dưới thư mục mã. `AI_RAG_INDEX_UPDATE_APPROVED` mặc định tắt, chỉ bật khi đã duyệt cập nhật vector từ dữ liệu công khai. |
+| Đề xuất và đánh giá | `AI_PERSONALIZATION_EXPORT_APPROVED` cho phép gửi dữ liệu dùng để đề xuất. `AI_ASSISTANCE_ENABLED` bật API phân tích đánh giá cho Admin được cấp quyền. `AI_REVIEW_EXPORT_APPROVED` cho phép gửi nội dung đánh giá phù hợp sang Gemini. Chỉ bật các quyền gửi dữ liệu sau khi đã duyệt phạm vi. |
+
+Để lập chỉ mục trên một môi trường đã phê duyệt, dùng `manage.py index_spa` sau khi cấu hình đúng thư mục, nhà cung cấp và các cờ quyền tương ứng. Khi bật nhánh Gemini, thao tác có thể gọi API embedding. Xem [mã cấu hình AI](ai_features/config.py), [adapter Gemini](ai_features/gemini.py) và [chỉ mục RAG](ai_features/rag.py).
+
+## Triển khai lên Vercel
+
+1. Trong Vercel, import repository GitHub và chọn thư mục gốc có `manage.py` và `requirements.txt`. Dùng preset Django/Python tương ứng; Vercel nhận diện ứng dụng Django và đọc cấu hình WSGI/ASGI. Dự án dùng `config/wsgi.py` và có `STATIC_ROOT` cho bước thu thập static của Vercel. [Hướng dẫn Django trên Vercel](https://vercel.com/templates/python/django-hello-world).
+2. Vào **Settings → Environment Variables**, chọn **Production** và cấu hình các nhóm sau.
+
+   | Nhóm | Cấu hình Production |
+   | --- | --- |
+   | Django | `DJANGO_DEBUG=false`, `DJANGO_SECRET_KEY` riêng cho Production, `DJANGO_ALLOWED_HOSTS` chứa hostname thật và `DJANGO_CSRF_TRUSTED_ORIGINS` chứa origin HTTPS của website nếu cần. |
+   | MySQL | `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD` theo máy chủ MySQL thực tế mà Vercel có thể kết nối. Chuẩn bị schema qua quy trình migration đã rà soát trước khi kiểm tra website. |
+   | Media | Kết nối **Vercel Private Blob** với đúng dự án và môi trường. Để `DJANGO_BLOB_MEDIA_ENABLED` ở mặc định bật trên Vercel hoặc đặt `true`. Dùng thông tin xác thực do tích hợp Blob cấp; yêu cầu `/media/` và kiểm tra quyền avatar đi qua Django. |
+   | Email/payOS | Đặt biến SMTP nếu dùng khôi phục mật khẩu. Với payOS, dùng bộ khóa của cùng kênh và URL HTTPS Production cho `PAYOS_RETURN_URL`, `PAYOS_CANCEL_URL`. Đăng ký webhook tại đường dẫn `/api/billing/webhook/payos/` trên tên miền Production. |
+   | AI | Chọn biến theo [mục AI](#biến-môi-trường-ai). Lưu khóa và mật khẩu dưới dạng **Secret**. Vercel dùng biến mới từ lần triển khai tiếp theo. |
+
+3. Triển khai từ nhánh Production đã cấu hình. Khi bản mới **Ready**, kiểm tra trang chủ, tài nguyên static, đăng nhập User/Admin và trang lấy dữ liệu từ MySQL. Kiểm tra thêm ảnh, AI hoặc webhook với dữ liệu demo khi bật các tích hợp tương ứng. [Biến môi trường Vercel](https://vercel.com/docs/environment-variables) · [Hồ sơ kỹ thuật Private Blob](docs/vercel-private-blob-20261123.txt).
+
+**RAG trên Vercel.** Môi trường Production của An Nhiên Spa đặt `AI_RAG_DIRECTORY=/tmp/annhien-rag` trong Vercel. Khi biến này vắng mặt, mã dùng thư mục `.rag-index/` cạnh mã nguồn. Trên Vercel, vùng mã đóng gói chỉ đọc và chỉ mục trong `/tmp` là dữ liệu tạm của từng instance. Việc triển khai đã thành công, còn việc tạo, cập nhật và truy xuất chỉ mục vector trên Production chưa được xác minh. [Hệ thống tệp của Vercel Functions](https://vercel.com/docs/functions/runtimes#file-system-support).
 
 ## Kiểm thử và xác minh
 
-Runner hồi quy hiện khai báo **205 tests**: `accounts` 17, `core` 101, `billing` 70, `appointments.test_fr14` 17. Kết quả hồi quy MySQL gần nhất được nghiệm thu là **205/205 PASS**; đây là mốc đã chạy, không có nghĩa mọi thay đổi sau đó tự động được kiểm thử lại hoặc mọi trường hợp đều được bao phủ.
+Xem [Báo cáo kiểm thử tổng hợp Bước 3](docs/bao-cao-kiem-thu-cuoi.md) để đối chiếu kết quả, phạm vi và bằng chứng của từng đợt nghiệm thu.
+
+Mốc hồi quy MySQL đã nghiệm thu là **205/205 PASS**, gồm `accounts` 17, `core` 101, `billing` 70 và `appointments.test_fr14` 17 ở đợt đó. Dùng lệnh discovery để xem số ca của mã hiện tại.
 
 Discovery không kết nối database:
 
@@ -206,7 +255,7 @@ Reviews và Reports có công cụ kiểm tra riêng như `tools/check_reviews_c
 
 ## Bảo quản dữ liệu và tài nguyên
 
-- Giữ `.env`, thông tin MySQL/SMTP/payOS, bản dump, backup và media cá nhân ngoài kho Git công khai. Không dùng dữ liệu khách hàng hoặc giao dịch thật làm fixture công khai.
+- Giữ `.env`, khóa Gemini/Blob, thông tin MySQL/SMTP/payOS, bản dump, backup, tệp SQLite kiểm thử và media cá nhân ngoài kho Git công khai. Không dùng dữ liệu khách hàng hoặc giao dịch thật làm fixture công khai.
 - Sao lưu đồng thời source, migrations, media và database trước khi nâng cấp schema; không reset database hoặc sửa migration cũ để đồng bộ giao diện.
 - `docs/` và `tools/` có thể chứa tài liệu/công cụ phục vụ từng thời điểm. Kiểm tra và ẩn danh bằng chứng trước khi công khai; không mặc định toàn bộ file local đều an toàn để commit.
 - Font Be Vietnam Pro và Playfair Display được phục vụ cục bộ, kèm giấy phép OFL trong tài nguyên font. Giao diện gốc có ảnh bổ sung từ Unsplash của Lindsay Cash, Štefan Štefančík và Daniil Lobachev; giữ thông tin nguồn và giấy phép khi sử dụng lại.
