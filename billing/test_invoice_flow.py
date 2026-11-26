@@ -216,7 +216,7 @@ class InvoiceFlowTests(FlowFixtures,TestCase):
     def test_invoice_appointment_mapping_search_filter_and_pagination(self):
         row=self.client.get(f'/api/billing/{self.i.pk}/').json()['item']
         self.assertEqual(row['id'],self.i.pk);self.assertEqual(row['appointmentId'],self.a.pk)
-        for q in [f'HD-{self.i.pk}', f'LH-{self.a.pk}', f'LH-{self.a.pk:06d}']:
+        for q in [f'HD-{self.i.pk}', f'HD-{self.i.pk:06d}', f'LH-{self.a.pk}', f'LH-{self.a.pk:06d}']:
             self.assertEqual(self.client.get('/api/billing/',{'search':q}).json()['items'][0]['id'],self.i.pk)
         self.assertEqual(self.client.get('/api/billing/',{'status':'paid'}).json()['items'],[])
         for number in range(11):

@@ -10,7 +10,7 @@
     </title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
-    <script src="{% static 'js/ui.js' %}"></script>
+    <script src="{% static 'js/ui.js' %}?v=invoice-code-1"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
     <script src="{% static 'js/app.js' %}" defer>
@@ -18,7 +18,7 @@
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
-<script src="{% static 'js/phase4-api.js' %}?v=payos-qr-1" defer></script><script src="{% static 'js/live-invoice.js' %}?v=qr-renew-session-2" defer></script><link rel="stylesheet" href="{% static 'css/phase4.css' %}?v=payos-qr-1"><link rel="stylesheet" href="{% static 'css/user-invoice.css' %}?v=invoice-cards-3"><link rel="stylesheet" href="{% static 'css/user-catalog-polish.css' %}?v=b2-card-restore-20261120">
+<script src="{% static 'js/phase4-api.js' %}?v=payos-qr-1" defer></script><script src="{% static 'js/live-invoice.js' %}?v=invoice-code-1" defer></script><link rel="stylesheet" href="{% static 'css/phase4.css' %}?v=payos-qr-1"><link rel="stylesheet" href="{% static 'css/user-invoice.css' %}?v=invoice-cards-3"><link rel="stylesheet" href="{% static 'css/user-catalog-polish.css' %}?v=b2-card-restore-20261120">
 </head>
   <body>
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>

@@ -89,7 +89,7 @@ def require_invoice_detail(invoice):
     if len(details) != 1:
         issue = "thiếu dòng chi tiết" if not details else "có nhiều dòng chi tiết"
         raise ValidationError(
-            f"Hóa đơn HD-{invoice.pk} {issue}. Cần đối soát dữ liệu trước khi tiếp tục.",
+            f"Hóa đơn HD-{invoice.pk:06d} {issue}. Cần đối soát dữ liệu trước khi tiếp tục.",
             code="invalid_invoice_details",
         )
     return details[0]

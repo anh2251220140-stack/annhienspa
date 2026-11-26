@@ -1,6 +1,7 @@
 (() => {
   "use strict";
   window.spaAppointmentCode = (id) => `LH-${String(id).padStart(6, "0")}`;
+  window.spaInvoiceCode = (id) => `HD-${String(id).padStart(6, "0")}`;
   const paths = {
     leaf: '<path d="M5 18C1 9 10 4 20 3c0 10-4 18-13 15M3 21 15 9m-7 7 1-6m3 2h5"/>',
     clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',

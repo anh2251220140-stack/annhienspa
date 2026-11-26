@@ -9,11 +9,11 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/auth.css' %}">
     <link rel="stylesheet" href="{% static 'css/admin.css' %}">
-    <script src="{% static 'js/ui.js' %}"></script>
+    <script src="{% static 'js/ui.js' %}?v=invoice-code-1"></script>
     {{ auth_ui|json_script:"spa-auth-context" }}
     <script src="{% static 'js/auth.js' %}"></script>
     <script src="{% static 'js/admin.js' %}" defer></script>
-    <script src="{% static 'js/phase4-api.js' %}" defer></script><script src="{% static 'js/admin-finance.js' %}?v=finance-cash-cutoff-1" defer></script>
+    <script src="{% static 'js/phase4-api.js' %}" defer></script><script src="{% static 'js/admin-finance.js' %}?v=invoice-code-1" defer></script>
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>

@@ -6,6 +6,8 @@
   const esc = window.spaLive.escape, money = window.spaLive.money;
   const normalize = v => String(v ?? '').toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').trim();
   const appointmentCode = id => 'LH-' + String(id).padStart(6,'0');
+  const invoiceCode = window.spaInvoiceCode;
+  const scopedInvoiceId = () => Number(new URLSearchParams(location.search).get('invoice')?.match(/^HD-(\d+)$/i)?.[1]);
   const localDay = value => {
     if (!value) return '';
     if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
@@ -22,8 +24,8 @@
   const paymentBadge = p => badge(p.requiresReview ? 'Cần đối soát' : ({success:'Thành công',pending:'Đang chờ',cancelled:'Đã hủy',review:'Cần đối soát'}[p.status] || 'Chưa xác định'),p.requiresReview || ['review','cancelled'].includes(p.status) ? 'cancelled' : p.status === 'success' ? 'completed' : 'pending');
   const invoiceBadge = i => badge({paid:'Đã thanh toán',unpaid:'Chưa thanh toán',cancelled:'Đã hủy'}[i.status] || 'Chưa xác định',i.status === 'paid' ? 'completed' : i.status === 'cancelled' ? 'cancelled' : 'pending');
   const appointmentLabels = {pending:'Chờ xác nhận',confirmed:'Đã xác nhận',completed:'Đã hoàn thành',cancelled:'Đã hủy'};
-  const paymentMap = p => ({...p,dbId:p.id,id:`GD-${p.id}`,invoiceId:`HD-${p.invoiceId}`,amount:Number(p.amount)});
-  const invoiceMap = i => ({...i,dbId:i.id,id:`HD-${i.id}`,appointmentId:appointmentCode(i.appointmentId),subtotal:Number(i.subtotal),priceSnapshot:Number(i.priceSnapshot),discount:Number(i.discount),total:Number(i.total)});
+  const paymentMap = p => ({...p,dbId:p.id,id:`GD-${p.id}`,invoiceId:invoiceCode(p.invoiceId),amount:Number(p.amount)});
+  const invoiceMap = i => ({...i,dbId:i.id,id:invoiceCode(i.id),appointmentId:appointmentCode(i.appointmentId),subtotal:Number(i.subtotal),priceSnapshot:Number(i.priceSnapshot),discount:Number(i.discount),total:Number(i.total)});
   let invoices = [], payments = [], page = 1, returnFocus, cashBusy = false, opening = false;
   const invoiceFor = p => invoices.find(i=>i.id === p.invoiceId);
   const paymentsFor = i => payments.filter(p=>p.invoiceId === i.id);
@@ -48,12 +50,13 @@
   function render() {
     const query=normalize($('#finance-search').value), day=$('#finance-date').value, status=$('#finance-status').value;
     const basis=module==='payments' ? $('#finance-date-basis').value : 'createdAt';
-    const scope=new URLSearchParams(location.search).get('invoice');
+    const scope=scopedInvoiceId();
+    const searchingScope=scope>0 && [normalize(invoiceCode(scope)), `hd-${scope}`].includes(query);
     const rows=(module==='invoices'?invoices:payments).filter(record=>{
       const i=module==='invoices'?record:invoiceFor(record);
-      if (scope && normalize(scope)===query && i?.id!==scope) return false;
+      if (searchingScope && i?.dbId!==scope) return false;
       const state=module==='payments' && record.requiresReview?'review':record.status;
-      return (!status || state===status) && (!day || localDay(record[basis])===day) && normalize(`${record.id} ${i?.id || ''} ${i?.appointmentId || ''} ${i?.customer || ''} ${i?.service || ''} ${record.reference || ''}`).includes(query);
+      return (!status || state===status) && (!day || localDay(record[basis])===day) && normalize(`${record.id} ${i?.id || ''} ${i ? `HD-${i.dbId}` : ''} ${i?.appointmentId || ''} ${i?.customer || ''} ${i?.service || ''} ${record.reference || ''}`).includes(query);
     });
     const pages=Math.max(1,Math.ceil(rows.length/5));page=Math.max(1,Math.min(page,pages));
     const start=(page-1)*5,visible=rows.slice(start,start+5);
@@ -149,6 +152,6 @@
   ['#finance-search','#finance-status','#finance-date-basis'].forEach(selector=>$(selector)?.addEventListener(selector==='#finance-search'?'input':'change',()=>{page=1;render();}));
   $('#finance-reset').onclick=()=>{['#finance-search','#finance-date','#finance-status'].forEach(s=>$(s).value='');if($('#finance-date-basis'))$('#finance-date-basis').value='createdAt';dateText.value='';dateText.setCustomValidity('');dateText.removeAttribute('aria-invalid');$('#finance-date-error').hidden=true;const url=new URL(location.href);url.searchParams.delete('invoice');history.replaceState(null,'',url);page=1;render();};
   $('#finance-retry').onclick=()=>loadLedger().catch(error=>notice(error.message));
-  const scope=new URLSearchParams(location.search).get('invoice');if(/^HD-\d+$/.test(scope || ''))$('#finance-search').value=scope;
+  const scope=scopedInvoiceId();if(Number.isSafeInteger(scope)&&scope>0)$('#finance-search').value=invoiceCode(scope);
   try{await loadLedger();}catch(error){notice(error.message);}
 })();

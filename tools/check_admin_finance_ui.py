@@ -52,7 +52,7 @@ const reset=()=>$('#finance-reset').click();
 const search=value=>{$('#finance-search').value=value;input($('#finance-search'));};
 const close=()=>$('#finance-dialog [data-finance-close]')?.click();
 const fits=()=>{const r=$('#finance-dialog').getBoundingClientRect();check(r.top>=0&&r.bottom<=innerHeight&&r.right<=innerWidth&&r.left>=0,'modal fits');};
-async function openInvoice(id){reset();search('HD-'+id);if(module==='invoices')$(`[data-finance-view="invoice"][data-record="HD-${id}"]`).click();else{const b=$('#finance-rows [data-finance-view="payment"]');check(!!b,'payment for invoice exists');b.click();await wait();$(`#finance-dialog [data-finance-view="invoice"][data-record="HD-${id}"]`).click();}await wait();await wait();}
+async function openInvoice(id){const code='HD-'+String(id).padStart(6,'0');reset();search('HD-'+id);if(module==='invoices')$(`[data-finance-view="invoice"][data-record="${code}"]`).click();else{const b=$('#finance-rows [data-finance-view="payment"]');check(!!b,'payment for invoice exists');b.click();await wait();$(`#finance-dialog [data-finance-view="invoice"][data-record="${code}"]`).click();}await wait();await wait();}
 try{
 await document.fonts.ready;await wait();await wait();
 check(!$('#finance-error').hidden&&$('#finance-stats').children.length===0,'initial API error, no fake KPI');$('#finance-retry').click();await wait();await wait();
@@ -63,6 +63,7 @@ check($('.finance-kpi-scope').textContent.includes('Toàn bộ dữ liệu'),'KP
 check(all('#finance-stats .finance-stat-symbol svg').length===4,'KPI icons');check(getComputedStyle($('#finance-rows .admin-row-actions svg')).color==='rgb(185, 144, 87)','action champagne icon');
 check(!/Admin Core|Admin Operations|Finance & Quality/.test($('.admin-nav').textContent),'Vietnamese sidebar');
 check(/LH-\d{6}/.test($('#finance-rows').textContent)&&!/LH-\d{1,5}(?!\d)/.test($('#finance-rows').textContent),'six digit appointment codes');
+check(/HD-\d{6}/.test($('#finance-rows').textContent)&&!/HD-\d{1,5}(?!\d)/.test($('#finance-rows').textContent),'six digit invoice codes');
 check($('#finance-rows').textContent.includes('23/10/2026'),'Vietnam date display');
 const scroll=$('.admin-table-scroll');scroll.scrollLeft=scroll.scrollWidth;const last=$('#finance-rows tr:first-child .admin-row-actions button');check(last.getBoundingClientRect().right<=scroll.getBoundingClientRect().right+1,'last column accessible');scroll.scrollLeft=0;
 $('[data-finance-page="2"]').click();check(all('#finance-rows tr').length===2,'page2');search('LH-000003');check(all('#finance-rows tr').length===1,'search true FK resets page');
@@ -77,16 +78,18 @@ $('#finance-status').value='review';change($('#finance-status'));check(all('#fin
 }
 $('#finance-date-display').value='31/02/2026';input($('#finance-date-display'));check(!$('#finance-date-error').hidden&&!$('#finance-date').value,'invalid date feedback');reset();
 check(!$('#finance-date-display').value&&$('#finance-date-error').hidden,'date reset');
-const scoped=new URL(location.href);scoped.searchParams.set('invoice','HD-1');history.replaceState(null,'',scoped);search('HD-1');
-check(all('#finance-rows tr').length===(module==='invoices'?1:0),'cross-link HD-1 does not match HD-10');reset();
+for(const code of ['HD-1','HD-000001']){
+  const scoped=new URL(location.href);scoped.searchParams.set('invoice',code);history.replaceState(null,'',scoped);search('HD-000001');
+  check(all('#finance-rows tr').length===(module==='invoices'?1:0),'exact invoice cross-link '+code);reset();
+}
 await openInvoice(3);fits();check($('#finance-dialog').textContent.includes('LH-000004')&&$('#finance-dialog').textContent.includes('351.000 VND'),'invoice identity and historical money');
 check(!$('#finance-dialog [data-cash-form]'),'paid has no cash action');check(all('#finance-dialog .admin-finance-related').length===3,'multiple historical attempts');
 check(!/snapshot|catalog|Bản mẫu|Không thu tiền thật/i.test($('#finance-dialog').textContent),'no technical demo copy');
-check($('#finance-dialog a[href="admin-payments.html?invoice=HD-3"]'),'invoice to payment link');
+check($('#finance-dialog a[href="admin-payments.html?invoice=HD-000003"]'),'invoice to payment link');
 const body=$('#finance-dialog .admin-service-modal-scroll');body.scrollTop=body.scrollHeight;
 check(body.scrollHeight>body.clientHeight&&$('#finance-dialog .admin-dialog-actions').getBoundingClientRect().bottom<=innerHeight,'body scroll, footer visible');
 $('#finance-dialog [data-finance-view="payment"][data-record="GD-33"]').click();await wait();fits();
-check($('#finance-dialog').textContent.includes('24/10/2026 · 00:05'),'payment detail local timestamp');check($('#finance-dialog a[href="admin-invoices.html?invoice=HD-3"]'),'payment to invoice link');
+check($('#finance-dialog').textContent.includes('24/10/2026 · 00:05'),'payment detail local timestamp');check($('#finance-dialog a[href="admin-invoices.html?invoice=HD-000003"]'),'payment to invoice link');
 $('#finance-dialog .admin-dialog-actions [data-finance-close]').click();check(!$('#finance-dialog').open,'footer close');
 await openInvoice(4);check(!$('#finance-dialog [data-cash-form]')&&$('#finance-dialog').textContent.includes('đối soát'),'review invoice blocked with reason');close();
 await openInvoice(5);check(!$('#finance-dialog [data-cash-form]')&&$('#finance-dialog').textContent.includes('đã hủy'),'cancelled blocked');close();

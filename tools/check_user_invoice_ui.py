@@ -29,7 +29,8 @@ window.fetch=async(path,options={})=>{
  if(path.startsWith('/api/billing/?')){
   await pause(35);if(failList){failList=false;return respond({error:'Không tải được danh sách thử nghiệm.'},503);}
   const q=new URLSearchParams(path.split('?')[1]),search=q.get('search'),status=q.get('status');
-  let rows=[...fixtures].reverse().filter(i=>(!status||i.status===status)&&(!search||('HD-'+i.id).toLowerCase()===search.toLowerCase()||('LH-'+String(i.appointmentId).padStart(6,'0'))===search||i.service.toLowerCase().includes(search.toLowerCase())));
+  const number=search?.trim().match(/^(?:HD-)?(\d+)$/i),appointment=search?.trim().match(/^LH-(\d+)$/i);
+  let rows=[...fixtures].reverse().filter(i=>(!status||i.status===status)&&(!search||(number&&i.id===Number(number[1]))||(appointment&&i.appointmentId===Number(appointment[1]))||i.service.toLowerCase().includes(search.toLowerCase())));
   const pages=Math.max(1,Math.ceil(rows.length/10)),page=Math.min(pages,Math.max(1,Number(q.get('page'))||1));
   return respond({items:rows.slice((page-1)*10,page*10),page,pages,total:rows.length});
  }
@@ -67,33 +68,36 @@ const $=s=>document.querySelector(s),all=s=>[...document.querySelectorAll(s)];le
 const check=(v,m)=>{if(!v)throw Error(m);count++;},wait=ms=>new Promise(r=>setTimeout(r,ms||100));
 const ready=async()=>{for(let i=0;i<80;i++){if($('[data-invoice-list]').getAttribute('aria-busy')==='false')return;await wait(30);}throw Error('Loading did not settle');};
 const selected=()=>$('[data-invoice-code]').textContent,filter=async(search='',status='')=>{$('#invoice-search').value=search;$('#invoice-status-filter').value=status;$('#invoice-filter').requestSubmit();await wait(20);await ready();};
-async function choose(id){await filter('HD-'+id);check(selected()==='HD-'+id,'detail HD-'+id);check($('[data-invoice-open="'+id+'"][aria-current="true"]'),'selected card '+id);const state=fixtures.find(i=>i.id===id);check($('[data-payment-refund]').hidden===(state.status!=='paid'||state.needsReview||!!state.currentOnline),'refund guidance matches selected invoice '+id);}
+async function choose(id){await filter('HD-'+id);check(selected()==='HD-'+String(id).padStart(6,'0'),'detail HD-'+id);check($('[data-invoice-open="'+id+'"][aria-current="true"]'),'selected card '+id);const state=fixtures.find(i=>i.id===id);check($('[data-payment-refund]').hidden===(state.status!=='paid'||state.needsReview||!!state.currentOnline),'refund guidance matches selected invoice '+id);}
 const noOverflow=()=>check(document.documentElement.scrollWidth<=innerWidth,'no horizontal page overflow');
 try{
 await document.fonts.ready;await ready();
 check(!document.querySelector('[data-invoice-select]'),'dropdown removed');
 const original=new URL(location.href);const initial=Number(original.searchParams.get('id'));
 if(location.hash==='#payos-return'){
- check(selected()==='HD-2'&&all('[data-invoice-row]').length===1,'payOS return selects requested invoice outside first page');
+ check(selected()==='HD-000002'&&all('[data-invoice-row]').length===1,'payOS return selects requested invoice outside first page');
  check(fixtures[1].status==='unpaid'&&!$('[data-payment-message]').textContent.includes('Đã ghi nhận thanh toán'),'provider URL never confirms payment');
 }else if(location.hash==='#initial-empty'){
  check($('[data-invoice-content]').hidden&&!$('[data-invoice-empty]').hidden,'unauthorized/missing direct ID stays empty');check(posts.length===0,'no payment on missing ID');
 }else if(initial===2&&location.hash!=='#reload'){
- check(selected()==='HD-2'&&all('[data-invoice-row]').length===1,'direct ID outside first page selects correct card');
- check($('#invoice-search').value==='HD-2','direct ID is explicit searchable filter');
+ check(selected()==='HD-000002'&&all('[data-invoice-row]').length===1,'direct ID outside first page selects correct card');
+ check($('#invoice-search').value==='HD-000002','direct ID is explicit searchable filter');
 }else if(location.hash==='#reload'){
- check(selected()==='HD-2'&&$('#invoice-page').textContent==='2 / 2','reload URL restores page and selection');
+ check(selected()==='HD-000002'&&$('#invoice-page').textContent==='2 / 2','reload URL restores page and selection');
 }else{
- check(all('[data-invoice-row]').length===10&&selected()==='HD-13','server page1 exact ten');
+ check(all('[data-invoice-row]').length===10&&selected()==='HD-000013','server page1 exact ten');
  check($('#invoice-page').textContent==='1 / 2','server pagination');
  const ids=all('[data-invoice-row]').map(e=>e.dataset.invoiceRow);$('#invoice-next').click();await wait(20);await ready();
  check(all('[data-invoice-row]').length===3&&!all('[data-invoice-row]').some(e=>ids.includes(e.dataset.invoiceRow)),'page2 no repeat or missing IDs');
- $('[data-invoice-open="2"]').click();await wait(20);await ready();check(selected()==='HD-2','card on second page');
+ $('[data-invoice-open="2"]').click();await wait(20);await ready();check(selected()==='HD-000002','card on second page');
  check(new URL(location.href).searchParams.get('id')==='2'&&new URL(location.href).searchParams.get('page')==='2','URL stores exact page and ID');
- $('#invoice-prev').click();await wait(20);await ready();check(selected()==='HD-13','page change discards absent selection');
+ $('#invoice-prev').click();await wait(20);await ready();check(selected()==='HD-000013','page change discards absent selection');
 }
 $('#invoice-reset').click();await wait(20);await ready();
 check(all('[data-invoice-row]').length===10,'view all resets direct filter');
+await filter('HD-000011');
+check(all('[data-invoice-row]').length===1&&selected()==='HD-000011','search accepts padded invoice code');
+check($('[data-invoice-row="11"] .user-invoice-code').textContent.includes('HD-000011 · LH-000051'),'invoice and appointment retain separate numeric IDs');
 check(getComputedStyle($('.user-invoice-row')).backgroundColor==='rgb(255, 248, 241)','B2 cream cards');
 const card=$('.user-invoice-row'),summary=card.querySelector('.user-invoice-summary');
 check(innerWidth>600?summary.getBoundingClientRect().left>card.getBoundingClientRect().left+card.offsetWidth/2:summary.getBoundingClientRect().top>card.querySelector('h3').getBoundingClientRect().bottom,'card responsive layout');noOverflow();
@@ -137,7 +141,7 @@ Object.assign(fixtures[4],base5);
 
 await filter('khong-co');check(all('[data-invoice-row]').length===0&&$('[data-invoice-content]').hidden&&!$('[data-invoice-empty]').hidden,'empty search clears detail and payment');
 check(!new URL(location.href).searchParams.has('id'),'empty removes stale URL ID');
-await filter('','paid');check(all('[data-invoice-row]').length===1&&selected()==='HD-3','status filter selection');
+await filter('','paid');check(all('[data-invoice-row]').length===1&&selected()==='HD-000003','status filter selection');
 await filter('LH-000004','unpaid');check($('[data-invoice-content]').hidden,'combined filters empty');
 await choose(1);
 $('[data-payment-spa]').click();$('[data-payment-spa]').click();await wait(230);
@@ -156,7 +160,7 @@ check(posts.length===prior+1&&posts.at(-1).id===1&&posts.at(-1).name==='online',
 check(!posts.at(-1).body.has('amount')&&posts.every(p=>p.csrf==='mock-token'),'backend amount contract, CSRF unchanged');
 check(!$('[data-payment-qr-image]').hidden&&$('[data-payment-amount]').textContent==='351.000 VND'&&fixtures[0].status==='unpaid','QR uses server discounted amount, not paid');
 check(/^01:1[0-5]$/.test($('[data-payment-countdown]').textContent),'server remaining time, not reset to ten minutes');
-await choose(2);check($('[data-payment-qr]').hidden&&selected()==='HD-2','switch clears previous QR');
+await choose(2);check($('[data-payment-qr]').hidden&&selected()==='HD-000002','switch clears previous QR');
 await choose(1);check(!$('[data-payment-qr]').hidden,'existing QR reused on re-open');
 const before=posts.length;fixtures[0].currentOnline.remainingSeconds=0;fixtures[0].currentOnline.expired=true;await choose(1);await wait(280);
 check($('[data-payment-qr-image]').hidden&&!$('[data-payment-checkout]').hasAttribute('href')&&!$('[data-payment-online]').disabled&&$('[data-payment-online]').textContent==='Làm mới mã QR','expired QR hidden, renewal offered on same invoice');
@@ -165,18 +169,18 @@ failRenew=true;$('[data-payment-online]').click();await wait(280);
 check(posts.slice(before).map(p=>p.name).join(',')==='renew-online'&&$('[data-payment-message]').textContent.includes('đang xử lý phiên cũ'),'blocked renewal shows provider reason and never creates another QR');
 const oldOrder=fixtures[0].currentOnline.orderCode;$('[data-payment-online]').click();$('[data-payment-online]').click();await wait(480);
 check(posts.slice(before).map(p=>p.name).join(',')==='renew-online,renew-online'&&fixtures[0].currentOnline.orderCode!==oldOrder,'one click closes old QR and creates one new order on the same invoice');
-check(selected()==='HD-1'&&!$('[data-payment-qr-image]').hidden&&$('[data-payment-online]').textContent==='Thanh toán online bằng payOS','new QR shown without another invoice');
+check(selected()==='HD-000001'&&!$('[data-payment-qr-image]').hidden&&$('[data-payment-online]').textContent==='Thanh toán online bằng payOS','new QR shown without another invoice');
 $('[data-payment-refresh]').click();await wait(250);check(autoChecks===1,'only explicit click refreshes provider via mock');
 failList=true;await filter('');check(!$('[data-invoice-empty]').hidden&&$('[data-invoice-content]').hidden&&!$('#invoice-retry').hidden,'list error no stale payment');
 $('#invoice-retry').click();await wait(20);await ready();check(all('[data-invoice-row]').length===10,'list retry');
 failDetail=true;$('[data-invoice-open="12"]').click();await wait(20);await ready();check($('[data-invoice-content]').hidden&&!$('#invoice-retry').hidden,'detail error no old payment');
-$('#invoice-retry').click();await wait(20);await ready();check(selected()==='HD-12','retry exact requested invoice');
+$('#invoice-retry').click();await wait(20);await ready();check(selected()==='HD-000012','retry exact requested invoice');
 slowDetail=11;$('[data-invoice-open="11"]').click();await wait(50);
 check($('[data-invoice-content]').hidden&&all('[data-invoice-open]').every(e=>e.disabled),'loading hides previous payment, locks switching');
-await ready();check(selected()==='HD-11','slow detail correct');
+await ready();check(selected()==='HD-000011','slow detail correct');
 slowPoll=11;window.dispatchEvent(new Event('focus'));await wait(20);
-$('[data-invoice-open="10"]').click();await wait(20);await ready();check(selected()==='HD-10','switch while old GET in flight');
-pollResolve();await wait(100);check(selected()==='HD-10','late old detail cannot overwrite new invoice');
+$('[data-invoice-open="10"]').click();await wait(20);await ready();check(selected()==='HD-000010','switch while old GET in flight');
+pollResolve();await wait(100);check(selected()==='HD-000010','late old detail cannot overwrite new invoice');
 failPromotion=true;await choose(9);check($('[data-payment-message]').textContent.includes('Chưa tải được ưu đãi'),'promotion API failure visible without wrong invoice');
 await choose(8);Object.assign(fixtures[7],{status:'paid',statusLabel:'Đã thanh toán',paymentAllowed:false,payments:[{status:'success',requiresReview:false,method:'online',paidAt:'2026-11-09T08:00:00+07:00',reference:'MOCK-VERIFIED'}]});
 window.dispatchEvent(new Event('focus'));await wait(150);check($('[data-payment-options]').hidden&&!$('[data-payment-receipt]').hidden&&$('[data-invoice-row="8"]').textContent.includes('Đã thanh toán'),'verified backend paid refresh updates card and receipt');

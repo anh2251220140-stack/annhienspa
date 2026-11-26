@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const assert = require('node:assert/strict');
 const source = fs.readFileSync('static/js/live-invoice.js', 'utf8');
+const sharedUi = fs.readFileSync('static/js/ui.js', 'utf8');
 async function fixture(search = '') {
   const nodes = new Map();
   const node = key => {
@@ -29,6 +30,7 @@ async function fixture(search = '') {
     }},
   };
   vm.createContext(context);
+  vm.runInContext(sharedUi, context);
   await vm.runInContext(source.replace('await load(initialId);', `window.test={
     initialId, appliedSearch, appliedStatus, page, paint, poll, open, schedule, updateUrl, action, drawQr,
     setNotice(value){notice=value;}, getInvoice(){return invoice;}
@@ -45,11 +47,11 @@ function invoice(status='unpaid') {
   const tests=[
     ['dedicated invoice ID survives provider ID and status',async()=>{
       const {api}=await fixture('?invoice_id=6&id=provider-link&status=PAID&orderCode=123');
-      assert.equal(api.initialId,6); assert.equal(api.appliedSearch,'HD-6'); assert.equal(api.appliedStatus,'');
+      assert.equal(api.initialId,6); assert.equal(api.appliedSearch,'HD-000006'); assert.equal(api.appliedStatus,'');
     }],
     ['legacy payment return selects invoice outside first page',async()=>{
       const {api}=await fixture('?id=6&status=PAID&orderCode=123');
-      assert.equal(api.appliedSearch,'HD-6'); assert.equal(api.page,1);
+      assert.equal(api.appliedSearch,'HD-000006'); assert.equal(api.page,1);
     }],
     ['ordinary list filters and pagination are preserved',async()=>{
       const {api}=await fixture('?id=6&search=massage&status=unpaid&page=2');

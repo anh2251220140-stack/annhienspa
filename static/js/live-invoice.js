@@ -1,6 +1,7 @@
 (async () => {
   'use strict';
   const {api,escape:esc,money}=window.spaLive;
+  const invoiceCode=window.spaInvoiceCode;
   const $=selector=>document.querySelector(selector);
   const list=$('[data-invoice-list]'), promo=$('#invoice-promo-code');
   let invoice=null, page=1, pages=1, busy=false, busyAction='', revision=0, timer, polling=false, notice='';
@@ -11,11 +12,11 @@
   const paymentReturn=initialId&&(params.has('invoice_id')||params.has('orderCode'));
   let retryId=null,records=[],loading=false,total=0,appliedSearch=params.get('search')||'',appliedStatus=params.get('status')||'';
   if(!['','unpaid','paid','cancelled'].includes(appliedStatus))appliedStatus='';
-  if(initialId&&!['search','status','page'].some(key=>params.has(key)))appliedSearch=`HD-${initialId}`;
+  if(initialId&&!['search','status','page'].some(key=>params.has(key)))appliedSearch=invoiceCode(initialId);
   page=/^[1-9]\d*$/.test(params.get('page')||'')?Number(params.get('page')):1;
   // Provider status is not a list filter or proof of payment. Open only the
   // requested invoice and fetch its authenticated server state.
-  if(paymentReturn){appliedSearch=`HD-${initialId}`;appliedStatus='';page=1;}
+  if(paymentReturn){appliedSearch=invoiceCode(initialId);appliedStatus='';page=1;}
   $('#invoice-search').value=appliedSearch;$('#invoice-status-filter').value=appliedStatus;
   const appointmentCode=id=>`LH-${String(id).padStart(6,'0')}`;
   const appointmentDate=i=>`${(i.date||'').split('-').reverse().join('/')} ${i.time||''}`.trim();
@@ -34,10 +35,10 @@
   }
   function renderCards(){
     list.innerHTML=records.map(i=>`<article class="journey-card user-invoice-row${invoice?.id===i.id?' is-selected':''}" data-invoice-row="${i.id}">
-      <div><h3>${esc(i.service)}</h3><p class="user-invoice-code">HD-${i.id} · ${appointmentCode(i.appointmentId)}${invoice?.id===i.id?' <span class="user-invoice-selected">Đang xem</span>':''}</p>
+      <div><h3>${esc(i.service)}</h3><p class="user-invoice-code">${invoiceCode(i.id)} · ${appointmentCode(i.appointmentId)}${invoice?.id===i.id?' <span class="user-invoice-selected">Đang xem</span>':''}</p>
         <dl><div><dt>Ngày lập</dt><dd>${timestamp(i.createdAt)}</dd></div><div><dt>Ngày giờ hẹn</dt><dd>${esc(appointmentDate(i))}</dd></div></dl></div>
       <div class="user-invoice-summary"><strong>${money(i.total)}</strong><span class="journey-status" data-status="${esc(i.status)}">${esc(i.statusLabel)}</span>
-        <button class="button small" type="button" data-invoice-open="${i.id}" aria-label="Xem chi tiết hóa đơn HD-${i.id}" ${invoice?.id===i.id?'aria-current="true"':''}>Xem chi tiết</button></div></article>`).join('');
+        <button class="button small" type="button" data-invoice-open="${i.id}" aria-label="Xem chi tiết hóa đơn ${invoiceCode(i.id)}" ${invoice?.id===i.id?'aria-current="true"':''}>Xem chi tiết</button></div></article>`).join('');
     syncControls();
   }
   function updateUrl(){
@@ -91,7 +92,7 @@
     if(i.status==='paid'&&!i.needsReview)notice='';
     $('[data-invoice-empty]').hidden=true; $('[data-invoice-content]').hidden=false;
     $('[data-invoice-content]').setAttribute('aria-busy',String(busy||loading));
-    for(const [key,value] of Object.entries({service:i.service,code:`HD-${i.id}`,status:i.statusLabel,issued:timestamp(i.createdAt),appointment:`${appointmentCode(i.appointmentId)} · ${appointmentDate(i)}`,employee:i.employee,price:money(i.priceSnapshot),subtotal:money(i.subtotal),promotion:i.promotion||'Không áp dụng',discount:money(i.discount),total:money(i.total)})) $(`[data-invoice-${key}]`).textContent=value;
+    for(const [key,value] of Object.entries({service:i.service,code:invoiceCode(i.id),status:i.statusLabel,issued:timestamp(i.createdAt),appointment:`${appointmentCode(i.appointmentId)} · ${appointmentDate(i)}`,employee:i.employee,price:money(i.priceSnapshot),subtotal:money(i.subtotal),promotion:i.promotion||'Không áp dụng',discount:money(i.discount),total:money(i.total)})) $(`[data-invoice-${key}]`).textContent=value;
     records=records.map(row=>row.id===i.id?i:row);renderCards();
     $('[data-invoice-promo]').hidden=!i.paymentAllowed;
     promo.disabled=busy||loading||!i.promotionEditable;
