@@ -16,8 +16,8 @@ def invalidate(sender, instance, **kwargs):
 
     def after_commit():
         try:
-            from .rag import VectorIndex
-            VectorIndex().invalidate([key])
+            from .rag import vector_index
+            vector_index().invalidate([key])
         except Exception:
             # Catalog persistence must not fail because an auxiliary index is unavailable.
             logging.getLogger(__name__).warning("RAG invalidation unavailable; live content hashes remain authoritative")

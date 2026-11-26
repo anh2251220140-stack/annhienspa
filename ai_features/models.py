@@ -4,6 +4,22 @@ from django.db import models
 from django.utils import timezone
 from core.models import ValidatedModel
 
+
+class RagDocumentIndex(models.Model):
+    """Derived chunks and embeddings for one revision of a public catalog document."""
+
+    namespace = models.CharField(max_length=64)
+    document_key = models.CharField(max_length=64)
+    digest = models.CharField(max_length=64)
+    chunks = models.JSONField()
+
+    class Meta:
+        db_table = "rag_document_index"
+        constraints = [models.UniqueConstraint(
+            fields=["namespace", "document_key"], name="rag_namespace_document_unique"
+        )]
+
+
 class AIRecommendation(ValidatedModel):
     customer = models.ForeignKey("accounts.Customer", on_delete=models.PROTECT, related_name="ai_recommendations")
     input_data = models.JSONField()

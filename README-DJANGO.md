@@ -1,6 +1,6 @@
 # An Nhiên Spa chạy bằng Django
 
-Django 5.2 và MySQL phục vụ hệ thống User/Admin của Bước 3. Django xử lý xác thực, phiên, phân quyền, danh mục, lịch làm việc, đặt lịch, hóa đơn, payOS, đánh giá và báo cáo. App `ai_features` triển khai chatbot, gợi ý dịch vụ, phân tích đánh giá và lịch sử hội thoại. Gemini là nhà cung cấp AI bên ngoài. RAG sử dụng SQLite và hàm tính độ tương đồng cosine trong Python.
+Django 5.2 và MySQL phục vụ hệ thống User/Admin của Bước 3. Django xử lý xác thực, phiên, phân quyền, danh mục, lịch làm việc, đặt lịch, hóa đơn, payOS, đánh giá và báo cáo. App `ai_features` triển khai chatbot, gợi ý dịch vụ, phân tích đánh giá và lịch sử hội thoại. Gemini là nhà cung cấp AI bên ngoài. RAG tính độ tương đồng cosine trong Python với chỉ mục SQLite trên local hoặc MySQL trên Vercel.
 
 ## Chạy trên máy local
 

@@ -9,7 +9,7 @@ thuần. Các trang và tài nguyên của Django nằm ở `templates/pages/` v
 
 `config/` chứa cấu hình Django và định tuyến. Xác thực, phân quyền, đặt lịch,
 hóa đơn, webhook payOS, đánh giá và báo cáo do backend xử lý.
-`ai_features/` quản lý Gemini, RAG với chỉ mục SQLite và tìm kiếm cosine,
+`ai_features/` quản lý Gemini, RAG với chỉ mục SQLite ở local hoặc MySQL trên Vercel và tìm kiếm cosine,
 đề xuất dịch vụ, phân tích đánh giá và lịch sử hội thoại.
 
 Bản công khai chạy trên Vercel với MySQL bên ngoài và Vercel Private Blob cho

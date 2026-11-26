@@ -16,6 +16,6 @@ class Command(BaseCommand):
         if provider == "gemini":
             if not enabled("AI_GEMINI_REQUESTS_APPROVED") or not enabled("AI_GEMINI_FREE_TIER_CONFIRMED"):
                 raise CommandError("Gemini free-tier requests have not been approved.")
-        from ai_features.rag import VectorIndex, public_documents
-        changed = VectorIndex().sync(public_documents())
+        from ai_features.rag import public_documents, vector_index
+        changed = vector_index().sync(public_documents())
         self.stdout.write(self.style.SUCCESS(f"Indexed {changed} changed public documents; unchanged vectors retained."))

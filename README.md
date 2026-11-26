@@ -17,7 +17,7 @@ Hệ thống hiện có xác thực, phân quyền, quản lý danh mục, lịc
 | Xác thực | Django Authentication + Session; custom User `accounts.User` |
 | Thanh toán | SDK payOS, QR nhúng trên hóa đơn, ghi nhận thanh toán tại Spa |
 | AI | Google Gemini qua Google Gen AI SDK; chỉ gọi Gemini thật khi cấu hình và quyền cho phép |
-| RAG | Dữ liệu Spa công khai; tra cứu trực tiếp hoặc tìm kiếm ngữ nghĩa bằng chỉ mục SQLite và hàm cosine trong Python |
+| RAG | Dữ liệu Spa công khai, tra cứu trực tiếp hoặc tìm theo cosine trong Python. Chỉ mục mặc định dùng SQLite trên máy local và MySQL trên Vercel |
 | Tài nguyên | Static từ `static/` và đầu ra `collectstatic`; upload vào Vercel Private Blob trên Vercel hoặc `media/` khi chạy local |
 | Triển khai | Django trên Vercel, kết nối MySQL bên ngoài; Docker Compose + Gunicorn + Nginx cho môi trường local |
 | Email | Django email backend, cấu hình SMTP qua biến môi trường |
@@ -75,10 +75,10 @@ Các trang Admin được bảo vệ bằng xác thực và quyền phía Django
 
 ### Chức năng AI
 
-- **FR-21 — Chatbot:** Tra cứu danh mục dịch vụ, sản phẩm, khuyến mãi và thông tin Spa. Khi bật RAG, chatbot ưu tiên các câu tra cứu trực tiếp; nhánh tìm kiếm ngữ nghĩa lưu embedding trong SQLite và tính độ tương đồng cosine trong Python. Khi thiếu dữ liệu phù hợp hoặc Gemini gặp lỗi, chatbot có phản hồi dự phòng.
+- **FR-21 — Chatbot:** Tra cứu danh mục dịch vụ, sản phẩm, khuyến mãi và thông tin Spa. Khi bật RAG, chatbot ưu tiên tra cứu trực tiếp và dùng chỉ mục SQLite ở local hoặc MySQL trên Vercel cho tìm kiếm ngữ nghĩa bằng cosine. Khi thiếu dữ liệu phù hợp hoặc Gemini gặp lỗi, chatbot có phản hồi dự phòng.
 - **FR-22 — Đề xuất cá nhân hóa:** Đề xuất dịch vụ dựa trên nhu cầu, ngân sách, hồ sơ và lịch sử. Backend kiểm tra đề xuất theo danh mục và điều kiện của khách; có chế độ gợi ý theo quy tắc.
 - **FR-23 — Phân tích đánh giá:** Quản trị viên được cấp quyền có thể phân tích cảm xúc và tóm tắt đánh giá. Gửi dữ liệu sang Gemini là tùy chọn riêng.
-- **FR-24 — Lịch sử hội thoại:** Phiên và tin nhắn được lưu trong MySQL. User xem hội thoại của mình, Admin xem theo quyền. Chỉ mục SQLite của RAG lưu ngữ cảnh truy xuất.
+- **FR-24 — Lịch sử hội thoại:** Phiên và tin nhắn được lưu trong MySQL. User xem hội thoại của mình, Admin xem theo quyền.
 
 ## Cấu trúc repository
 
@@ -93,7 +93,7 @@ promotions/         Chương trình, điều kiện và giới hạn sử dụng
 billing/            Hóa đơn, thanh toán, QR và adapter payOS
 reviews/            Đánh giá và phản hồi
 dashboard/          API tổng hợp Dashboard và Reports
-ai_features/        Chatbot, Gemini, RAG SQLite, đề xuất, phân tích đánh giá và lịch sử
+ai_features/        Chatbot, Gemini, RAG, đề xuất, phân tích đánh giá và lịch sử
 core/               Routing trang, dữ liệu catalog, form và API quản trị dùng chung
 templates/          Django Templates cho website; các trang trong pages/
 static/             CSS, JavaScript, font và ảnh dùng bởi Django
@@ -201,7 +201,7 @@ Thêm các biến cần dùng vào `.env` riêng trên máy hoặc **Settings �
 | Nhà cung cấp | `AI_PROVIDER=gemini` chọn Gemini. `AI_GEMINI_API_KEY` đặt dưới dạng secret. Giá trị mặc định của `AI_PROVIDER` là `mock`. |
 | Quyền gọi Gemini | Sau khi xác minh dự án Google trên Free Tier và phạm vi sử dụng, đặt `AI_GEMINI_REQUESTS_APPROVED=true`, `AI_GEMINI_FREE_TIER_CONFIRMED=true`, `AI_GEMINI_FREE_TIER_ONLY=true` và `AI_PAID_CALLS_APPROVED=false`. Các cờ cấu hình ghi nhận quyền và xác nhận của người vận hành. Kiểm tra gói và quota tại Google. |
 | Model | `AI_GEMINI_MODEL` mặc định `gemini-3.5-flash-lite`. `AI_GEMINI_EMBEDDING_MODEL` mặc định `gemini-embedding-001`, với `AI_GEMINI_EMBEDDING_DIMENSIONS=768`. Adapter kiểm tra model và số chiều được hỗ trợ. |
-| Truy xuất RAG | `AI_RAG_ENABLED=true` bật RAG. `AI_RAG_DIRECTORY` chỉ thư mục chứa chỉ mục, mặc định `.rag-index/` dưới thư mục mã. `AI_RAG_INDEX_UPDATE_APPROVED` mặc định tắt, chỉ bật khi đã duyệt cập nhật vector từ dữ liệu công khai. |
+| Truy xuất RAG | `AI_RAG_ENABLED=true` bật RAG. `AI_RAG_STORAGE` chọn `mysql` hoặc `sqlite`; mặc định MySQL trên Vercel, SQLite ở các môi trường khác. `AI_RAG_DIRECTORY` chỉ dùng cho SQLite và mặc định là `.rag-index/`. `AI_RAG_INDEX_UPDATE_APPROVED` chỉ bật khi đã duyệt cập nhật vector từ dữ liệu công khai. |
 | Đề xuất và đánh giá | `AI_PERSONALIZATION_EXPORT_APPROVED` cho phép gửi dữ liệu dùng để đề xuất. `AI_ASSISTANCE_ENABLED` bật API phân tích đánh giá cho Admin được cấp quyền. `AI_REVIEW_EXPORT_APPROVED` cho phép gửi nội dung đánh giá phù hợp sang Gemini. Chỉ bật các quyền gửi dữ liệu sau khi đã duyệt phạm vi. |
 
 Để lập chỉ mục trên một môi trường đã phê duyệt, dùng `manage.py index_spa` sau khi cấu hình đúng thư mục, nhà cung cấp và các cờ quyền tương ứng. Khi bật nhánh Gemini, thao tác có thể gọi API embedding. Xem [mã cấu hình AI](ai_features/config.py), [adapter Gemini](ai_features/gemini.py) và [chỉ mục RAG](ai_features/rag.py).
@@ -221,7 +221,11 @@ Thêm các biến cần dùng vào `.env` riêng trên máy hoặc **Settings �
 
 3. Triển khai từ nhánh Production đã cấu hình. Khi bản mới **Ready**, kiểm tra trang chủ, tài nguyên static, đăng nhập User/Admin và trang lấy dữ liệu từ MySQL. Kiểm tra thêm ảnh, AI hoặc webhook với dữ liệu demo khi bật các tích hợp tương ứng. [Biến môi trường Vercel](https://vercel.com/docs/environment-variables) · [Hồ sơ kỹ thuật Private Blob](docs/vercel-private-blob-20261123.txt).
 
-**RAG trên Vercel.** Môi trường Production của An Nhiên Spa đặt `AI_RAG_DIRECTORY=/tmp/annhien-rag` trong Vercel. Khi biến này vắng mặt, mã dùng thư mục `.rag-index/` cạnh mã nguồn. Trên Vercel, vùng mã đóng gói chỉ đọc và chỉ mục trong `/tmp` là dữ liệu tạm của từng instance. Việc triển khai đã thành công, còn việc tạo, cập nhật và truy xuất chỉ mục vector trên Production chưa được xác minh. [Hệ thống tệp của Vercel Functions](https://vercel.com/docs/functions/runtimes#file-system-support).
+**RAG trên Vercel.** Chỉ mục dùng bảng MySQL `rag_document_index`, vì các instance Vercel cần đọc chung dữ liệu đã lập chỉ mục. Bảng chỉ chứa đoạn văn và vector từ dữ liệu công khai của spa, có mã băm để tránh trả dữ liệu đã cũ. Thiết lập trên môi trường quản trị tin cậy dùng đúng MySQL và cấu hình model của Production:
+
+1. Xem kế hoạch bằng `python manage.py migrate ai_features 0004_rag_document_index --plan`, rồi áp dụng đúng migration đó sau khi xác nhận database đích. Migration chỉ tạo bảng chỉ mục.
+2. Dùng `AI_RAG_ENABLED=true`, `AI_RAG_STORAGE=mysql` và quyền Gemini tương ứng với Production. Chỉ bật thêm `AI_RAG_INDEX_UPDATE_APPROVED=true` trong tiến trình quản trị đã được duyệt, rồi chạy `python manage.py index_spa`. Lệnh gửi các đoạn công khai cần cập nhật đến Gemini để tạo vector.
+3. Khi hỏi chatbot, ứng dụng truy xuất chỉ mục MySQL nếu cần tìm theo ngữ nghĩa. Giữ quyền tự cập nhật tắt trên Vercel nếu dùng lệnh quản trị để cập nhật định kỳ. Cập nhật chỉ mục sau thay đổi danh mục để khôi phục khả năng tìm theo ngữ nghĩa cho nội dung mới. Biến `AI_RAG_DIRECTORY` chỉ có tác dụng khi chọn SQLite.
 
 ## Kiểm thử và xác minh
 

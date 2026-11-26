@@ -1,4 +1,4 @@
-"""Local vector index for a small Spa catalog (SQLite + exact cosine search).
+"""Vector retrieval for a small Spa catalog using exact cosine search.
 
 This auxiliary index never contains customer, booking, invoice or review rows.
 The live ORM catalog remains authoritative, including during stale/index failures.
@@ -122,6 +122,30 @@ def cosine(a, b):
     return sum(x*y for x, y in zip(a, b)) / denominator if denominator else 0.0
 
 
+def validate_vectors(vectors, dimensions):
+    if not isinstance(vectors, list) or not vectors or not isinstance(vectors[0], list) or not vectors[0]:
+        raise ProviderUnavailable("Invalid vector data")
+    size = len(vectors[0])
+    if dimensions is not None and size != dimensions:
+        raise ProviderUnavailable("Vector dimensions do not match this index")
+    for vector in vectors:
+        if (not isinstance(vector, list) or len(vector) != size
+                or any(type(x) not in (int, float) or not math.isfinite(x) for x in vector)
+                or not any(vector)):
+            raise ProviderUnavailable("Invalid vector data")
+    return size
+
+
+def vector_index():
+    backend = option("AI_RAG_STORAGE", "mysql" if option("VERCEL") == "1" else "sqlite")
+    if backend == "sqlite":
+        return VectorIndex()
+    if backend == "mysql":
+        from .rag_store import DatabaseVectorIndex
+        return DatabaseVectorIndex()
+    raise ProviderUnavailable("Unsupported RAG storage")
+
+
 class VectorIndex:
     def __init__(self):
         root = Path(option("AI_RAG_DIRECTORY", settings.BASE_DIR / ".rag-index"))
@@ -194,17 +218,7 @@ class VectorIndex:
         stored = cx.execute("SELECT dimensions FROM embedding_config WHERE id=1").fetchone()[0]
         if type(self.profile["dimensions"]) is int and stored != self.profile["dimensions"]:
             raise ProviderUnavailable("Stored embedding dimension metadata is invalid")
-        if not isinstance(vectors, list) or not vectors or not isinstance(vectors[0], list) or not vectors[0]:
-            raise ProviderUnavailable("Invalid vector data")
-        size = len(vectors[0])
-        if stored is not None and size != stored:
-            raise ProviderUnavailable("Vector dimensions do not match this index")
-        for vector in vectors:
-            if (not isinstance(vector, list) or len(vector) != size
-                    or any(type(x) not in (int, float) or not math.isfinite(x) for x in vector)
-                    or not any(vector)):
-                raise ProviderUnavailable("Invalid vector data")
-        return size
+        return validate_vectors(vectors, stored)
 
     def ready(self, documents):
         with self.connect() as cx:
@@ -272,7 +286,7 @@ class RAGRetriever:
 
         if not documents:
             return []
-        index = VectorIndex()
+        index = vector_index()
         if not enabled("AI_RAG_INDEX_UPDATE_APPROVED") and not index.ready(documents):
             return []
         embedder = embedding_provider()

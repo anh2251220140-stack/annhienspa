@@ -16,7 +16,7 @@ from .config import time_budget
 from .integration import GroundedProvider, ProviderUnavailable
 from .providers import Source
 from .rag import Document, RAGRetriever, VectorIndex, chunks, cosine, public_documents
-from .rag import sources_current
+from .rag import sources_current, vector_index
 
 
 class Embeddings:
@@ -27,6 +27,64 @@ class Embeddings:
     def embed(self, texts):
         self.calls.append(texts)
         return [[1., 0.] + [0.] * 254 if any(x in t.lower() for x in ("massage", "thư giãn", "mệt")) else [0., 1.] + [0.] * 254 for t in texts]
+
+
+@override_settings(AI_RAG_STORAGE="mysql", AI_PROVIDER="mock", AI_RAG_INDEX_UPDATE_APPROVED=True)
+class DatabaseVectorTests(TestCase):
+    def setUp(self):
+        self.document = Document("service", 1, "Massage đá nóng", "Massage thư giãn")
+        self.documents = {self.document.key: self.document}
+        self.embedder = Embeddings()
+
+    def test_retrieves_saved_vectors_in_a_new_instance_without_reindexing(self):
+        self.assertEqual(vector_index().sync(self.documents, self.embedder), 1)
+        self.assertEqual(vector_index().sync(self.documents, self.embedder), 0)
+        new_instance = vector_index()
+        self.assertTrue(new_instance.ready(self.documents))
+        with self.settings(AI_RAG_INDEX_UPDATE_APPROVED=False):
+            with patch("ai_features.rag.public_documents", return_value=self.documents), patch(
+                "ai_features.rag.embedding_provider", return_value=self.embedder
+            ):
+                sources = RAGRetriever().retrieve("Ngồi cả ngày, tôi mệt và muốn thư giãn")
+        self.assertEqual([source.name for source in sources], [self.document.name])
+        self.assertEqual(len(self.embedder.calls), 2)  # One indexing call and one query.
+
+    def test_stale_documents_are_hidden_and_failed_refresh_can_be_retried(self):
+        index = vector_index()
+        self.assertEqual(index.sync(self.documents, self.embedder), 1)
+        changed = Document("service", 1, self.document.name, "Massage thư giãn vùng vai")
+        current = {changed.key: changed}
+        query = self.embedder.embed(["thư giãn"])[0]
+        self.assertFalse(index.ready(current))
+        self.assertEqual(index.search(query, current, .5), [])
+        with patch.object(self.embedder, "embed", side_effect=TimeoutError):
+            with self.assertRaises(TimeoutError):
+                index.sync(current, self.embedder)
+        self.assertTrue(index.ready(self.documents))
+        self.assertEqual(index.sync(current, self.embedder), 1)
+        self.assertEqual(index.search(query, current, .5)[0][2], changed.text)
+        self.assertEqual(index.sync({}, self.embedder), 0)
+        self.assertFalse(index.ready(current))
+
+    def test_update_approval_and_embedding_namespace_remain_separate(self):
+        with self.settings(AI_RAG_INDEX_UPDATE_APPROVED=False):
+            with self.assertRaises(ProviderUnavailable):
+                vector_index().sync(self.documents, self.embedder)
+        self.assertEqual(self.embedder.calls, [])
+        vector_index().sync(self.documents, self.embedder)
+        with self.settings(AI_PROVIDER="gemini"):
+            self.assertFalse(vector_index().ready(self.documents))
+        self.assertTrue(vector_index().ready(self.documents))
+
+    def test_invalidation_and_invalid_vectors(self):
+        index = vector_index()
+        with patch.object(self.embedder, "embed", return_value=[[1.0]]):
+            with self.assertRaises(ProviderUnavailable):
+                index.sync(self.documents, self.embedder)
+        self.assertFalse(index.ready(self.documents))
+        index.sync(self.documents, self.embedder)
+        index.invalidate([self.document.key])
+        self.assertFalse(index.ready(self.documents))
 
 
 class VectorTests(SimpleTestCase):
