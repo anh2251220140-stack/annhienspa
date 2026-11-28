@@ -114,9 +114,9 @@ PASSWORD_RESET_TIMEOUT = int(os.getenv("PASSWORD_RESET_TIMEOUT", "3600"))
 PAYOS_CLIENT_ID = os.getenv("PAYOS_CLIENT_ID", "")
 PAYOS_API_KEY = os.getenv("PAYOS_API_KEY", "")
 PAYOS_CHECKSUM_KEY = os.getenv("PAYOS_CHECKSUM_KEY", "")
-# The public coursework deployment must not issue live payment links.
-PAYOS_DEMO_ONLY = (os.getenv("VERCEL") == "1"
-                  or os.getenv("PAYOS_DEMO_ONLY", "false").lower() == "true")
+# The notice on Vercel does not affect online payment eligibility.
+PAYOS_SHOW_COURSEWORK_NOTICE = os.getenv("VERCEL") == "1"
+PAYOS_DEMO_ONLY = os.getenv("PAYOS_DEMO_ONLY", "false").lower() == "true"
 PAYOS_RETURN_URL = os.getenv("PAYOS_RETURN_URL", "http://127.0.0.1:8000/invoice.html")
 PAYOS_CANCEL_URL = os.getenv("PAYOS_CANCEL_URL", "http://127.0.0.1:8000/invoice.html")
 

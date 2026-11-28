@@ -33,6 +33,9 @@ class FrontendView(TemplateView):
             context["live_promotions"] = promotions(promotion_page=promotion_page)
         if self.template_name == "pages/invoice.html":
             context["payos_demo_only"] = settings.PAYOS_DEMO_ONLY
+            context["show_payos_coursework_notice"] = (
+                settings.PAYOS_SHOW_COURSEWORK_NOTICE or settings.PAYOS_DEMO_ONLY
+            )
         return context
 
     http_method_names = ["get", "head", "options"]
