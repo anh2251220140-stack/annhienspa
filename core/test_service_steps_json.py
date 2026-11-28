@@ -3,6 +3,7 @@ import json
 from decimal import Decimal
 from unittest import TestCase
 from unittest.mock import patch
+from django.test import TestCase as DjangoTestCase
 
 from core.catalog_data import catalog, service_steps
 from core.business_forms import ServiceForm
@@ -95,15 +96,9 @@ class ServiceStepsAdminTests(TestCase):
         self.assertEqual(self.clean_steps(''), '[]')
 
 
-class ServiceStepsSQLiteTests(TestCase):
+class ServiceStepsRoundTripTests(DjangoTestCase):
     @classmethod
-    def setUpClass(cls):
-        from django.db import connection
-        from services.models import Service, ServiceCategory
-        assert connection.vendor == 'sqlite'
-        with connection.schema_editor() as editor:
-            editor.create_model(ServiceCategory)
-            editor.create_model(Service)
+    def setUpTestData(cls):
         cls.category = ServiceCategory.objects.create(name='Danh mục giả lập')
 
     def test_admin_create_edit_roundtrip_and_invalid_post(self):

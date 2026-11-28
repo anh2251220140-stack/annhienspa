@@ -19,13 +19,23 @@ class Links(HTMLParser):
                 self.links.append(value)
 
 class SourcePreservationTests(SimpleTestCase):
+    def assert_asset_hash(self, path, expected):
+        content = path.read_bytes()
+        hashes = {hashlib.sha256(content).hexdigest()}
+        # Git may alter line endings for textual sources on checkout.
+        if path.suffix in {".html", ".css", ".js", ".txt"}:
+            lf = content.replace(b"\r\n", b"\n")
+            hashes.add(hashlib.sha256(lf).hexdigest())
+            hashes.add(hashlib.sha256(lf.replace(b"\n", b"\r\n")).hexdigest())
+        self.assertIn(expected, hashes)
+
     def test_original_sources_and_visual_assets_unchanged(self):
         manifest = json.loads((settings.BASE_DIR / "docs/frontend-manifest.json").read_text(encoding="utf-8"))
         for name, expected in manifest.items():
             with self.subTest(file=name):
-                self.assertEqual(hashlib.sha256((settings.BASE_DIR / name).read_bytes()).hexdigest(), expected)
+                self.assert_asset_hash(settings.BASE_DIR / name, expected)
                 if name.startswith(("css/", "images/")) and f"static/{name}" not in manifest:
-                    self.assertEqual(hashlib.sha256((settings.BASE_DIR / "static" / name).read_bytes()).hexdigest(), expected)
+                    self.assert_asset_hash(settings.BASE_DIR / "static" / name, expected)
 
 class PageAccessTests(TestCase):
     @classmethod

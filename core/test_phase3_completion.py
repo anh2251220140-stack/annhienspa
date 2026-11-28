@@ -18,16 +18,23 @@ from appointments.services import book,available_slots
 from accounts.models import User,Customer
 
 class Phase3CompletionTests(Fixtures,TestCase):
+    steps = [
+        {"title": "Bước 1", "description": "Làm sạch."},
+        {"title": "Bước 2", "description": "Dưỡng ẩm."},
+    ]
+
     def setUp(self):self.seed();self.client.force_login(self.admin)
-    def service_data(self):return dict(name='DV đầy đủ',category=self.category.pk,description='Mô tả',price=350000,duration_minutes=45,introduction='Giới thiệu thật',benefits='Lợi ích 1\nLợi ích 2',steps='Bước 1\nBước 2',suitable='Khách phù hợp',note='Lưu ý thật',care_group='face',image_preset='facial.jpg',gallery_preset='facial.jpg')
+    def service_data(self):return dict(name='DV đầy đủ',category=self.category.pk,description='Mô tả',price=350000,duration_minutes=45,introduction='Giới thiệu thật',benefits='Lợi ích 1\nLợi ích 2',steps=json.dumps(self.steps,ensure_ascii=False),suitable='Khách phù hợp',note='Lưu ý thật',care_group='face',image_preset='facial.jpg',gallery_preset='facial.jpg')
     def promotion_data(self):return dict(name='CT đầy đủ',code='FULL10',discount_type='percent',discount_value=10,start_date=timezone.localdate(),end_date=self.day,detail='Chi tiết thật',conditions='',note='Lưu ý CT',badge='Đặc biệt',accent='caramel',aliases='ALT10\nALT11',scope_note='Phạm vi thật',services=[self.service.pk],min_amount=100000,max_discount=40000)
     def test_complete_service_roundtrip_and_modal_groups(self):
         d=self.service_data();r=self.client.post('/api/admin/services/',d);self.assertEqual(r.status_code,201,r.content);pk=r.json()['item']['id']
-        for key in ('introduction','benefits','steps','suitable','note','care_group','image_preset','gallery_preset'):self.assertEqual(getattr(Service.objects.get(pk=pk),key),d[key])
+        stored = Service.objects.get(pk=pk)
+        for key in ('introduction','benefits','suitable','note','care_group','image_preset','gallery_preset'):self.assertEqual(getattr(stored,key),d[key])
+        self.assertEqual(json.loads(stored.steps), self.steps)
         html=self.client.get(f'/api/admin/services/{pk}/').json()['html'];self.assertIn('Nội dung chi tiết liệu trình',html);self.assertIn('<details',html);self.assertNotIn('name="is_active"',html)
         d['introduction']='Đã sửa';self.assertEqual(self.client.post(f'/api/admin/services/{pk}/',d).status_code,200)
         self.client.logout();catalog=self.client.get('/service-detail.html').context['live_catalog'];item=next(x for x in catalog['services'] if x['id']==pk)
-        self.assertEqual(item['introduction'],'Đã sửa');self.assertEqual(item['steps'],['Bước 1','Bước 2']);self.assertEqual(item['image'],'/static/images/facial.jpg')
+        self.assertEqual(item['introduction'],'Đã sửa');self.assertEqual(item['steps'],self.steps);self.assertEqual(item['image'],'/static/images/facial.jpg')
     def test_complete_product_employee_promotion_roundtrip(self):
         cases={'products':dict(name='SP đầy đủ',product_type='Serum',description='Mô tả',skin_type='Da khô\nDa thường',suitable_for='Người 1\nNgười 2',benefits='Công dụng',ingredients='Thành phần',usage_instructions='Cách dùng',note='Lưu ý',care_group='face',services=[self.service.pk]),'employees':dict(full_name='NV đầy đủ',email='staff@example.com',phone='0901111222',specialty='Dòng 1\nDòng 2',description='Mô tả NV',services=[self.service.pk]),'promotions':self.promotion_data()}
         for module,d in cases.items():

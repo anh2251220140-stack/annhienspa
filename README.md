@@ -231,6 +231,21 @@ Thêm các biến cần dùng vào `.env` riêng trên máy hoặc **Settings �
 
 Xem [Báo cáo kiểm thử tổng hợp Bước 3](docs/bao-cao-kiem-thu-cuoi.md) để đối chiếu kết quả, phạm vi và bằng chứng của từng đợt nghiệm thu.
 
+### Chạy toàn bộ bộ kiểm thử Django trên Windows
+
+Cài các thư viện Python của dự án và MySQL Community Server 8.4. Từ thư mục dự án ở đúng commit cần kiểm thử, chạy:
+
+```powershell
+$testedCommit = git rev-parse HEAD
+.\.venv\Scripts\python.exe -B tools\run-django-mysql.py --expect-commit $testedCommit --output-dir "$env:TEMP\annhien-test-results"
+```
+
+Dùng `--mysql-bin` nếu các chương trình MySQL 8.4 nằm ngoài thư mục cài mặc định. Trình chạy tạo hai máy chủ MySQL tạm chỉ nghe tại `127.0.0.1`, cổng 43361 và 3311. Các cổng phải trống. Trình chạy không cần thông tin của MySQL nghiệp vụ, không đọc `.env` và chặn các lời gọi mạng bên ngoài từ bộ test.
+
+Các ca Django thông thường chạy trên MySQL. Nhóm quản trị và đồng thời yêu cầu guard chạy trên máy chủ tạm thứ hai. Hai lớp kiểm tra tích hợp SDK được viết cho SQLite chạy riêng bằng SQLite tạm với mạng bị chặn. Thư mục kết quả chứa log từng nhóm và `summary.json` ghi commit, tổng số ca cùng trạng thái theo nhóm. Chạy riêng các kiểm thử JavaScript bằng Node.js nếu cần báo cáo kết quả phía trình duyệt.
+
+### Trình chạy MySQL có guard
+
 Mốc hồi quy MySQL đã nghiệm thu là **205/205 PASS**, gồm `accounts` 17, `core` 101, `billing` 70 và `appointments.test_fr14` 17 ở đợt đó. Dùng lệnh discovery để xem số ca của mã hiện tại.
 
 Discovery không kết nối database:
