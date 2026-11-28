@@ -11,6 +11,7 @@ from .business_layout import groups_for
 from contextlib import nullcontext
 from promotions.services import code_lock
 from .business_forms import REGISTRY, ScheduleForm
+from .catalog_blob import publish_after_commit
 from employees.models import Employee, EmployeeSchedule
 from appointments.models import Appointment
 from services.models import Service
@@ -66,6 +67,7 @@ def records(request,module,pk=None):
             item=get_object_or_404(Model.objects.select_for_update(),pk=pk) if pk else None
             if request.POST.get("_toggle") and item:
                 item.is_active=not item.is_active;item.save()
+                publish_after_commit()
                 return JsonResponse({"item":row(item)})
             form=Form(request.POST,request.FILES,instance=item)
             if not form.is_valid():return JsonResponse({"errors":form.errors},status=400)
@@ -74,6 +76,7 @@ def records(request,module,pk=None):
                 if Appointment.objects.filter(employee=item,service_id__in=removed,status__in=["pending","confirmed"]).exists():
                     raise ValidationError("Không bỏ phân công dịch vụ đang có lịch hẹn chờ/đã xác nhận.")
             item=form.save()
+            publish_after_commit()
             return JsonResponse({"item":row(item)},status=200 if pk else 201)
     except (ValidationError,IntegrityError) as error:return error_json(error)
 

@@ -20,7 +20,7 @@ class FrontendView(TemplateView):
         )
         if (settings.PUBLIC_CATALOG_CACHE_SECONDS and page in PUBLIC_PAGES
                 and not self.request.user.is_authenticated):
-            (context["live_catalog"], offers), self.catalog_cache_hit = public_catalog_snapshot()
+            (context["live_catalog"], offers), self.catalog_source = public_catalog_snapshot()
             if not promotion_page:
                 offers = {
                     **offers,
@@ -51,9 +51,11 @@ class FrontendView(TemplateView):
             if not user.is_active or user.role != role:
                 raise PermissionDenied("Bạn không có quyền truy cập trang này.")
         response = super().dispatch(request, *args, **kwargs)
-        if hasattr(self, "catalog_cache_hit"):
-            result = "hit" if self.catalog_cache_hit else "miss"
-            response["Server-Timing"] = f'public-catalog-cache;desc="{result}"'
+        if hasattr(self, "catalog_source"):
+            result = "miss" if self.catalog_source == "mysql" else "hit"
+            response["Server-Timing"] = (
+                f'public-catalog-cache;desc="{result}", public-catalog-source;desc="{self.catalog_source}"'
+            )
         return response
 
 class LegacyImageView(RedirectView):

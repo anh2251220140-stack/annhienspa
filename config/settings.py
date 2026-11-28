@@ -74,6 +74,10 @@ BLOB_MEDIA_ENABLED = (
     os.getenv("VERCEL") == "1"
     and os.getenv("DJANGO_BLOB_MEDIA_ENABLED", "true").lower() == "true"
 )
+PUBLIC_CATALOG_BLOB_ENABLED = (
+    BLOB_MEDIA_ENABLED and os.getenv("VERCEL_ENV") == "production"
+    and os.getenv("PUBLIC_CATALOG_BLOB_ENABLED", "true").lower() == "true"
+)
 if BLOB_MEDIA_ENABLED:
     STORAGES = {
         "default": {"BACKEND": "config.blob_media.PrivateBlobStorage"},

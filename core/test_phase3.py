@@ -1,7 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from threading import Barrier
 from datetime import time, timedelta
-from unittest.mock import patch
+import json
+from unittest.mock import Mock, patch
 
 from django.conf import settings
 from django.core.cache import cache
@@ -150,6 +152,60 @@ class Phase3Tests(Fixtures,TestCase):
             page = self.client.get("/promotions.html")
         self.assertIn('desc="miss"', page["Server-Timing"])
         self.assertNotContains(page, "ONEDAY")
+
+    @override_settings(PUBLIC_CATALOG_CACHE_SECONDS=45, PUBLIC_CATALOG_BLOB_ENABLED=True)
+    def test_shared_catalog_serves_guest_without_mysql_after_local_cache_eviction(self):
+        from .catalog_blob import _build, PATH
+
+        today = timezone.localdate()
+        tomorrow = today + timedelta(days=1)
+        for code, day in (("TODAY", today), ("TOMORROW", tomorrow)):
+            Promotion.objects.create(code=code, name=code, discount_type="percent",
+                                     discount_value=20, start_date=day, end_date=day)
+        snapshot = _build()
+        self.assertEqual({item["code"] for item in snapshot[1]["items"]}, {"TODAY", "TOMORROW"})
+
+        @contextmanager
+        def stream(path, *, access):
+            self.assertEqual((path, access), (PATH, "private"))
+            yield iter([json.dumps(snapshot).encode()])
+
+        for page, day, expected in (("/", today, "TODAY"), ("/promotions.html", today, "TODAY"),
+                                    ("/service-detail.html?id=1", tomorrow, "TOMORROW")):
+            key = f"frontend-public-catalog:{day.isoformat()}"
+            cache.delete(key)
+            self.addCleanup(cache.delete, key)
+            with patch("core.catalog_blob.blob_sdk", return_value=Mock(stream_blob=stream)), \
+                    patch("core.catalog_data.timezone.localdate", return_value=day), self.assertNumQueries(0):
+                response = Client().get(page)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('public-catalog-source;desc="blob"', response["Server-Timing"])
+            self.assertEqual([p["code"] for p in response.context["live_promotions"]["items"]], [expected])
+            self.assertNotIn("email", response.context["live_catalog"]["staff"][0])
+
+    @override_settings(PUBLIC_CATALOG_BLOB_ENABLED=True)
+    def test_shared_catalog_initializes_only_missing_objects_and_publishes_on_admin_save(self):
+        from .catalog_blob import load_or_initialize, PATH
+
+        class MissingBlob(Exception):
+            pass
+
+        sdk = Mock(BlobNotFoundError=MissingBlob)
+        sdk.stream_blob.side_effect = MissingBlob
+        with patch("core.catalog_blob.blob_sdk", return_value=sdk):
+            data, _, source = load_or_initialize()
+        self.assertEqual(source, "mysql")
+        self.assertEqual(data["services"][0]["id"], self.service.pk)
+        self.assertEqual(sdk.put_blob.call_args.args[0], PATH)
+        self.assertEqual(sdk.put_blob.call_args.kwargs["access"], "private")
+        self.assertFalse(sdk.put_blob.call_args.kwargs["allow_overwrite"])
+
+        self.login_admin()
+        with patch("core.catalog_blob._publish") as publish, self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(f"/api/admin/services/{self.service.pk}/", {"_toggle": "1"})
+            self.assertEqual(response.status_code, 200)
+            publish.assert_not_called()
+        publish.assert_called_once_with()
 
     def test_schedule_crud_and_overlap(self):
         self.login_admin();path=f"/api/admin/employees/{self.employee.pk}/schedules/"

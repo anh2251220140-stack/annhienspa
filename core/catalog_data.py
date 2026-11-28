@@ -21,16 +21,29 @@ def public_catalog_snapshot():
     key = f"frontend-public-catalog:{today.isoformat()}"
     snapshot = cache.get(key)
     if snapshot is not None:
-        return snapshot, True
+        return snapshot, "memory"
 
     # On a cold instance one request loads the snapshot. Other requests reuse it.
     with _public_snapshot_lock:
         snapshot = cache.get(key)
         if snapshot is not None:
-            return snapshot, True
-        snapshot = catalog(), promotions(promotion_page=True, today=today)
+            return snapshot, "memory"
+        source = "mysql"
+        if settings.PUBLIC_CATALOG_BLOB_ENABLED:
+            from .catalog_blob import load_or_initialize
+
+            catalog_data, offers, source = load_or_initialize()
+            date = today.isoformat()
+            snapshot = catalog_data, {
+                **offers,
+                "referenceDate": date,
+                "items": [offer for offer in offers["items"]
+                          if offer["startDate"] <= date <= offer["endDate"]],
+            }
+        else:
+            snapshot = catalog(), promotions(promotion_page=True, today=today)
         cache.set(key, snapshot, settings.PUBLIC_CATALOG_CACHE_SECONDS)
-        return snapshot, False
+        return snapshot, source
 
 
 def image(field,fallback,preset=""):return field.url if field else static("images/"+(preset or fallback))
@@ -91,10 +104,13 @@ def _public_services():
     return Prefetch("services", queryset=services, to_attr="public_services")
 
 
-def promotions(*, promotion_page=False, today=None):
+def promotions(*, promotion_page=False, today=None, include_scheduled=False):
     today = today or timezone.localdate()
     items = []
-    for x in Promotion.objects.filter(is_active=True,start_date__lte=today,end_date__gte=today).prefetch_related(_public_services()):
+    dates = {"end_date__gte": today}
+    if not include_scheduled:
+        dates["start_date__lte"] = today
+    for x in Promotion.objects.filter(is_active=True, **dates).prefetch_related(_public_services()):
         conditions=lines(x.conditions)
         from promotions.services import policy
         limit,_=policy(x)

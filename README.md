@@ -223,6 +223,8 @@ Thêm các biến cần dùng vào `.env` riêng trên máy hoặc **Settings �
 
 **Thanh toán trên bản đồ án.** Khi chạy trên Vercel, ứng dụng bắt buộc dùng chế độ chỉ minh họa. Trang Hóa đơn hiển thị “Thanh toán thử nghiệm của đồ án, không chuyển tiền”. Bộ kiểm thử luồng payOS dùng phản hồi mô phỏng. Môi trường local có thể đặt `PAYOS_DEMO_ONLY=true` để kiểm tra chế độ này. [Tài liệu môi trường test của payOS](https://payos.vn/docs/moi-truong-test/).
 
+**Danh mục công khai trên Production.** Trang dành cho khách dùng chung bản sao danh mục trong Private Blob để tránh mở nhiều kết nối MySQL khi Vercel tạo thêm tiến trình. Một lượt truy cập đầu khởi tạo bản sao khi chưa có. Lượt lưu danh mục thành công từ trang quản trị xuất bản lại sau khi MySQL commit. Trang công khai chọn ưu đãi còn hiệu lực theo ngày Việt Nam và có thể hiển thị bản trước trong thời gian bộ nhớ đệm hết hạn. Đặt `PUBLIC_CATALOG_BLOB_ENABLED=false` trên Vercel và triển khai lại để quay về đọc MySQL. Nếu nhật ký báo lỗi xuất bản, mở và lưu lại một mục danh mục từ trang quản trị sau khi Blob hoạt động trở lại. Luồng đặt lịch, hóa đơn và AI tiếp tục kiểm tra dữ liệu nghiệp vụ trực tiếp từ MySQL.
+
 **RAG trên Vercel.** Chỉ mục dùng bảng MySQL `rag_document_index`, vì các instance Vercel cần đọc chung dữ liệu đã lập chỉ mục. Bảng chỉ chứa đoạn văn và vector từ dữ liệu công khai của spa, có mã băm để tránh trả dữ liệu đã cũ. Thiết lập trên môi trường quản trị tin cậy dùng đúng MySQL và cấu hình model của Production:
 
 1. Xem kế hoạch bằng `python manage.py migrate ai_features 0004_rag_document_index --plan`, rồi áp dụng đúng migration đó sau khi xác nhận database đích. Migration chỉ tạo bảng chỉ mục.
