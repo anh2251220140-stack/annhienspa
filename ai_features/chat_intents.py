@@ -18,6 +18,14 @@ def is_service_list_question(question):
     ))
 
 
+def outside_catalog_scope(question):
+    q = f" {normalize(question)} "
+    return any(phrase in q for phrase in (
+        " ve may bay ", " du lieu hoa don khach khac ", " hoa don cua khach khac ",
+        " chan doan ", " chua benh ", " dieu tri benh ",
+    ))
+
+
 _SERVICE_QUERY_STOP_WORDS = {
     "toi", "muon", "tim", "hieu", "co", "nao", "gi", "vay", "a", "khong",
     "spa", "an", "nhien", "dich", "vu", "lieu", "trinh",

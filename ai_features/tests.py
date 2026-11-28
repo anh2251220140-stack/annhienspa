@@ -200,7 +200,9 @@ class ChatTests(TestCase):
             with patch("ai_features.chat.get_provider") as provider:
                 provider.return_value.name = "slow-fixture"
                 provider.return_value.answer.side_effect = TimeoutError("hidden timeout details")
-                response = self.send().json()["answer"]
+                # An entity-only query still uses Gemini. The general service list
+                # can now recover from an unavailable provider using the catalog.
+                response = self.send(self.service.name).json()["answer"]
         self.assertEqual(response["status"], "fallback")
         self.assertEqual(response["modelName"], "slow-fixture")
         self.assertNotIn("hidden timeout details", response["content"])

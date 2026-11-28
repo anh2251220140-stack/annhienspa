@@ -26,6 +26,7 @@ class GroundedProvider:
             "or promotion as a service. List only service records when asked for services; "
             "for those service-list requests only, if no service records are supplied, return an empty answer. "
             "Cite sources for every fact. Do not promise eligibility for a promotion. "
+            "Do not give medical, ingestion, direct skin application or child-use instructions for essential oils. "
             "Preserve all numeric values, prices, durations, dates and percentages "
             "exactly as written in the supplied sources. Do not convert units, "
             "round numbers, abbreviate amounts or invent percentages. "
@@ -35,11 +36,11 @@ class GroundedProvider:
         )
         answer, refs = result.get("answer"), result.get("sources")
         valid = {f"{s.kind}:{s.object_id}" for s in sources}
-        if (not isinstance(answer, str) or len(answer) > 1700 or not isinstance(refs, list)
+        if (not isinstance(answer, str) or not answer.strip() or len(answer) > 1700 or not isinstance(refs, list)
                 or not refs or any(not isinstance(x, str) or x not in valid for x in refs)):
             if "answer" not in result:
                 self._trace_stage("ANSWER_MISSING")
-            elif not isinstance(answer, str) or len(answer) > 1700:
+            elif not isinstance(answer, str) or not answer.strip() or len(answer) > 1700:
                 self._trace_stage("ANSWER_INVALID")
             elif not isinstance(refs, list) or not refs:
                 self._trace_stage("SOURCE_LIST_INVALID")
@@ -47,11 +48,12 @@ class GroundedProvider:
                 self._trace_stage("SOURCE_ID_INVALID")
             return ""
         # Numeric claims must occur in retrieved facts; an ungrounded amount/date falls back.
-        if not numeric_claims_supported(answer, (s.text for s in sources)):
+        cited = [s for s in sources if f"{s.kind}:{s.object_id}" in refs]
+        if not numeric_claims_supported(answer, (s.text for s in cited)):
             self._trace_stage("NUMERIC_GROUNDING_FAILED")
             return ""
         try:
-            names = [s.name for s in sources if f"{s.kind}:{s.object_id}" in refs]
+            names = [s.name for s in cited]
             output = answer.strip() + "\nNguồn: " + "; ".join(dict.fromkeys(names))
         except Exception:
             self._trace_stage("FINAL_ANSWER_BUILD_FAILED")

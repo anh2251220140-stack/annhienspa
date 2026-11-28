@@ -1,6 +1,7 @@
 """Chat request reservation, execution and persistence."""
 
 from datetime import datetime, time, timedelta
+import logging
 from math import ceil
 from time import monotonic, sleep
 
@@ -13,6 +14,8 @@ from django.utils import timezone
 
 from accounts.models import User
 
+from .catalog_answers import catalog_answer, provider_sources, unsupported_guidance
+from .chat_intents import outside_catalog_scope
 from .models import ChatMessage, ChatSession
 from .providers import CatalogRetriever, get_provider
 from .config import enabled, time_budget
@@ -21,6 +24,7 @@ from .integration import ProviderUnavailable
 FALLBACK = "Chưa có đủ thông tin để trả lời. Bạn có thể liên hệ An Nhiên Spa để được hướng dẫn thêm."
 UNAVAILABLE = "Trợ lý tạm thời chưa thể trả lời. Bạn có thể thử lại hoặc liên hệ An Nhiên Spa."
 PENDING_TIMEOUT = timedelta(minutes=2)
+logger = logging.getLogger("ai_features.fr21")
 
 
 class ChatError(Exception):
@@ -130,28 +134,47 @@ def send_question(user_id, session_id, question, retry_id, request_id):
 
     started = monotonic()
     model_name = ""
+    question = attempt.reply_to.content
     try:
+        guidance = unsupported_guidance(question)
+        use_rag = enabled("AI_RAG_ENABLED")
         with time_budget():
             retriever = CatalogRetriever()
-            if enabled("AI_RAG_ENABLED"):
+            if use_rag:
                 from .rag import RAGRetriever
                 retriever = RAGRetriever()
-            sources = retriever.retrieve(attempt.reply_to.content, limit=5)
-            if sources:
-                provider = get_provider()
-                model_name = provider.name
-                answer = provider.answer(attempt.reply_to.content, sources)
-                if enabled("AI_RAG_ENABLED"):
-                    from .rag import sources_current
-                    if not sources_current(sources):
-                        answer = ""
-            else:
-                answer = ""
+            sources = [] if guidance or outside_catalog_scope(question) else retriever.retrieve(question, limit=5)
+            answer = catalog_answer(question, sources)
+            if sources and not answer:
+                try:
+                    provider = get_provider()
+                    model_name = provider.name
+                    answer = provider.answer(question, provider_sources(sources))
+                except (TimeoutError, ProviderUnavailable):
+                    answer = catalog_answer(question, sources, recover=True)
+                    if not answer:
+                        raise
+                    model_name = ""
+                if not answer:
+                    answer = catalog_answer(question, sources, recover=True)
+                    if answer:
+                        model_name = ""
+                    else:
+                        logger.warning("FR21 attempt=%s code=OUTPUT_REJECTED", attempt.pk)
+            if answer and use_rag:
+                from .rag import sources_current
+                if not sources_current(sources):
+                    logger.warning("FR21 attempt=%s code=SOURCE_CHANGED", attempt.pk)
+                    answer = ""
         if isinstance(answer, str) and answer.strip():
             status, content = ChatMessage.Status.SUCCESS, answer.strip()[:2000]
         else:
-            status, content = ChatMessage.Status.FALLBACK, FALLBACK
-    except (TimeoutError, ProviderUnavailable):
+            status, content = ChatMessage.Status.FALLBACK, guidance or FALLBACK
+    except TimeoutError:
+        logger.warning("FR21 attempt=%s code=TIMEOUT", attempt.pk)
+        status, content = ChatMessage.Status.FALLBACK, UNAVAILABLE
+    except ProviderUnavailable:
+        logger.warning("FR21 attempt=%s code=PROVIDER_UNAVAILABLE", attempt.pk)
         status, content = ChatMessage.Status.FALLBACK, UNAVAILABLE
     except Exception:
         # Never return or log exception text, which may contain a provider payload or secret.

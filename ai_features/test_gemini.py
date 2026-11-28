@@ -434,7 +434,8 @@ class GeminiBusinessTests(TestCase):
     def test_gemini_fallback_keeps_history_private_and_resumable(self):
         client = self.client
         client.force_login(self.owner)
-        response = client.post("/api/ai/chat/", {"question": "Dịch vụ", "requestId": str(uuid4())}, content_type="application/json")
+        response = client.post("/api/ai/chat/", {"question": self.service.name, "requestId": str(uuid4())},
+                               content_type="application/json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["answer"]["status"], "fallback")
         session = response.json()["session"]["id"]

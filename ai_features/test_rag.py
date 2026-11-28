@@ -290,6 +290,16 @@ class ProviderTests(SimpleTestCase):
             with patch.object(provider, "structured", create=True, return_value=output):
                 self.assertEqual(provider.answer("Giá?", [source]), "")
 
+    def test_rejects_empty_answer_and_numbers_copied_from_uncited_sources(self):
+        service = Source("service", 1, "Massage", "Giá 300.000 VND")
+        other = Source("service", 2, "Gội đầu", "Giá 100.000 VND")
+        provider = GroundedProvider()
+        for answer in (" ", "Massage giá 100.000 VND"):
+            with self.subTest(answer=answer), patch.object(
+                provider, "structured", create=True, return_value={"answer": answer, "sources": ["service:1"]}
+            ):
+                self.assertEqual(provider.answer("Massage giá bao nhiêu?", [service, other]), "")
+
     def test_timeout_budget(self):
         with time_budget(), patch("ai_features.config.monotonic", return_value=10**20):
             with self.assertRaises(TimeoutError):

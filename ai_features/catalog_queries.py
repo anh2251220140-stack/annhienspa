@@ -12,7 +12,8 @@ def website_information():
     """Reuse the published footer and shared hours, never invent opening days."""
     root = Path(settings.BASE_DIR) / "templates"
     page = (root / "pages/index.html").read_text(encoding="utf-8")
-    footer = page.split("KẾT NỐI VỚI AN NHIÊN", 1)[-1].split("footer-bottom", 1)[0]
+    footer = page.partition("KẾT NỐI VỚI AN NHIÊN")[2]
+    footer = re.split(r"<div\b[^>]*\bfooter-bottom\b[^>]*>", footer, maxsplit=1)[0]
     hours = (root / "partials/user_hours.html").read_text(encoding="utf-8")
     footer = re.sub(r"{%\s*include\s+[\"']partials/user_hours.html[\"']\s*%}", hours, footer)
     return " ".join(strip_tags(re.sub(r"{%.*?%}", "", footer)).split())
@@ -23,6 +24,28 @@ def booking_guidance(question):
     return "dat lich" in q and any(x in q for x in ("cach", "huong dan", "quy trinh", "lam sao", "nhu the nao"))
 
 
+def product_list_question(question):
+    q = normalize(question)
+    return q in {"san pham", "san pham cham soc"} or bool(re.fullmatch(
+        r"(?:(?:spa|an nhien spa|ben minh) )?(?:co )?(?:nhung |cac )?"
+        r"san pham(?: cham soc)? (?:nao|gi)(?: hien nay| vay| a| khong a)?", q
+    ))
+
+
+def promotion_question(question):
+    q = normalize(question)
+    return (any(x in q for x in ("khuyen mai", "uu dai", "giam gia", "voucher", "ma giam", "chuong trinh"))
+            or bool(re.search(r"\bma [a-z0-9]+\b", q)))
+
+
+def general_relaxation_question(question):
+    return bool(re.fullmatch(
+        r"(?:(?:toi (?:met moi|muon thu gian)|spa|ben minh) )?"
+        r"(?:co )?(?:dich vu|lieu trinh) thu gian (?:nao|gi)(?: vay| a)?",
+        normalize(question),
+    ))
+
+
 def routed_documents(question, documents):
     """None means semantic retrieval; [] means recognized but no matching record.
 
@@ -30,8 +53,9 @@ def routed_documents(question, documents):
     may help locate real services, but category records are never service answers.
     """
     q = normalize(question)
+    q = re.sub(r"\bda am\b", "da nong", q)
     kinds = set()
-    if any(x in q for x in ("khuyen mai", "uu dai", "giam gia", "voucher", "ma giam", "chuong trinh")) or re.search(r"\bma [a-z0-9]+\b", q):
+    if promotion_question(q):
         kinds.add("promotion")
     information_requested = any(x in q for x in ("may gio", "gio hoat dong", "mo cua", "dong cua", "chu nhat", "cuoi tuan", "ngay nghi", "thu bay",
                                                 "dia chi", "lien he", "o dau", "dien thoai"))
@@ -39,12 +63,17 @@ def routed_documents(question, documents):
         kinds.add("spa")
     if booking_guidance(question):
         kinds.add("spa")
-    if any(x in q for x in ("san pham", "my pham", "thuong hieu")):
+    if any(x in q for x in ("san pham", "my pham", "thuong hieu", "tinh dau")):
         kinds.add("product")
     listing = is_service_list_question(question)
     if listing:
         return [d for d in documents.values() if d.source_type == "service"]
-    if listing or any(x in q for x in ("dich vu", "lieu trinh", "massage", "mat xa", "cham soc", "cap am", "duong am", "goi dau")):
+    if general_relaxation_question(q):
+        return [d for d in documents.values()
+                if d.source_type == "service" and " thu gian " in f" {normalize(d.name)} "]
+    if (("product" not in kinds or "dich vu" in q or "lieu trinh" in q)
+            and any(x in q for x in ("dich vu", "lieu trinh", "massage", "mat xa", "cham soc", "cap am",
+                                    "duong am", "goi dau", "da nong"))):
         kinds.add("service")
     # Include exact entity names/codes even in combined questions.
     exact = [d for d in documents.values() if d.source_type in {"service", "product", "promotion"}
@@ -72,13 +101,16 @@ def routed_documents(question, documents):
                 "lam", "on", "minh", "ben", "xin", "biet", "them", "chi", "tiet", "the", "ve", "sao",
                 "hien", "nay", "dang", "nhu", "theo", "san", "pham", "cham", "soc", "da",
                 "ngoai", "ra", "cung", "hay", "rat", "nhung", "mot", "vui", "long", "giup", "nhe",
+                "phi", "loi", "ich", "cong", "keo", "dai", "voi",
             }
             aliases = {"mat xa": "massage", "duong am": "cap am", "rua mat": "lam sach"}
             expanded = q
             for old, new in aliases.items():
                 expanded = expanded.replace(old, new)
-            if "massage" in expanded:
+            if kind == "service" and "massage" in expanded:
                 pool = [d for d in pool if "massage" in normalize(d.name).split()]
+            if kind == "service" and "da nong" in expanded:
+                pool = [d for d in pool if " da nong " in f" {normalize(d.name)} "]
             # Shared benefit words (e.g. hydration) cannot override an explicit
             # body area: face care must not become hair/body care.
             if "da mat" in expanded:
@@ -87,14 +119,13 @@ def routed_documents(question, documents):
                 pool = [d for d in pool if any(x in normalize(d.name).split() for x in ("toc", "dau"))]
             elif "toan than" in expanded or "co the" in expanded:
                 pool = [d for d in pool if any(x in normalize(d.name) for x in ("toan than", "co the", "body"))]
-            terms |= set(expanded.split()) & {"massage", "mat", "toc", "am", "co", "chan", "tay", "dau"}
+            terms |= set(expanded.split()) & {"massage", "mat", "toc", "am", "chan", "tay", "dau"}
             scored = [(len(terms & set(normalize(d.name).split())), d) for d in pool]
             specific = [d for score, d in sorted(scored, key=lambda row: -row[0]) if score >= 2
                         or (score == 1 and len(terms) == 1)]
             # Broad product/service questions list their real records. A specific
             # unknown treatment must not silently become the entire catalog.
-            broad = q in {"san pham", "san pham cham soc", "spa co san pham nao", "dich vu"} or (
-                kind == "product" and any(x in q for x in ("san pham nao", "nhung san pham", "cac san pham"))) or (
+            broad = (kind == "product" and product_list_question(q)) or (
                 kind == "service" and any(x in q for x in ("dich vu nao", "dich vu gi", "cac dich vu", "nhung dich vu")))
             pool = specific if not broad else pool
         elif specific and not (kind == "service" and listing):
