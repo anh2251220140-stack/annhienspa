@@ -1,4 +1,8 @@
 import json
+from threading import Lock
+
+from django.conf import settings
+from django.core.cache import cache
 from django.db.models import Prefetch
 from django.templatetags.static import static
 from django.utils import timezone
@@ -6,6 +10,27 @@ from services.models import Service, ServiceCategory
 from products.models import CareProduct, ServiceProduct
 from employees.models import Employee
 from promotions.models import Promotion
+
+
+_public_snapshot_lock = Lock()
+
+
+def public_catalog_snapshot():
+    """Reuse only public data and keep the promotion date in the cache key."""
+    today = timezone.localdate()
+    key = f"frontend-public-catalog:{today.isoformat()}"
+    snapshot = cache.get(key)
+    if snapshot is not None:
+        return snapshot, True
+
+    # On a cold instance one request loads the snapshot. Other requests reuse it.
+    with _public_snapshot_lock:
+        snapshot = cache.get(key)
+        if snapshot is not None:
+            return snapshot, True
+        snapshot = catalog(), promotions(promotion_page=True, today=today)
+        cache.set(key, snapshot, settings.PUBLIC_CATALOG_CACHE_SECONDS)
+        return snapshot, False
 
 
 def image(field,fallback,preset=""):return field.url if field else static("images/"+(preset or fallback))
@@ -66,8 +91,9 @@ def _public_services():
     return Prefetch("services", queryset=services, to_attr="public_services")
 
 
-def promotions(*, promotion_page=False):
-    today=timezone.localdate();items=[]
+def promotions(*, promotion_page=False, today=None):
+    today = today or timezone.localdate()
+    items = []
     for x in Promotion.objects.filter(is_active=True,start_date__lte=today,end_date__gte=today).prefetch_related(_public_services()):
         conditions=lines(x.conditions)
         from promotions.services import policy

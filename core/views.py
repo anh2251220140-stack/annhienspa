@@ -13,11 +13,24 @@ PUBLIC_PAGES = {"index.html", "services.html", "service-detail.html", "promotion
 class FrontendView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        from .catalog_data import catalog, promotions
-        context["live_catalog"] = catalog()
-        context["live_promotions"] = promotions(promotion_page=self.template_name in (
+        from .catalog_data import catalog, promotions, public_catalog_snapshot
+        page = self.template_name.rsplit("/", 1)[-1]
+        promotion_page = self.template_name in (
             "pages/promotions.html", "pages/promotion-detail.html",
-        ))
+        )
+        if (settings.PUBLIC_CATALOG_CACHE_SECONDS and page in PUBLIC_PAGES
+                and not self.request.user.is_authenticated):
+            (context["live_catalog"], offers), self.catalog_cache_hit = public_catalog_snapshot()
+            if not promotion_page:
+                offers = {
+                    **offers,
+                    "items": [{k: v for k, v in item.items() if k != "discountType"}
+                              for item in offers["items"]],
+                }
+            context["live_promotions"] = offers
+        else:
+            context["live_catalog"] = catalog()
+            context["live_promotions"] = promotions(promotion_page=promotion_page)
         if self.template_name == "pages/invoice.html":
             context["payos_demo_only"] = settings.PAYOS_DEMO_ONLY
         return context
@@ -37,7 +50,11 @@ class FrontendView(TemplateView):
             role = "Admin" if page.startswith("admin-") else "User"
             if not user.is_active or user.role != role:
                 raise PermissionDenied("Bạn không có quyền truy cập trang này.")
-        return super().dispatch(request, *args, **kwargs)
+        response = super().dispatch(request, *args, **kwargs)
+        if hasattr(self, "catalog_cache_hit"):
+            result = "hit" if self.catalog_cache_hit else "miss"
+            response["Server-Timing"] = f'public-catalog-cache;desc="{result}"'
+        return response
 
 class LegacyImageView(RedirectView):
     url = "/static/images/%(path)s"

@@ -1,7 +1,11 @@
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 from datetime import time, timedelta
-from django.test import TestCase, TransactionTestCase, Client
+from unittest.mock import patch
+
+from django.conf import settings
+from django.core.cache import cache
+from django.test import TestCase, TransactionTestCase, Client, override_settings
 from django.db import close_old_connections
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -100,6 +104,52 @@ class Phase3Tests(Fixtures,TestCase):
         with self.assertNumQueries(2):
             offer = promotions()['items'][0]
         self.assertEqual(offer['serviceIds'], [self.service.pk])
+
+    @override_settings(PUBLIC_CATALOG_CACHE_SECONDS=45)
+    def test_guest_pages_share_only_public_data_and_keep_csrf_private(self):
+        key = f"frontend-public-catalog:{timezone.localdate().isoformat()}"
+        cache.delete(key)
+        self.addCleanup(cache.delete, key)
+        Promotion.objects.create(code="CACHE20", name="Ưu đãi kiểm thử",
+                                 discount_type="percent", discount_value=20,
+                                 start_date=timezone.localdate(), end_date=self.day)
+        with patch.object(cache, "set", wraps=cache.set) as store:
+            home = self.client.get("/")
+            self.assertIn('desc="miss"', home["Server-Timing"])
+            self.assertEqual(store.call_args.args[2], 45)
+        with self.assertNumQueries(0):
+            offer_page = Client().get("/promotions.html")
+        self.assertIn('desc="hit"', offer_page["Server-Timing"])
+        self.assertIn("no-store", offer_page["Cache-Control"])
+        cookie_name = settings.CSRF_COOKIE_NAME
+        self.assertNotEqual(home.cookies[cookie_name].value, offer_page.cookies[cookie_name].value)
+        self.assertNotIn("discountType", home.context["live_promotions"]["items"][0])
+        self.assertEqual(offer_page.context["live_promotions"]["items"][0]["discountType"], "percent")
+
+        self.category.is_active = False
+        self.category.save()
+        self.login_user()
+        authenticated = self.client.get("/services.html")
+        self.assertNotIn("Server-Timing", authenticated)
+        self.assertEqual(authenticated.context["live_catalog"]["services"], [])
+        self.assertEqual(self.client.get("/")["Location"], "/home.html")
+
+    @override_settings(PUBLIC_CATALOG_CACHE_SECONDS=45)
+    def test_snapshot_does_not_keep_yesterdays_offers(self):
+        today = timezone.localdate()
+        tomorrow = today + timedelta(days=1)
+        for day in (today, tomorrow):
+            key = f"frontend-public-catalog:{day.isoformat()}"
+            cache.delete(key)
+            self.addCleanup(cache.delete, key)
+        Promotion.objects.create(code="ONEDAY", name="Ưu đãi trong ngày",
+                                 discount_type="percent", discount_value=20,
+                                 start_date=today, end_date=today)
+        self.assertContains(self.client.get("/promotions.html"), "ONEDAY")
+        with patch("core.catalog_data.timezone.localdate", return_value=tomorrow):
+            page = self.client.get("/promotions.html")
+        self.assertIn('desc="miss"', page["Server-Timing"])
+        self.assertNotContains(page, "ONEDAY")
 
     def test_schedule_crud_and_overlap(self):
         self.login_admin();path=f"/api/admin/employees/{self.employee.pk}/schedules/"

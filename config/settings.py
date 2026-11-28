@@ -56,6 +56,8 @@ LANGUAGE_CODE = "vi"
 TIME_ZONE = "Asia/Ho_Chi_Minh"
 USE_I18N = True
 USE_TZ = True
+# Share public catalog data briefly within each Vercel function process.
+PUBLIC_CATALOG_CACHE_SECONDS = 45 if os.getenv("VERCEL") == "1" else 0
 STATIC_URL = "/static/"
 # Preserved asset copies; the original frontend remains independently usable.
 STATICFILES_DIRS = [BASE_DIR / "static"]
