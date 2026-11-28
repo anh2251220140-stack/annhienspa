@@ -54,6 +54,7 @@ class ServiceStepsJSONTests(TestCase):
         with patch('core.catalog_data.Service.objects.filter') as services, \
              patch('core.catalog_data.CareProduct.objects.filter', return_value=[]), \
              patch('core.catalog_data.Employee.objects.filter') as staff, \
+             patch('core.catalog_data._public_services'), \
              patch('core.catalog_data.ServiceProduct.objects.filter', return_value=[]):
             services.return_value.select_related.return_value.order_by.return_value=[legacy,service]
             staff.return_value.prefetch_related.return_value=[]

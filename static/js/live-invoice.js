@@ -127,6 +127,7 @@
     if(paid){$('[data-payment-method]').textContent=paid.method==='spa'?'Trực tiếp tại Spa':'payOS';$('[data-payment-date]').textContent=timestamp(paid.paidAt);$('[data-payment-reference]').textContent=paid.reference;}
     const message=i.needsReview?'Khoản thanh toán cần Spa đối soát. Chưa thể thay đổi ưu đãi hoặc thanh toán thêm.'
       :i.status==='paid'?'Đã ghi nhận thanh toán.':i.status==='cancelled'?'Hóa đơn đã hủy.'
+      :i.payosDemoOnly?'Thanh toán online đã tắt trên bản đồ án. Hóa đơn chưa được ghi nhận thanh toán.'
       :!i.paymentAllowed?'Lịch hẹn chưa được xác nhận hoặc đã hủy; không được áp dụng khuyến mãi hay thanh toán.'
       :processing?'payOS đang xử lý hoặc đã nhận tiền. Vui lòng chờ Spa xác minh; không thanh toán thêm.'
       :i.currentOnline?(url?'Phiên payOS đã sẵn sàng. Quét QR bên dưới hoặc mở trang thanh toán payOS. Hóa đơn vẫn chưa thanh toán.':'Phiên payOS đang chờ xác minh hoặc đã hết hạn. Nhấn Kiểm tra trạng thái phiên để đối soát trước khi tạo mã mới.')

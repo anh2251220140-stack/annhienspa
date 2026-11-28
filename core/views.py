@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
@@ -17,6 +18,8 @@ class FrontendView(TemplateView):
         context["live_promotions"] = promotions(promotion_page=self.template_name in (
             "pages/promotions.html", "pages/promotion-detail.html",
         ))
+        if self.template_name == "pages/invoice.html":
+            context["payos_demo_only"] = settings.PAYOS_DEMO_ONLY
         return context
 
     http_method_names = ["get", "head", "options"]
@@ -27,7 +30,10 @@ class FrontendView(TemplateView):
             return redirect(landing(user))
         if page not in PUBLIC_PAGES:
             if not user.is_authenticated:
-                return redirect_to_login(request.get_full_path())
+                response = redirect_to_login(request.get_full_path())
+                if page == "invoice.html" and settings.PAYOS_DEMO_ONLY:
+                    response["X-AnNhien-Payment-Mode"] = "demo-only"
+                return response
             role = "Admin" if page.startswith("admin-") else "User"
             if not user.is_active or user.role != role:
                 raise PermissionDenied("Bạn không có quyền truy cập trang này.")

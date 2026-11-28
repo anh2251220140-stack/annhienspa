@@ -3,6 +3,7 @@ import re
 from decimal import Decimal
 from functools import wraps
 from django import forms
+from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.paginator import Paginator
@@ -43,7 +44,8 @@ def invoice_row(i, *, include_cash_timing=False):
     if include_cash_timing:
         row['cashTimingIssue'] = services.cash_timing_issue(i)
     row['promotionUsage']=None
-    row['payosConfigured']=gateway.configured()
+    row['payosConfigured']=gateway.configured() and not settings.PAYOS_DEMO_ONLY
+    row['payosDemoOnly']=settings.PAYOS_DEMO_ONLY
     if i.promotion_id:
         from promotions.services import policy,usage
         limit,_=policy(i.promotion)

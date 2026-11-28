@@ -62,6 +62,39 @@ class FlowFixtures(Fixtures):
 class InvoiceFlowTests(FlowFixtures,TestCase):
     def setUp(self):self.flow_seed()
 
+    @override_settings(PAYOS_DEMO_ONLY=True)
+    def test_demo_deployment_blocks_create_and_renew_before_provider_or_database_writes(self):
+        from django.test import Client
+        redirect = Client().get('/invoice.html')
+        self.assertEqual(redirect.status_code, 302)
+        self.assertEqual(redirect.headers['X-AnNhien-Payment-Mode'], 'demo-only')
+        page = self.client.get('/invoice.html')
+        self.assertContains(page, 'Thanh toán thử nghiệm của đồ án, không chuyển tiền.')
+        with patch.object(gateway, 'client') as provider:
+            for action in ('online', 'renew-online'):
+                with self.subTest(action=action):
+                    self.assertEqual(self.post(action).status_code, 403)
+            provider.assert_not_called()
+        self.create.assert_not_called()
+        self.assertFalse(Payment.objects.exists())
+        self.i.refresh_from_db()
+        self.assertEqual(self.i.payment_status, 'unpaid')
+        self.assertEqual(self.i.payment_preference, '')
+
+    def test_demo_deployment_hides_existing_qr_and_preserves_signed_reconciliation(self):
+        self.assertEqual(self.post('online').status_code, 200)
+        payment = Payment.objects.get()
+        with self.settings(PAYOS_DEMO_ONLY=True):
+            item = self.client.get(f'/api/billing/{self.i.pk}/').json()['item']
+            self.assertFalse(item['onlineEligible'])
+            self.assertTrue(item['payosDemoOnly'])
+            self.assertFalse(item['payosConfigured'])
+            self.assertEqual(item['currentOnline']['qrImage'], '')
+            self.assertEqual(item['currentOnline']['checkoutUrl'], '')
+            self.assertEqual(self.deliver(payment).status_code, 200)
+        self.i.refresh_from_db()
+        self.assertEqual(self.i.payment_status, 'paid')
+
     def test_eligible_dropdown_minimum_expiry_scope_conditions_and_snapshot_price(self):
         self.service.price=1;self.service.save()
         self.promo.min_amount=450000;self.promo.max_discount=40000;self.promo.save()

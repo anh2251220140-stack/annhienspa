@@ -18,7 +18,7 @@
   {{ live_catalog|json_script:"live-catalog" }}
 {{ live_promotions|json_script:"live-promotions" }}
 <script src="{% static 'js/live-data.js' %}"></script>
-<script src="{% static 'js/phase4-api.js' %}?v=payos-qr-1" defer></script><script src="{% static 'js/live-invoice.js' %}?v=invoice-code-1" defer></script><link rel="stylesheet" href="{% static 'css/phase4.css' %}?v=payos-qr-1"><link rel="stylesheet" href="{% static 'css/user-invoice.css' %}?v=invoice-cards-3"><link rel="stylesheet" href="{% static 'css/user-catalog-polish.css' %}?v=b2-card-restore-20261120">
+<script src="{% static 'js/phase4-api.js' %}?v=payos-qr-1" defer></script><script src="{% static 'js/live-invoice.js' %}?v=invoice-demo-1" defer></script><link rel="stylesheet" href="{% static 'css/phase4.css' %}?v=payos-qr-1"><link rel="stylesheet" href="{% static 'css/user-invoice.css' %}?v=invoice-cards-3"><link rel="stylesheet" href="{% static 'css/user-catalog-polish.css' %}?v=b2-card-restore-20261120">
 </head>
   <body>
     <form id="spa-logout-form" action="{% url 'accounts:logout' %}" method="post" hidden>{% csrf_token %}</form>
@@ -128,9 +128,12 @@
         <section class="invoice-payment" aria-labelledby="payment-title">
           <span class="eyebrow">MỘT LỰA CHỌN NHẸ NHÀNG</span>
           <h2 id="payment-title">Thanh toán</h2>
+          {% if payos_demo_only %}
+            <p class="form-note"><strong>Thanh toán thử nghiệm của đồ án, không chuyển tiền.</strong></p>
+          {% endif %}
           <p data-payment-message role="status" aria-live="polite" tabindex="-1"></p>
           <div class="journey-actions" data-payment-options>
-            <button class="button filled" type="button" data-payment-online>Thanh toán online bằng payOS</button>
+            <button class="button filled" type="button" data-payment-online{% if payos_demo_only %} hidden{% endif %}>Thanh toán online bằng payOS</button>
             <button class="button" type="button" data-payment-spa>Chọn thanh toán tại Spa</button>
           </div>
           <div class="journey-card qr-panel" data-payment-qr hidden>

@@ -1,7 +1,7 @@
 """Read-only presentation regressions; no database or external provider required."""
 from decimal import Decimal
 from types import SimpleNamespace
-from unittest.mock import MagicMock,patch
+from unittest.mock import patch
 
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.staticfiles import finders
@@ -15,11 +15,10 @@ from core.views import FrontendView
 
 class PromotionPresentationTests(SimpleTestCase):
     def promotion(self,value,kind='percent'):
-        services=MagicMock();services.filter.return_value.values_list.return_value=[]
         return SimpleNamespace(pk=1,code='DISPLAYTEST',aliases='',name='Ưu đãi kiểm thử',discount_type=kind,
             discount_value=Decimal(value),per_customer_limit=None,conditions='',note='',note_is_informational=False,
             min_amount=None,max_discount=None,description='',detail='',start_date=SimpleNamespace(isoformat=lambda:'2026-01-01'),
-            end_date=SimpleNamespace(isoformat=lambda:'2030-12-31'),badge='',accent='champagne',services=services,scope_note='')
+            end_date=SimpleNamespace(isoformat=lambda:'2030-12-31'),badge='',accent='champagne',public_services=[],scope_note='')
 
     def test_percent_removes_only_insignificant_zeroes(self):
         for value,label in [('10.00','10%'),('15.00','15%'),('12.50','12.5%'),('7.25','7.25%'),('12.500001','12.500001%')]:

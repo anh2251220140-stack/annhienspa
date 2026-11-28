@@ -3,6 +3,7 @@ from datetime import timedelta, datetime
 import secrets
 import logging
 from zoneinfo import ZoneInfo
+from django.conf import settings
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.db import transaction
 from django.db.models import Q
@@ -26,6 +27,8 @@ def require_invoice_owner(user, invoice):
 
 
 def online_eligible(invoice):
+    if settings.PAYOS_DEMO_ONLY:
+        return False
     from appointments.services import start_datetime
     a=invoice.appointment
     return payable(invoice) and a.status=="confirmed" and timezone.now()<start_datetime(a.appointment_date,a.start_time) and invoice.total_amount>0
@@ -227,6 +230,8 @@ def cash(user,pk,amount):
 
 
 def online(user,pk, *, renew_expired=False):
+    if settings.PAYOS_DEMO_ONLY:
+        raise PermissionDenied("Thanh toán thử nghiệm của đồ án, không chuyển tiền.")
     from promotions.services import validate_invoice_usage
     # Commit reservation before the network call: a timeout never loses orderCode.
     from appointments.services import start_datetime

@@ -84,6 +84,23 @@ class Phase3Tests(Fixtures,TestCase):
             Promotion.objects.create(code=code,name=code,discount_type="amount",discount_value=10000,start_date=start,end_date=end)
         self.assertEqual([p["code"] for p in self.client.get("/promotions.html").context["live_promotions"]["items"]],["VALID"])
 
+    def test_public_catalog_relations_use_bounded_queries_and_filter_hidden_services(self):
+        from .catalog_data import catalog, promotions
+        hidden = Service.objects.create(category=self.category, name='Đã ẩn', description='Mô tả',
+                                        price=300000, duration_minutes=30, is_active=False)
+        EmployeeService.objects.create(employee=self.employee, service=hidden)
+        promo = Promotion.objects.create(code='PUBLIC20', name='Ưu đãi', discount_type='percent',
+                                         discount_value=20, start_date=timezone.localdate(), end_date=self.day)
+        promo.services.add(self.service, hidden)
+        product = CareProduct.objects.create(name='Sản phẩm', product_type='Chăm sóc', description='Mô tả')
+        product.services.add(self.service)
+        with self.assertNumQueries(5):
+            data = catalog()
+        self.assertEqual([person['serviceIds'] for person in data['staff']], [[self.service.pk]] * 2)
+        with self.assertNumQueries(2):
+            offer = promotions()['items'][0]
+        self.assertEqual(offer['serviceIds'], [self.service.pk])
+
     def test_schedule_crud_and_overlap(self):
         self.login_admin();path=f"/api/admin/employees/{self.employee.pk}/schedules/"
         self.assertEqual(self.client.get(path+"0/").status_code,200)

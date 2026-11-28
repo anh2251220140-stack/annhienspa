@@ -24,6 +24,8 @@ def invoice_return_url(base_url, invoice_id):
 
 
 def create(payment):
+    if settings.PAYOS_DEMO_ONLY:
+        raise ValidationError("Thanh toán thử nghiệm của đồ án, không chuyển tiền.")
     base=dict(order_code=payment.order_code,amount=int(payment.amount),description=f"AN NHIEN {payment.invoice_id}",
         return_url=invoice_return_url(settings.PAYOS_RETURN_URL,payment.invoice_id),cancel_url=invoice_return_url(settings.PAYOS_CANCEL_URL,payment.invoice_id),expired_at=int(payment.expires_at.timestamp()))
     with client() as sdk:return sdk.payment_requests.create(CreatePaymentLinkRequest(**base))

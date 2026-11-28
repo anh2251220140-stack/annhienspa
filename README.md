@@ -216,10 +216,12 @@ Thêm các biến cần dùng vào `.env` riêng trên máy hoặc **Settings �
    | Django | `DJANGO_DEBUG=false`, `DJANGO_SECRET_KEY` riêng cho Production, `DJANGO_ALLOWED_HOSTS` chứa hostname thật và `DJANGO_CSRF_TRUSTED_ORIGINS` chứa origin HTTPS của website nếu cần. |
    | MySQL | `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD` theo máy chủ MySQL thực tế mà Vercel có thể kết nối. Chuẩn bị schema qua quy trình migration đã rà soát trước khi kiểm tra website. |
    | Media | Kết nối **Vercel Private Blob** với đúng dự án và môi trường. Để `DJANGO_BLOB_MEDIA_ENABLED` ở mặc định bật trên Vercel hoặc đặt `true`. Dùng thông tin xác thực do tích hợp Blob cấp; yêu cầu `/media/` và kiểm tra quyền avatar đi qua Django. |
-   | Email/payOS | Đặt biến SMTP nếu dùng khôi phục mật khẩu. Với payOS, dùng bộ khóa của cùng kênh và URL HTTPS Production cho `PAYOS_RETURN_URL`, `PAYOS_CANCEL_URL`. Đăng ký webhook tại đường dẫn `/api/billing/webhook/payos/` trên tên miền Production. |
+   | Email/payOS | Đặt biến SMTP nếu dùng khôi phục mật khẩu. Bản đồ án trên Vercel chặn tạo hoặc gia hạn QR payOS và không hiển thị liên kết thanh toán cũ. Nếu cần đối soát các giao dịch trước đó, webhook vẫn xác minh chữ ký bằng bộ khóa của kênh đã dùng. |
    | AI | Chọn biến theo [mục AI](#biến-môi-trường-ai). Lưu khóa và mật khẩu dưới dạng **Secret**. Vercel dùng biến mới từ lần triển khai tiếp theo. |
 
 3. Triển khai từ nhánh Production đã cấu hình. Khi bản mới **Ready**, kiểm tra trang chủ, tài nguyên static, đăng nhập User/Admin và trang lấy dữ liệu từ MySQL. Kiểm tra thêm ảnh, AI hoặc webhook với dữ liệu demo khi bật các tích hợp tương ứng. [Biến môi trường Vercel](https://vercel.com/docs/environment-variables) · [Hồ sơ kỹ thuật Private Blob](docs/vercel-private-blob-20261123.txt).
+
+**Thanh toán trên bản đồ án.** Khi chạy trên Vercel, ứng dụng bắt buộc dùng chế độ chỉ minh họa. Trang Hóa đơn hiển thị “Thanh toán thử nghiệm của đồ án, không chuyển tiền”. Bộ kiểm thử luồng payOS dùng phản hồi mô phỏng. Môi trường local có thể đặt `PAYOS_DEMO_ONLY=true` để kiểm tra chế độ này. [Tài liệu môi trường test của payOS](https://payos.vn/docs/moi-truong-test/).
 
 **RAG trên Vercel.** Chỉ mục dùng bảng MySQL `rag_document_index`, vì các instance Vercel cần đọc chung dữ liệu đã lập chỉ mục. Bảng chỉ chứa đoạn văn và vector từ dữ liệu công khai của spa, có mã băm để tránh trả dữ liệu đã cũ. Thiết lập trên môi trường quản trị tin cậy dùng đúng MySQL và cấu hình model của Production:
 

@@ -1,4 +1,5 @@
 import json
+from django.db.models import Prefetch
 from django.templatetags.static import static
 from django.utils import timezone
 from services.models import Service, ServiceCategory
@@ -53,14 +54,21 @@ def catalog():
             "usage":x.usage_instructions or "","note":x.note,"benefits":lines(x.benefits),"careGroup":x.care_group,
             "image":image(x.image,"care-5.jpg",x.image_preset)})
     staff=[{"id":x.pk,"active":True,"name":x.full_name,"specialty":x.specialty,"image":image(x.avatar,"specialist-mai-anh.jpg",x.avatar_preset),
-        "serviceIds":list(x.services.filter(is_active=True,category__is_active=True).values_list("pk",flat=True))} for x in Employee.objects.filter(is_active=True).prefetch_related("services")]
+        "serviceIds":[service.pk for service in x.public_services]}
+        for x in Employee.objects.filter(is_active=True).prefetch_related(_public_services())]
     ids={s["id"] for s in services};products_ids={p["id"] for p in products}
     relations=[{"serviceId":r.service_id,"productId":r.product_id} for r in ServiceProduct.objects.filter(service_id__in=ids,product_id__in=products_ids)]
     return {"services":services,"products":products,"staff":staff,"relations":relations}
 
+
+def _public_services():
+    services = Service.objects.filter(is_active=True, category__is_active=True).only("pk").order_by("pk")
+    return Prefetch("services", queryset=services, to_attr="public_services")
+
+
 def promotions(*, promotion_page=False):
     today=timezone.localdate();items=[]
-    for x in Promotion.objects.filter(is_active=True,start_date__lte=today,end_date__gte=today).prefetch_related("services"):
+    for x in Promotion.objects.filter(is_active=True,start_date__lte=today,end_date__gte=today).prefetch_related(_public_services()):
         conditions=lines(x.conditions)
         from promotions.services import policy
         limit,_=policy(x)
@@ -72,7 +80,7 @@ def promotions(*, promotion_page=False):
             "discount":discount,
             "description":x.description or "","detail":x.detail or x.description or "","conditions":conditions,
             "startDate":x.start_date.isoformat(),"endDate":x.end_date.isoformat(),"badge":x.badge or "Ưu đãi", "accent":x.accent,
-            "serviceIds":list(x.services.filter(is_active=True,category__is_active=True).values_list("pk",flat=True)),"note":x.note,"scopeNote":x.scope_note}
+            "serviceIds":[service.pk for service in x.public_services],"note":x.note,"scopeNote":x.scope_note}
         if promotion_page:
             item["discountType"] = x.discount_type
         items.append(item)
