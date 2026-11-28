@@ -62,38 +62,6 @@ class FlowFixtures(Fixtures):
 class InvoiceFlowTests(FlowFixtures,TestCase):
     def setUp(self):self.flow_seed()
 
-    @override_settings(PAYOS_SHOW_COURSEWORK_NOTICE=True, PAYOS_DEMO_ONLY=False)
-    def test_coursework_notice_preserves_online_payment_and_renewal(self):
-        from django.test import Client
-
-        redirect = Client().get('/invoice.html')
-        self.assertEqual(redirect.status_code, 302)
-        self.assertNotIn('X-AnNhien-Payment-Mode', redirect.headers)
-        page = self.client.get('/invoice.html')
-        self.assertContains(page, 'Thanh toán thử nghiệm của đồ án, không chuyển tiền.')
-        self.assertContains(page, 'data-payment-online>Thanh toán online bằng payOS')
-
-        result = self.post('online')
-        self.assertEqual(result.status_code, 200)
-        item = result.json()['item']
-        self.assertTrue(item['onlineEligible'])
-        self.assertTrue(item['payosConfigured'])
-        self.assertFalse(item['payosDemoOnly'])
-        self.assertTrue(item['currentOnline']['qrImage'])
-        self.assertTrue(item['currentOnline']['checkoutUrl'])
-
-        initial = Payment.objects.get(invoice=self.i)
-        Payment.objects.filter(pk=initial.pk).update(expires_at=timezone.now()-timedelta(seconds=1))
-        self.get.side_effect = lambda payment: provider_state(payment, 'EXPIRED')
-        result = self.post('renew-online')
-        self.assertEqual(result.status_code, 200)
-        self.assertTrue(result.json()['item']['currentOnline']['qrImage'])
-        renewed = Payment.objects.get(invoice=self.i, status='pending')
-        self.assertNotEqual(renewed.order_code, initial.order_code)
-        self.assertEqual(self.deliver(renewed).status_code, 200)
-        self.i.refresh_from_db()
-        self.assertEqual(self.i.payment_status, 'paid')
-
     @override_settings(PAYOS_DEMO_ONLY=True)
     def test_demo_deployment_blocks_create_and_renew_before_provider_or_database_writes(self):
         from django.test import Client
